@@ -1,0 +1,1358 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="color-scheme" content="light dark" />
+  <title>Quote + Clock Widget</title>
+
+  <style>
+    /* ============================================================
+       GLOBAL
+    ============================================================ */
+    * { box-sizing: border-box; }
+
+    html, body {
+      width: 100%;
+      height: 100%;
+      margin: 0;
+    }
+
+    body {
+      font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont,
+        "Segoe UI", sans-serif;
+    }
+
+    button, input, select {
+      font: inherit;
+    }
+
+    /* ============================================================
+       THEME VARIABLES
+    ============================================================ */
+    :root {
+      --bg: #f7f4ef;
+      --text: #292723;
+      --muted: rgba(41, 39, 35, 0.58);
+      --soft: rgba(255, 255, 255, 0.42);
+      --soft-strong: rgba(255, 255, 255, 0.64);
+      --border: rgba(41, 39, 35, 0.10);
+      --shadow: 0 18px 55px rgba(40, 30, 20, 0.09);
+
+      --aura-1: rgba(203, 174, 255, 0.55);
+      --aura-2: rgba(163, 216, 255, 0.52);
+      --aura-3: rgba(255, 190, 213, 0.46);
+
+      --quote-font: Georgia, "Times New Roman", serif;
+      --radius: 28px;
+      --clock-width: 25%;
+    }
+
+    body[data-theme="aura"] {
+      --bg: #f7f4ef;
+      --text: #292723;
+      --muted: rgba(41, 39, 35, 0.58);
+      --soft: rgba(255, 255, 255, 0.42);
+      --soft-strong: rgba(255, 255, 255, 0.66);
+      --border: rgba(41, 39, 35, 0.10);
+      --aura-1: rgba(203, 174, 255, 0.58);
+      --aura-2: rgba(163, 216, 255, 0.55);
+      --aura-3: rgba(255, 190, 213, 0.48);
+    }
+
+    body[data-theme="sunset"] {
+      --bg: #fff4eb;
+      --text: #442d27;
+      --muted: rgba(68, 45, 39, 0.58);
+      --soft: rgba(255, 255, 255, 0.40);
+      --soft-strong: rgba(255, 255, 255, 0.66);
+      --border: rgba(90, 48, 34, 0.11);
+      --aura-1: rgba(255, 172, 124, 0.60);
+      --aura-2: rgba(255, 206, 120, 0.55);
+      --aura-3: rgba(245, 145, 171, 0.48);
+    }
+
+    body[data-theme="ocean"] {
+      --bg: #eef7f8;
+      --text: #173a43;
+      --muted: rgba(23, 58, 67, 0.58);
+      --soft: rgba(255, 255, 255, 0.38);
+      --soft-strong: rgba(255, 255, 255, 0.66);
+      --border: rgba(23, 58, 67, 0.10);
+      --aura-1: rgba(91, 194, 205, 0.48);
+      --aura-2: rgba(89, 157, 229, 0.45);
+      --aura-3: rgba(116, 222, 187, 0.44);
+    }
+
+    body[data-theme="forest"] {
+      --bg: #f0f4ed;
+      --text: #233428;
+      --muted: rgba(35, 52, 40, 0.58);
+      --soft: rgba(255, 255, 255, 0.36);
+      --soft-strong: rgba(255, 255, 255, 0.62);
+      --border: rgba(35, 52, 40, 0.10);
+      --aura-1: rgba(129, 178, 124, 0.45);
+      --aura-2: rgba(196, 207, 123, 0.48);
+      --aura-3: rgba(110, 168, 145, 0.40);
+    }
+
+    body[data-theme="cream"] {
+      --bg: #f8f2e8;
+      --text: #302a22;
+      --muted: rgba(48, 42, 34, 0.58);
+      --soft: rgba(255, 255, 255, 0.38);
+      --soft-strong: rgba(255, 255, 255, 0.64);
+      --border: rgba(48, 42, 34, 0.09);
+      --aura-1: rgba(225, 204, 167, 0.47);
+      --aura-2: rgba(233, 219, 195, 0.50);
+      --aura-3: rgba(211, 188, 166, 0.42);
+    }
+
+    body[data-theme="graphite"] {
+      --bg: #e9e9e7;
+      --text: #242424;
+      --muted: rgba(36, 36, 36, 0.56);
+      --soft: rgba(255, 255, 255, 0.34);
+      --soft-strong: rgba(255, 255, 255, 0.56);
+      --border: rgba(36, 36, 36, 0.09);
+      --aura-1: rgba(172, 172, 172, 0.35);
+      --aura-2: rgba(208, 208, 208, 0.44);
+      --aura-3: rgba(145, 145, 145, 0.24);
+    }
+
+    body[data-theme="midnight"] {
+      --bg: #15161a;
+      --text: #f2f2f3;
+      --muted: rgba(242, 242, 243, 0.58);
+      --soft: rgba(255, 255, 255, 0.055);
+      --soft-strong: rgba(255, 255, 255, 0.09);
+      --border: rgba(255, 255, 255, 0.09);
+      --shadow: 0 18px 55px rgba(0, 0, 0, 0.24);
+      --aura-1: rgba(111, 74, 180, 0.46);
+      --aura-2: rgba(52, 112, 178, 0.42);
+      --aura-3: rgba(155, 69, 114, 0.35);
+    }
+
+    /* ============================================================
+       EMBED VIEW
+    ============================================================ */
+    #embedView {
+      width: 100%;
+      min-height: 100vh;
+      height: 100%;
+      background: var(--bg);
+      color: var(--text);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .aura {
+      position: absolute;
+      border-radius: 50%;
+      filter: blur(85px);
+      pointer-events: none;
+      opacity: 0.9;
+    }
+
+    .aura.a1 {
+      width: 470px;
+      height: 470px;
+      top: -260px;
+      left: -130px;
+      background: var(--aura-1);
+      animation: drift1 18s ease-in-out infinite alternate;
+    }
+
+    .aura.a2 {
+      width: 470px;
+      height: 470px;
+      right: -220px;
+      bottom: -260px;
+      background: var(--aura-2);
+      animation: drift2 22s ease-in-out infinite alternate;
+    }
+
+    .aura.a3 {
+      width: 360px;
+      height: 360px;
+      left: 44%;
+      bottom: -250px;
+      background: var(--aura-3);
+      animation: drift3 25s ease-in-out infinite alternate;
+    }
+
+    @keyframes drift1 {
+      to { transform: translate(100px, 70px) scale(1.15); }
+    }
+
+    @keyframes drift2 {
+      to { transform: translate(-90px, -55px) scale(1.18); }
+    }
+
+    @keyframes drift3 {
+      to { transform: translate(-60px, -80px) scale(1.22); }
+    }
+
+    .widget-shell {
+      position: relative;
+      z-index: 2;
+      width: 100%;
+      height: 100%;
+      min-height: 220px;
+      display: grid;
+      grid-template-columns: minmax(0, 3fr) minmax(165px, 1fr);
+      gap: clamp(22px, 4vw, 54px);
+      align-items: stretch;
+      padding: clamp(20px, 4vw, 44px);
+    }
+
+    .quote-panel,
+    .clock-panel {
+      min-width: 0;
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      background: var(--soft);
+      box-shadow: var(--shadow);
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+    }
+
+    .quote-panel {
+      position: relative;
+      display: flex;
+      align-items: center;
+      padding: clamp(30px, 5vw, 72px);
+      padding-right: clamp(42px, 6vw, 80px);
+    }
+
+    .quote-content {
+      width: 100%;
+      transition: opacity 180ms ease, transform 180ms ease;
+    }
+
+    .quote-content.is-changing {
+      opacity: 0;
+      transform: translateY(5px);
+    }
+
+    .quote-mark {
+      font-family: var(--quote-font);
+      font-size: clamp(2.4rem, 5vw, 5.4rem);
+      line-height: 0.75;
+      opacity: 0.15;
+      margin-bottom: 7px;
+      user-select: none;
+    }
+
+    #quoteText {
+      margin: 0;
+      font-family: var(--quote-font);
+      font-size: clamp(1.35rem, 3vw, 3.0rem);
+      line-height: 1.28;
+      letter-spacing: -0.025em;
+      text-wrap: balance;
+      font-weight: 400;
+    }
+
+    #quoteAuthor {
+      margin-top: clamp(16px, 2.2vw, 26px);
+      color: var(--muted);
+      font-size: clamp(0.72rem, 1vw, 0.92rem);
+      letter-spacing: 0.075em;
+      font-weight: 600;
+    }
+
+    #refreshButton {
+      position: absolute;
+      right: 18px;
+      bottom: 17px;
+      width: 38px;
+      height: 38px;
+      border: 1px solid transparent;
+      border-radius: 50%;
+      background: transparent;
+      color: var(--text);
+      opacity: 0.38;
+      cursor: pointer;
+      font-size: 22px;
+      line-height: 1;
+      display: grid;
+      place-items: center;
+      transition: opacity 160ms ease, background 160ms ease, transform 300ms ease;
+    }
+
+    #refreshButton:hover {
+      opacity: 0.88;
+      background: var(--soft-strong);
+      border-color: var(--border);
+      transform: rotate(90deg);
+    }
+
+    #refreshButton.loading {
+      animation: spin 800ms linear infinite;
+    }
+
+    @keyframes spin {
+      to { transform: rotate(360deg); }
+    }
+
+    .clock-panel {
+      padding: clamp(22px, 3vw, 38px);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      overflow: hidden;
+    }
+
+    .clock-inner {
+      width: 100%;
+    }
+
+    .clock-kicker {
+      text-transform: uppercase;
+      letter-spacing: 0.18em;
+      font-size: clamp(0.58rem, 0.8vw, 0.72rem);
+      color: var(--muted);
+      margin-bottom: 12px;
+    }
+
+    #clockTime {
+      font-variant-numeric: tabular-nums;
+      font-size: clamp(2.0rem, 4vw, 4.6rem);
+      line-height: 0.95;
+      letter-spacing: -0.065em;
+      font-weight: 650;
+      white-space: nowrap;
+    }
+
+    #clockMeridiem {
+      display: inline-block;
+      font-size: clamp(0.62rem, 0.9vw, 0.8rem);
+      letter-spacing: 0.09em;
+      color: var(--muted);
+      margin-left: 5px;
+      vertical-align: top;
+      padding-top: 7px;
+    }
+
+    #clockSeconds {
+      opacity: 0.42;
+      font-size: 0.48em;
+      margin-left: 2px;
+      letter-spacing: -0.03em;
+    }
+
+    #clockDate {
+      margin-top: 17px;
+      color: var(--muted);
+      font-size: clamp(0.72rem, 1vw, 0.9rem);
+      line-height: 1.45;
+    }
+
+    #clockZone {
+      margin-top: 6px;
+      color: var(--muted);
+      opacity: 0.72;
+      font-size: clamp(0.60rem, 0.8vw, 0.72rem);
+      letter-spacing: 0.06em;
+    }
+
+    @media (max-width: 680px) {
+      .widget-shell {
+        grid-template-columns: 1fr;
+        grid-template-rows: minmax(210px, 1fr) auto;
+        gap: 16px;
+        padding: 15px;
+      }
+
+      .quote-panel {
+        padding: 28px 42px 32px 28px;
+      }
+
+      .clock-panel {
+        min-height: 130px;
+        padding: 20px;
+      }
+
+      #clockTime {
+        font-size: clamp(2rem, 11vw, 3.8rem);
+      }
+    }
+
+    /* ============================================================
+       CUSTOMIZER / SETUP VIEW
+    ============================================================ */
+    #setupView {
+      min-height: 100vh;
+      background: #f3f4f6;
+      color: #1f2937;
+      padding: 24px;
+    }
+
+    .setup-wrap {
+      width: min(1440px, 100%);
+      margin: 0 auto;
+    }
+
+    .setup-header {
+      display: flex;
+      align-items: end;
+      justify-content: space-between;
+      gap: 20px;
+      margin-bottom: 22px;
+    }
+
+    .setup-header h1 {
+      margin: 0;
+      font-size: clamp(1.55rem, 3vw, 2.45rem);
+      letter-spacing: -0.04em;
+    }
+
+    .setup-header p {
+      margin: 7px 0 0;
+      color: #6b7280;
+      max-width: 760px;
+      line-height: 1.5;
+    }
+
+    .setup-grid {
+      display: grid;
+      grid-template-columns: minmax(280px, 360px) minmax(0, 1fr);
+      gap: 22px;
+      align-items: start;
+    }
+
+    .controls-card,
+    .preview-card {
+      background: white;
+      border: 1px solid #e5e7eb;
+      border-radius: 20px;
+      box-shadow: 0 10px 35px rgba(15, 23, 42, 0.06);
+    }
+
+    .controls-card {
+      padding: 22px;
+      position: sticky;
+      top: 18px;
+    }
+
+    .controls-card h2,
+    .preview-card h2 {
+      margin: 0 0 4px;
+      font-size: 1rem;
+    }
+
+    .section-note {
+      color: #6b7280;
+      font-size: 0.82rem;
+      line-height: 1.4;
+      margin-bottom: 18px;
+    }
+
+    .control-group {
+      margin: 0 0 16px;
+    }
+
+    .control-group label {
+      display: block;
+      margin-bottom: 7px;
+      font-size: 0.78rem;
+      font-weight: 700;
+      color: #374151;
+    }
+
+    .control-group select,
+    .control-group input[type="text"],
+    .control-group input[type="number"],
+    .control-group input[type="range"] {
+      width: 100%;
+    }
+
+    .control-group select,
+    .control-group input[type="text"],
+    .control-group input[type="number"] {
+      border: 1px solid #d1d5db;
+      border-radius: 10px;
+      padding: 10px 11px;
+      background: white;
+      color: #111827;
+      outline: none;
+    }
+
+    .control-group select:focus,
+    .control-group input:focus {
+      border-color: #6b7280;
+      box-shadow: 0 0 0 3px rgba(107, 114, 128, 0.11);
+    }
+
+    .range-row {
+      display: grid;
+      grid-template-columns: 1fr auto;
+      gap: 10px;
+      align-items: center;
+    }
+
+    .range-value {
+      min-width: 46px;
+      text-align: right;
+      color: #6b7280;
+      font-size: 0.8rem;
+      font-variant-numeric: tabular-nums;
+    }
+
+    .toggle-row {
+      display: flex;
+      gap: 9px;
+      align-items: center;
+      margin: 10px 0;
+      font-size: 0.82rem;
+    }
+
+    .toggle-row input {
+      width: 16px;
+      height: 16px;
+    }
+
+    .divider {
+      height: 1px;
+      background: #eef0f2;
+      margin: 20px 0;
+    }
+
+    .action-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 9px;
+      margin-top: 18px;
+    }
+
+    .action-row button {
+      border-radius: 11px;
+      border: 1px solid #d1d5db;
+      padding: 10px 12px;
+      cursor: pointer;
+      background: white;
+      color: #111827;
+      font-weight: 700;
+      font-size: 0.82rem;
+    }
+
+    .action-row button.primary {
+      background: #111827;
+      color: white;
+      border-color: #111827;
+    }
+
+    #copyStatus {
+      min-height: 18px;
+      margin-top: 9px;
+      color: #6b7280;
+      font-size: 0.76rem;
+    }
+
+    .preview-card {
+      overflow: hidden;
+    }
+
+    .preview-top {
+      padding: 18px 20px 12px;
+      display: flex;
+      justify-content: space-between;
+      gap: 16px;
+      align-items: center;
+    }
+
+    #embedUrlPreview {
+      color: #6b7280;
+      font-size: 0.74rem;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      max-width: 70%;
+    }
+
+    .preview-frame-wrap {
+      padding: 0 16px 16px;
+    }
+
+    #previewFrame {
+      display: block;
+      width: 100%;
+      height: 430px;
+      border: 1px solid #e5e7eb;
+      border-radius: 16px;
+      background: #fafafa;
+    }
+
+    @media (max-width: 900px) {
+      #setupView { padding: 15px; }
+
+      .setup-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .controls-card {
+        position: static;
+      }
+
+      #previewFrame {
+        height: 520px;
+      }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      .aura { animation: none !important; }
+      .quote-content { transition: none; }
+    }
+  </style>
+</head>
+
+<body>
+  <!-- ============================================================
+       EMBED MODE
+       This is the only view Notion needs.
+  ============================================================ -->
+  <main id="embedView" hidden>
+    <div class="aura a1" aria-hidden="true"></div>
+    <div class="aura a2" aria-hidden="true"></div>
+    <div class="aura a3" aria-hidden="true"></div>
+
+    <div class="widget-shell">
+      <section class="quote-panel">
+        <div id="quoteContent" class="quote-content" aria-live="polite">
+          <div class="quote-mark" aria-hidden="true">“</div>
+          <blockquote id="quoteText">Loading quote…</blockquote>
+          <div id="quoteAuthor"></div>
+        </div>
+
+        <button id="refreshButton" type="button" aria-label="Load another quote" title="Another quote">
+          ↻
+        </button>
+      </section>
+
+      <aside class="clock-panel" aria-label="Clock">
+        <div class="clock-inner">
+          <div class="clock-kicker">Local time</div>
+
+          <div>
+            <span id="clockTime">--:--</span>
+            <span id="clockSeconds"></span>
+            <span id="clockMeridiem"></span>
+          </div>
+
+          <div id="clockDate"></div>
+          <div id="clockZone"></div>
+        </div>
+      </aside>
+    </div>
+  </main>
+
+  <!-- ============================================================
+       SETUP MODE
+       Open your hosted file with ?setup=1
+  ============================================================ -->
+  <main id="setupView" hidden>
+    <div class="setup-wrap">
+      <header class="setup-header">
+        <div>
+          <h1>Quote + Clock customizer</h1>
+          <p>
+            Configure the widget here, preview it live, then copy the generated URL into a Notion embed.
+            None of these controls appear in the final Notion widget.
+          </p>
+        </div>
+      </header>
+
+      <div class="setup-grid">
+        <section class="controls-card">
+          <h2>Appearance</h2>
+          <div class="section-note">Choose the visual style of the final embed.</div>
+
+          <div class="control-group">
+            <label for="themeControl">Theme</label>
+            <select id="themeControl">
+              <option value="aura">Aura</option>
+              <option value="sunset">Sunset</option>
+              <option value="ocean">Ocean</option>
+              <option value="forest">Forest</option>
+              <option value="cream">Cream</option>
+              <option value="graphite">Graphite</option>
+              <option value="midnight">Midnight</option>
+            </select>
+          </div>
+
+          <div class="control-group">
+            <label for="fontControl">Quote font</label>
+            <select id="fontControl">
+              <option value="serif">Editorial serif</option>
+              <option value="sans">Clean sans serif</option>
+              <option value="mono">Minimal mono</option>
+            </select>
+          </div>
+
+          <div class="control-group">
+            <label for="radiusControl">Corner radius</label>
+            <div class="range-row">
+              <input id="radiusControl" type="range" min="8" max="42" step="1" value="28" />
+              <span id="radiusValue" class="range-value">28px</span>
+            </div>
+          </div>
+
+          <div class="divider"></div>
+
+          <h2>Quote</h2>
+          <div class="section-note">Source and filtering are encoded into the embed URL.</div>
+
+          <div class="control-group">
+            <label for="sourceControl">Source</label>
+            <select id="sourceControl">
+              <option value="auto">Auto — QuoteSlate → QuoteGarden → local</option>
+              <option value="quoteslate">QuoteSlate first</option>
+              <option value="quotegarden">QuoteGarden first</option>
+              <option value="local">Local fallback only</option>
+            </select>
+          </div>
+
+          <div class="control-group">
+            <label for="categoryControl">Category</label>
+            <select id="categoryControl">
+              <option value="">Random / any</option>
+              <option value="wisdom">Wisdom</option>
+              <option value="motivation">Motivation</option>
+              <option value="inspiration">Inspiration</option>
+              <option value="life">Life</option>
+              <option value="love">Love</option>
+              <option value="success">Success</option>
+              <option value="happiness">Happiness</option>
+              <option value="time">Time</option>
+              <option value="courage">Courage</option>
+            </select>
+          </div>
+
+          <div class="control-group">
+            <label for="maxLengthControl">Maximum quote length</label>
+            <div class="range-row">
+              <input id="maxLengthControl" type="range" min="90" max="360" step="10" value="240" />
+              <span id="maxLengthValue" class="range-value">240</span>
+            </div>
+          </div>
+
+          <div class="divider"></div>
+
+          <h2>Clock</h2>
+          <div class="section-note">The clock occupies roughly one quarter of the desktop widget.</div>
+
+          <div class="control-group">
+            <label for="timeFormatControl">Time format</label>
+            <select id="timeFormatControl">
+              <option value="12">12-hour</option>
+              <option value="24">24-hour</option>
+            </select>
+          </div>
+
+          <div class="control-group">
+            <label for="timeZoneControl">Time zone</label>
+            <input id="timeZoneControl" type="text" value="local"
+              placeholder="local or Australia/Sydney" />
+          </div>
+
+          <label class="toggle-row">
+            <input id="showDateControl" type="checkbox" checked />
+            Show date
+          </label>
+
+          <label class="toggle-row">
+            <input id="showSecondsControl" type="checkbox" />
+            Show seconds
+          </label>
+
+          <div class="control-group">
+            <label for="clockWidthControl">Clock width</label>
+            <div class="range-row">
+              <input id="clockWidthControl" type="range" min="20" max="35" step="1" value="25" />
+              <span id="clockWidthValue" class="range-value">25%</span>
+            </div>
+          </div>
+
+          <div class="action-row">
+            <button id="openEmbedButton" type="button">Open embed</button>
+            <button id="copyEmbedButton" class="primary" type="button">Copy embed URL</button>
+          </div>
+
+          <div id="copyStatus"></div>
+        </section>
+
+        <section class="preview-card">
+          <div class="preview-top">
+            <div>
+              <h2>Live preview</h2>
+              <div class="section-note" style="margin:4px 0 0">This is approximately what Notion will show.</div>
+            </div>
+            <div id="embedUrlPreview"></div>
+          </div>
+
+          <div class="preview-frame-wrap">
+            <iframe id="previewFrame" title="Widget preview"></iframe>
+          </div>
+        </section>
+      </div>
+    </div>
+  </main>
+
+  <script>
+    "use strict";
+
+    /* ============================================================
+       URL / MODE
+    ============================================================ */
+    const pageParams = new URLSearchParams(window.location.search);
+    const isSetup = pageParams.get("setup") === "1";
+
+    const embedView = document.getElementById("embedView");
+    const setupView = document.getElementById("setupView");
+
+    if (isSetup) {
+      setupView.hidden = false;
+      startCustomizer();
+    } else {
+      embedView.hidden = false;
+      startWidget();
+    }
+
+    /* ============================================================
+       SHARED HELPERS
+    ============================================================ */
+    function clampNumber(value, min, max, fallback) {
+      const n = Number(value);
+      if (!Number.isFinite(n)) return fallback;
+      return Math.min(max, Math.max(min, n));
+    }
+
+    function boolParam(params, key, fallback) {
+      if (!params.has(key)) return fallback;
+      return params.get(key) !== "0";
+    }
+
+    function applyThemeAndFont(config) {
+      document.body.dataset.theme = config.theme;
+
+      const fontMap = {
+        serif: 'Georgia, "Times New Roman", serif',
+        sans: 'Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif',
+        mono: '"SFMono-Regular", Consolas, "Liberation Mono", Menlo, monospace'
+      };
+
+      document.documentElement.style.setProperty(
+        "--quote-font",
+        fontMap[config.font] || fontMap.serif
+      );
+
+      document.documentElement.style.setProperty(
+        "--radius",
+        `${config.radius}px`
+      );
+    }
+
+    /* ============================================================
+       WIDGET CONFIG
+    ============================================================ */
+    function getWidgetConfig() {
+      const params = new URLSearchParams(window.location.search);
+
+      const allowedThemes = [
+        "aura", "sunset", "ocean", "forest", "cream", "graphite", "midnight"
+      ];
+
+      const allowedSources = [
+        "auto", "quoteslate", "quotegarden", "local"
+      ];
+
+      const allowedFonts = [
+        "serif", "sans", "mono"
+      ];
+
+      const theme = allowedThemes.includes(params.get("theme"))
+        ? params.get("theme")
+        : "aura";
+
+      const source = allowedSources.includes(params.get("source"))
+        ? params.get("source")
+        : "auto";
+
+      const font = allowedFonts.includes(params.get("font"))
+        ? params.get("font")
+        : "serif";
+
+      return {
+        theme,
+        source,
+        font,
+        category: (params.get("category") || "").trim().toLowerCase(),
+        maxLength: clampNumber(params.get("max"), 70, 500, 240),
+        timeFormat: params.get("time") === "24" ? "24" : "12",
+        timeZone: (params.get("tz") || "local").trim(),
+        showDate: boolParam(params, "date", true),
+        showSeconds: boolParam(params, "seconds", false),
+        radius: clampNumber(params.get("radius"), 8, 42, 28),
+        clockWidth: clampNumber(params.get("clock"), 20, 35, 25),
+        batchSize: 12
+      };
+    }
+
+    /* ============================================================
+       CUSTOMIZER
+    ============================================================ */
+    function startCustomizer() {
+      const controls = {
+        theme: document.getElementById("themeControl"),
+        font: document.getElementById("fontControl"),
+        radius: document.getElementById("radiusControl"),
+        source: document.getElementById("sourceControl"),
+        category: document.getElementById("categoryControl"),
+        maxLength: document.getElementById("maxLengthControl"),
+        timeFormat: document.getElementById("timeFormatControl"),
+        timeZone: document.getElementById("timeZoneControl"),
+        showDate: document.getElementById("showDateControl"),
+        showSeconds: document.getElementById("showSecondsControl"),
+        clockWidth: document.getElementById("clockWidthControl")
+      };
+
+      const radiusValue = document.getElementById("radiusValue");
+      const maxLengthValue = document.getElementById("maxLengthValue");
+      const clockWidthValue = document.getElementById("clockWidthValue");
+      const previewFrame = document.getElementById("previewFrame");
+      const embedUrlPreview = document.getElementById("embedUrlPreview");
+      const copyStatus = document.getElementById("copyStatus");
+
+      function buildEmbedUrl() {
+        const url = new URL(window.location.href);
+
+        url.search = "";
+        url.hash = "";
+
+        url.searchParams.set("theme", controls.theme.value);
+        url.searchParams.set("font", controls.font.value);
+        url.searchParams.set("radius", controls.radius.value);
+        url.searchParams.set("source", controls.source.value);
+
+        if (controls.category.value) {
+          url.searchParams.set("category", controls.category.value);
+        }
+
+        url.searchParams.set("max", controls.maxLength.value);
+        url.searchParams.set("time", controls.timeFormat.value);
+
+        const tz = controls.timeZone.value.trim();
+        if (tz && tz !== "local") {
+          url.searchParams.set("tz", tz);
+        }
+
+        url.searchParams.set("date", controls.showDate.checked ? "1" : "0");
+        url.searchParams.set("seconds", controls.showSeconds.checked ? "1" : "0");
+        url.searchParams.set("clock", controls.clockWidth.value);
+
+        return url.toString();
+      }
+
+      function updatePreview() {
+        radiusValue.textContent = `${controls.radius.value}px`;
+        maxLengthValue.textContent = controls.maxLength.value;
+        clockWidthValue.textContent = `${controls.clockWidth.value}%`;
+
+        const url = buildEmbedUrl();
+        previewFrame.src = url;
+        embedUrlPreview.textContent = url;
+        embedUrlPreview.title = url;
+      }
+
+      Object.values(controls).forEach(control => {
+        control.addEventListener("input", updatePreview);
+        control.addEventListener("change", updatePreview);
+      });
+
+      document.getElementById("openEmbedButton").addEventListener("click", () => {
+        window.open(buildEmbedUrl(), "_blank", "noopener,noreferrer");
+      });
+
+      document.getElementById("copyEmbedButton").addEventListener("click", async () => {
+        const url = buildEmbedUrl();
+
+        try {
+          await navigator.clipboard.writeText(url);
+          copyStatus.textContent = "Embed URL copied ✓";
+        } catch {
+          const temp = document.createElement("textarea");
+          temp.value = url;
+          document.body.appendChild(temp);
+          temp.select();
+          document.execCommand("copy");
+          temp.remove();
+          copyStatus.textContent = "Embed URL copied ✓";
+        }
+
+        window.setTimeout(() => {
+          copyStatus.textContent = "";
+        }, 2500);
+      });
+
+      updatePreview();
+    }
+
+    /* ============================================================
+       WIDGET
+    ============================================================ */
+    function startWidget() {
+      const config = getWidgetConfig();
+
+      applyThemeAndFont(config);
+
+      /*
+        75 / 25 is the default.
+        If the user adjusts clock width in the customizer, translate it
+        into quote/clock grid fractions while preserving the buffer gap.
+      */
+      const quoteFraction = Math.max(1, 100 - config.clockWidth);
+      const clockFraction = config.clockWidth;
+
+      document.querySelector(".widget-shell").style.gridTemplateColumns =
+        `minmax(0, ${quoteFraction}fr) minmax(165px, ${clockFraction}fr)`;
+
+      startClock(config);
+      startQuotes(config);
+    }
+
+    /* ============================================================
+       CLOCK
+    ============================================================ */
+    function startClock(config) {
+      const timeEl = document.getElementById("clockTime");
+      const secondsEl = document.getElementById("clockSeconds");
+      const meridiemEl = document.getElementById("clockMeridiem");
+      const dateEl = document.getElementById("clockDate");
+      const zoneEl = document.getElementById("clockZone");
+
+      function validTimeZone(tz) {
+        if (!tz || tz === "local") return undefined;
+
+        try {
+          new Intl.DateTimeFormat("en-AU", { timeZone: tz }).format();
+          return tz;
+        } catch {
+          return undefined;
+        }
+      }
+
+      const requestedZone = validTimeZone(config.timeZone);
+
+      function renderClock() {
+        const now = new Date();
+
+        const parts = new Intl.DateTimeFormat("en-AU", {
+          timeZone: requestedZone,
+          hour: "2-digit",
+          minute: "2-digit",
+          second: "2-digit",
+          hour12: config.timeFormat === "12"
+        }).formatToParts(now);
+
+        const part = type =>
+          parts.find(item => item.type === type)?.value || "";
+
+        const hour = part("hour");
+        const minute = part("minute");
+        const second = part("second");
+        const dayPeriod = part("dayPeriod");
+
+        timeEl.textContent = `${hour}:${minute}`;
+        secondsEl.textContent = config.showSeconds ? `:${second}` : "";
+        meridiemEl.textContent =
+          config.timeFormat === "12" ? dayPeriod.toUpperCase() : "";
+
+        if (config.showDate) {
+          dateEl.style.display = "";
+          dateEl.textContent = new Intl.DateTimeFormat("en-AU", {
+            timeZone: requestedZone,
+            weekday: "short",
+            day: "numeric",
+            month: "short"
+          }).format(now);
+        } else {
+          dateEl.style.display = "none";
+        }
+
+        try {
+          const zoneName = new Intl.DateTimeFormat("en-AU", {
+            timeZone: requestedZone,
+            timeZoneName: "short"
+          })
+            .formatToParts(now)
+            .find(item => item.type === "timeZoneName")?.value;
+
+          zoneEl.textContent = zoneName || "";
+        } catch {
+          zoneEl.textContent = "";
+        }
+      }
+
+      renderClock();
+      setInterval(renderClock, config.showSeconds ? 1000 : 15000);
+    }
+
+    /* ============================================================
+       QUOTES
+    ============================================================ */
+    function startQuotes(config) {
+      const quoteContent = document.getElementById("quoteContent");
+      const quoteText = document.getElementById("quoteText");
+      const quoteAuthor = document.getElementById("quoteAuthor");
+      const refreshButton = document.getElementById("refreshButton");
+
+      let busy = false;
+      let previousQuote = "";
+
+      const queues = {
+        quoteslate: [],
+        quotegarden: [],
+        local: []
+      };
+
+      /*
+        Local fallback = intentionally simple original micro-quotes.
+        It prevents the widget from ever displaying an API error.
+      */
+      const LOCAL_QUOTES = [
+        { text: "Make room for curiosity.", author: "" },
+        { text: "Small steps still move you forward.", author: "" },
+        { text: "A little better is still better.", author: "" },
+        { text: "Do the useful thing in front of you.", author: "" },
+        { text: "Consistency turns effort into momentum.", author: "" },
+        { text: "Leave a little space for the unexpected.", author: "" },
+        { text: "Clarity often arrives after you begin.", author: "" },
+        { text: "Build the day you want to remember.", author: "" }
+      ];
+
+      function translateCategory(provider, category) {
+        if (!category) return "";
+
+        const mapping = {
+          quoteslate: {
+            motivational: "motivation",
+            inspirational: "inspiration",
+            funny: "humor"
+          },
+          quotegarden: {
+            motivation: "motivational",
+            inspiration: "inspirational"
+          }
+        };
+
+        return mapping[provider]?.[category] || category;
+      }
+
+      async function fetchJson(url, timeoutMs = 14000) {
+        const controller = new AbortController();
+        const timer = setTimeout(() => controller.abort(), timeoutMs);
+
+        try {
+          const response = await fetch(url, {
+            signal: controller.signal,
+            cache: "no-store",
+            headers: { Accept: "application/json" }
+          });
+
+          if (!response.ok) {
+            throw new Error(`HTTP ${response.status}`);
+          }
+
+          return await response.json();
+        } finally {
+          clearTimeout(timer);
+        }
+      }
+
+      async function fetchQuoteSlate(useCategory = true) {
+        const url = new URL("https://quoteslate.vercel.app/api/quotes/random");
+
+        url.searchParams.set("count", config.batchSize);
+        url.searchParams.set("maxLength", config.maxLength);
+
+        if (useCategory && config.category) {
+          url.searchParams.set(
+            "tags",
+            translateCategory("quoteslate", config.category)
+          );
+        }
+
+        const data = await fetchJson(url.toString());
+        const records = Array.isArray(data) ? data : [data];
+
+        const quotes = records
+          .filter(item => item && typeof item.quote === "string")
+          .map(item => ({
+            text: item.quote.trim(),
+            author: (item.author || "").trim()
+          }))
+          .filter(item => item.text.length <= config.maxLength);
+
+        if (!quotes.length) {
+          throw new Error("QuoteSlate returned no usable quotes.");
+        }
+
+        return quotes;
+      }
+
+      async function refillQuoteSlate() {
+        try {
+          queues.quoteslate = await fetchQuoteSlate(true);
+        } catch (categoryError) {
+          /*
+            QuoteSlate validates tag names. If a shared UI category is not
+            a valid QuoteSlate tag, retry without the category instead of
+            breaking the embed.
+          */
+          queues.quoteslate = await fetchQuoteSlate(false);
+        }
+      }
+
+      async function fetchQuoteGarden(useCategory = true) {
+        const url = new URL("https://quote-garden.onrender.com/api/v3/quotes/random");
+
+        url.searchParams.set("count", config.batchSize);
+
+        if (useCategory && config.category) {
+          url.searchParams.set(
+            "genre",
+            translateCategory("quotegarden", config.category)
+          );
+        }
+
+        /*
+          Render free instances can cold-start, hence the slightly longer timeout.
+        */
+        const data = await fetchJson(url.toString(), 25000);
+
+        const records = Array.isArray(data?.data) ? data.data : [];
+
+        const quotes = records
+          .filter(item => item && typeof item.quoteText === "string")
+          .map(item => ({
+            text: item.quoteText.trim(),
+            author: (item.quoteAuthor || "").trim()
+          }))
+          .filter(item => item.text.length <= config.maxLength);
+
+        if (!quotes.length) {
+          throw new Error("QuoteGarden returned no usable quotes.");
+        }
+
+        return quotes;
+      }
+
+      async function refillQuoteGarden() {
+        try {
+          queues.quotegarden = await fetchQuoteGarden(true);
+        } catch (categoryError) {
+          queues.quotegarden = await fetchQuoteGarden(false);
+        }
+      }
+
+      function refillLocal() {
+        queues.local = [...LOCAL_QUOTES];
+
+        for (let i = queues.local.length - 1; i > 0; i--) {
+          const j = Math.floor(Math.random() * (i + 1));
+          [queues.local[i], queues.local[j]] =
+            [queues.local[j], queues.local[i]];
+        }
+      }
+
+      async function getFromProvider(provider) {
+        if (!queues[provider].length) {
+          if (provider === "quoteslate") {
+            await refillQuoteSlate();
+          } else if (provider === "quotegarden") {
+            await refillQuoteGarden();
+          } else {
+            refillLocal();
+          }
+        }
+
+        let quote = queues[provider].shift();
+
+        if (
+          quote?.text === previousQuote &&
+          queues[provider].length
+        ) {
+          quote = queues[provider].shift();
+        }
+
+        if (!quote) {
+          throw new Error(`No quote available from ${provider}.`);
+        }
+
+        return quote;
+      }
+
+      function providerOrder() {
+        switch (config.source) {
+          case "quoteslate":
+            return ["quoteslate", "quotegarden", "local"];
+
+          case "quotegarden":
+            return ["quotegarden", "quoteslate", "local"];
+
+          case "local":
+            return ["local"];
+
+          case "auto":
+          default:
+            return ["quoteslate", "quotegarden", "local"];
+        }
+      }
+
+      async function nextQuote() {
+        for (const provider of providerOrder()) {
+          try {
+            return await getFromProvider(provider);
+          } catch (error) {
+            console.warn(`[Quote widget] ${provider} failed:`, error);
+          }
+        }
+
+        return { text: "Make room for curiosity.", author: "" };
+      }
+
+      async function displayNextQuote() {
+        if (busy) return;
+        busy = true;
+
+        refreshButton.classList.add("loading");
+        quoteContent.classList.add("is-changing");
+
+        await new Promise(resolve => setTimeout(resolve, 165));
+
+        const quote = await nextQuote();
+        previousQuote = quote.text;
+
+        quoteText.textContent = quote.text;
+
+        if (quote.author) {
+          quoteAuthor.textContent = `— ${quote.author}`;
+          quoteAuthor.style.display = "";
+        } else {
+          quoteAuthor.textContent = "";
+          quoteAuthor.style.display = "none";
+        }
+
+        quoteContent.classList.remove("is-changing");
+        refreshButton.classList.remove("loading");
+        busy = false;
+      }
+
+      refreshButton.addEventListener("click", displayNextQuote);
+      displayNextQuote();
+    }
+  </script>
+</body>
+</html>
