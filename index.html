@@ -5,6 +5,9 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <meta name="color-scheme" content="light dark" />
   <title>Quote + Clock Widget</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600&amp;family=Manrope:wght@400;500;600&amp;family=Outfit:wght@400;500;600&amp;family=Space+Grotesk:wght@400;500;600&amp;display=swap" rel="stylesheet" media="print" onload="this.media='all'" />
 
   <style>
     /* ============================================================
@@ -43,7 +46,7 @@
       --aura-2: rgba(163, 216, 255, 0.52);
       --aura-3: rgba(255, 190, 213, 0.46);
 
-      --quote-font: Georgia, "Times New Roman", serif;
+      --quote-font: "Manrope", "Segoe UI", sans-serif;
       --radius: 28px;
       --clock-width: 25%;
     }
@@ -193,65 +196,68 @@
       to { transform: translate(-60px, -80px) scale(1.22); }
     }
 
-    .background-birds {
+    .background-bubbles {
       position: absolute;
       inset: 0;
       z-index: 0;
       overflow: hidden;
       pointer-events: none;
       user-select: none;
-      color: var(--text);
     }
-    .bird-definitions { position: absolute; width: 0; height: 0; }
-    .bird-flight {
+    .bubble {
       position: absolute;
-      left: -120px;
-      top: 12%;
-      width: 96px;
-      height: 76px;
-      opacity: 0.075;
-      animation: bird-crossing 48s linear infinite;
-      animation-delay: -12s;
+      top: 100%;
+      left: 12%;
+      width: 72px;
+      aspect-ratio: 1;
+      border-radius: 50%;
+      border: 1px solid color-mix(in srgb, var(--text) 20%, transparent);
+      background: radial-gradient(circle at 28% 24%, rgba(255, 255, 255, 0.55), transparent 40%),
+        radial-gradient(circle at 70% 80%, var(--aura-2), transparent 65%);
+      box-shadow: inset 2px 2px 5px rgba(255, 255, 255, 0.2);
+      opacity: 0;
+      animation: bubble-rise 48s linear infinite;
+      animation-delay: -14s;
     }
-    .bird-flight:nth-of-type(3) {
-      top: 65%;
-      width: 74px;
-      height: 60px;
-      opacity: 0.055;
-      animation-duration: 63s;
-      animation-delay: -39s;
+    .bubble:nth-child(2) {
+      left: 34%; width: 33px;
+      animation-duration: 57s; animation-delay: -42s;
     }
-    .bird-flight:nth-of-type(4) {
-      top: 32%;
-      width: 84px;
-      height: 67px;
-      opacity: 0.06;
-      animation-duration: 56s;
-      animation-delay: -44s;
+    .bubble:nth-child(3) {
+      left: 57%; width: 102px;
+      animation-duration: 65s; animation-delay: -30s;
     }
-    .bird-wing { transform-origin: 60px 51px; animation: bird-wingbeat 3.8s ease-in-out infinite; }
-    .bird-wing-right { animation-delay: -0.15s; }
-    @keyframes bird-crossing {
-      0% { transform: translate(-60px, 18px) rotate(-12deg); }
-      45% { transform: translate(calc(45vw + 70px), -14px) rotate(-3deg); }
-      100% { transform: translate(calc(100vw + 180px), -30px) rotate(8deg); }
+    .bubble:nth-child(4) {
+      left: 76%; width: 48px;
+      animation-duration: 52s; animation-delay: -38s;
     }
-    @keyframes bird-wingbeat {
-      0%, 45%, 100% { transform: scaleY(1) rotate(0deg); }
-      65% { transform: scaleY(0.72) rotate(-3deg); }
-      80% { transform: scaleY(0.96) rotate(1deg); }
+    .bubble:nth-child(5) {
+      left: 90%; width: 27px;
+      animation-duration: 44s; animation-delay: -7s;
+    }
+    .bubble:nth-child(6) { left: 5%; width: 30px; animation-duration: 61s; animation-delay: -38s; }
+    .bubble:nth-child(7) { left: 24%; width: 57px; animation-duration: 72s; animation-delay: -13s; }
+    .bubble:nth-child(8) { left: 45%; width: 24px; animation-duration: 47s; animation-delay: -35s; }
+    .bubble:nth-child(9) { left: 66%; width: 39px; animation-duration: 59s; animation-delay: -8s; }
+    .bubble:nth-child(10) { left: 84%; width: 66px; animation-duration: 68s; animation-delay: -46s; }
+    @keyframes bubble-rise {
+      0% { top: 100%; transform: translateX(0); opacity: 0; }
+      12% { opacity: 0.22; }
+      48% { transform: translateX(18px); }
+      85% { opacity: 0.18; }
+      100% { top: -120px; transform: translateX(-12px); opacity: 0; }
     }
 
     .widget-shell {
       position: relative;
       z-index: 2;
       width: 100%;
-      min-height: max(260px, 100vh);
+      min-height: max(182px, 100vh);
       display: grid;
-      grid-template-columns: minmax(0, var(--quote-fraction, 3fr)) minmax(165px, var(--clock-fraction, 1fr));
-      gap: clamp(14px, 2.4vw, 30px);
+      grid-template-columns: minmax(0, var(--quote-fraction, 3fr)) minmax(200px, var(--clock-fraction, 1fr));
+      gap: clamp(10px, 1.6vw, 22px);
       align-items: stretch;
-      padding: 10px clamp(12px, 1.6vw, 22px) 38px;
+      padding: 8px clamp(10px, 1.4vw, 18px);
     }
 
     .quote-panel,
@@ -282,7 +288,7 @@
       position: relative;
       display: flex;
       align-items: center;
-      padding: 20px clamp(24px, 3.4vw, 48px) 42px;
+      padding: 16px clamp(22px, 3vw, 42px) 42px;
     }
 
     .quote-content {
@@ -314,10 +320,11 @@
     #quoteText {
       margin: 0;
       font-family: var(--quote-font);
-      font-size: clamp(1.35rem, 3vw, 3.0rem);
-      line-height: 1.28;
+      font-size: clamp(1.15rem, 2.6vw, 2.4rem);
+      line-height: 1.4;
       letter-spacing: -0.025em;
       text-wrap: balance;
+      overflow-wrap: anywhere;
       font-weight: 400;
     }
 
@@ -325,14 +332,14 @@
       margin-top: 12px;
       color: var(--muted);
       font-size: clamp(0.72rem, 1vw, 0.92rem);
-      letter-spacing: 0.075em;
-      font-weight: 600;
+      letter-spacing: 0.025em;
+      font-weight: 400;
     }
 
     .source-credits {
       position: absolute;
-      left: clamp(12px, 1.6vw, 22px);
-      bottom: 4px;
+      right: 48px;
+      bottom: 10px;
       font-family: var(--quote-font);
       z-index: 3;
     }
@@ -356,7 +363,7 @@
     .credits-popup {
       position: absolute;
       bottom: calc(100% + 8px);
-      left: 0;
+      right: 0;
       width: min(245px, calc(100vw - 90px));
       padding: 14px 16px;
       border: 1px solid var(--border);
@@ -381,10 +388,10 @@
 
     #refreshButton {
       position: absolute;
-      right: 18px;
-      bottom: 17px;
-      width: 38px;
-      height: 38px;
+      right: 12px;
+      bottom: 10px;
+      width: 30px;
+      height: 30px;
       border: 1px solid transparent;
       border-radius: 50%;
       background: transparent;
@@ -415,7 +422,7 @@
 
     .clock-panel {
       position: relative;
-      padding: 12px clamp(10px, 1.2vw, 18px);
+      padding: 14px clamp(12px, 1.5vw, 22px);
       display: flex;
       align-items: center;
       justify-content: center;
@@ -429,24 +436,29 @@
       width: 100%;
     }
 
-    .clock-kicker {
-      text-transform: uppercase;
-      letter-spacing: 0.18em;
-      font-size: clamp(0.58rem, 0.8vw, 0.72rem);
-      color: var(--muted);
-      margin-bottom: 6px;
-    }
-
     .clock-reading {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      gap: 8px;
       font-variant-numeric: tabular-nums;
-      font-size: clamp(1.8rem, 3.8vw, 3.8rem);
-      line-height: 0.95;
-      letter-spacing: -0.025em;
-      font-weight: 400;
+      font-size: clamp(2rem, 3.8vw, 3.5rem);
+      line-height: 1;
+      letter-spacing: -0.045em;
+      font-weight: 500;
       white-space: nowrap;
     }
 
     #clockTime { font-size: inherit; }
+
+    .clock-meta {
+      display: flex;
+      flex-direction: column;
+      align-items: flex-start;
+      gap: 3px;
+      text-align: left;
+      line-height: 1.15;
+    }
 
     .clock-separator {
       display: inline-block;
@@ -454,14 +466,11 @@
     }
 
     #clockMeridiem {
-      display: inline-block;
-      font-size: clamp(0.62rem, 0.9vw, 0.8rem);
-      letter-spacing: 0.09em;
+      font-size: 0.66rem;
+      letter-spacing: 0.04em;
       color: var(--muted);
-      margin-left: 5px;
-      vertical-align: top;
-      padding-top: 7px;
     }
+    #clockMeridiem:empty { display: none; }
 
     #clockSeconds {
       opacity: 0.42;
@@ -471,32 +480,35 @@
     }
 
     #clockDate {
-      margin-top: 8px;
+      margin: 0 0 10px;
       color: var(--muted);
-      font-size: clamp(0.72rem, 1vw, 0.9rem);
-      line-height: 1.45;
+      font-size: 0.72rem;
+      line-height: 1.3;
+      letter-spacing: 0.055em;
     }
 
     #clockZone {
-      margin-top: 3px;
       color: var(--muted);
       opacity: 0.72;
-      font-size: clamp(0.60rem, 0.8vw, 0.72rem);
-      letter-spacing: 0.06em;
+      font-size: 0.62rem;
+      letter-spacing: 0.03em;
     }
 
     .weather {
       position: relative;
-      margin-top: 10px;
-      padding: 6px 6px 8px;
-      border-radius: 18px;
-      background: linear-gradient(150deg, rgba(242, 205, 129, 0.08), rgba(158, 199, 229, 0.08));
+      display: grid;
+      grid-template-columns: 32px minmax(0, 1fr);
+      column-gap: 6px;
+      align-items: center;
+      margin-top: 18px;
+      padding: 0;
       font-size: 0.78rem;
-      line-height: 1.5;
+      line-height: 1.4;
     }
 
-    .weather-visual { height: 30px; margin-bottom: 3px; pointer-events: none; }
-    .weather-visual svg { width: 58px; height: 34px; overflow: visible; }
+    .weather-visual { grid-row: 1 / 3; height: 34px; pointer-events: none; }
+    .weather-visual svg { width: 36px; height: 34px; overflow: visible; }
+    .location-picker, .weather-reading { grid-column: 2; text-align: left; }
     .weather-visual g { display: none; }
     .weather-sun { color: #c6923c; }
     .weather-moon { color: #9faccd; }
@@ -515,8 +527,8 @@
     .weather[data-condition="fog"] .weather-fog,
     .weather[data-condition="storm"] .weather-lightning { display: inline; }
     .weather:is([data-condition="loading"], [data-condition="unavailable"]) .weather-visual { display: none; }
-    .weather[data-condition="clear"][data-period="night"] { background: rgba(127, 145, 197, 0.07); }
-    .weather:is([data-condition="rain"], [data-condition="storm"]) { background: rgba(127, 167, 195, 0.08); }
+    .weather:is([data-condition="loading"], [data-condition="unavailable"]) { grid-template-columns: 1fr; }
+    .weather:is([data-condition="loading"], [data-condition="unavailable"]) :is(.location-picker, .weather-reading) { grid-column: 1; }
     .sun-rays { transform-origin: 30px 22px; animation: weather-turn 28s linear infinite; }
     .weather-moon { animation: weather-float 6s ease-in-out infinite; }
     .weather-cloud { animation: weather-float 5s ease-in-out infinite; }
@@ -539,6 +551,8 @@
       cursor: pointer;
       list-style: none;
       overflow-wrap: anywhere;
+      padding-right: 20px;
+      font-size: 0.72rem;
     }
 
     .location-picker summary::-webkit-details-marker { display: none; }
@@ -547,11 +561,10 @@
     .location-form {
       position: absolute;
       z-index: 5;
-      bottom: calc(100% - 6px);
-      left: 50%;
-      transform: translateX(-50%);
+      bottom: 0;
+      right: 0;
       width: min(260px, calc(100vw - 48px));
-      max-height: min(280px, 52vh);
+      max-height: min(280px, calc(100vh - 32px));
       overflow-y: auto;
       padding: 14px;
       border: 1px solid var(--border);
@@ -575,56 +588,54 @@
     .location-form button { cursor: pointer; }
     #locationResults button { display: block; width: 100%; margin-top: 6px; text-align: left; }
     #locationSearchStatus { margin: 6px 0; color: var(--muted); }
-    #weatherSummary { margin-top: 5px; }
-    .weather-reading { display: flex; justify-content: center; align-items: baseline; gap: 4px; }
-    #weatherRetry { border: 0; padding: 2px; background: none; color: var(--muted); cursor: pointer; }
+    #weatherSummary { display: flex; align-items: baseline; flex-wrap: wrap; gap: 4px 7px; margin-top: 6px; }
+    .weather-temperature { font-size: 0.98rem; font-weight: 500; color: var(--text); white-space: nowrap; }
+    .weather-condition { font-size: 0.7rem; color: var(--muted); }
+    #weatherRetry { position: absolute; top: -3px; right: -3px; width: 22px; height: 22px; border: 0; padding: 3px; background: none; color: var(--muted); cursor: pointer; opacity: 0.65; border-radius: 50%; }
+    #weatherRetry:hover { opacity: 1; background: var(--soft); }
 
     .weather-forecast {
+      grid-column: 1 / -1;
       display: grid;
-      grid-template-columns: repeat(2, minmax(0, 1fr));
-      gap: 8px;
-      margin-top: 8px;
-      padding-top: 6px;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 6px;
+      margin-top: 14px;
+      padding-top: 12px;
       border-top: 1px solid color-mix(in srgb, var(--border) 45%, transparent);
-      font-size: 0.67rem;
+      font-size: 0.72rem;
       line-height: 1.4;
       color: var(--muted);
       font-variant-numeric: tabular-nums;
     }
     .weather-forecast[hidden] { display: none; }
     .forecast-heading { display: flex; justify-content: center; gap: 5px; align-items: center; }
-    .forecast-temperatures { margin-top: 2px; }
+    .forecast-temperatures { margin-top: 6px; }
     .forecast-high { color: var(--text); }
     .forecast-unavailable { grid-column: 1 / -1; }
 
-    @media (min-width: 681px) and (max-height: 340px) {
-      .weather {
-        display: grid;
-        grid-template-columns: 38px minmax(0, 1fr);
-        align-items: center;
-      }
-      .weather-visual { grid-row: 1 / 3; height: 34px; margin: 0; }
-      .weather-visual svg { width: 42px; height: 34px; }
-      .location-picker, .weather-reading { grid-column: 2; }
-      .weather-forecast { grid-column: 1 / -1; }
-      .weather:is([data-condition="loading"], [data-condition="unavailable"]) { grid-template-columns: 1fr; }
-      .weather:is([data-condition="loading"], [data-condition="unavailable"]) :is(.location-picker, .weather-reading) { grid-column: 1; }
-    }
+    .sun-times { grid-column: 1 / -1; display: flex; flex-wrap: wrap; justify-content: space-between; gap: 8px 6px; margin-top: 14px; color: var(--muted); font-size: 0.66rem; font-variant-numeric: tabular-nums; }
+    .sun-times[hidden] { display: none; }
+    .sun-event { display: inline-flex; align-items: center; justify-content: center; gap: 4px; white-space: nowrap; }
+    .sun-event svg { width: 14px; height: 16px; color: #b69b68; flex-shrink: 0; }
+    .uv-label { font-size: 0.61rem; letter-spacing: 0.01em; }
+    #uvIndex { color: var(--text); font-weight: 500; }
+    .sun-event:focus-visible { outline: 1px solid var(--muted); outline-offset: 3px; border-radius: 4px; }
+    button:focus-visible, .location-picker summary:focus-visible { outline: 2px solid var(--muted); outline-offset: 2px; }
 
     @media (max-width: 680px) {
       .widget-shell {
         grid-template-columns: 1fr;
-        grid-template-rows: minmax(150px, 1fr) auto;
-        gap: 12px;
-        padding: 12px 12px 38px;
+        grid-template-rows: minmax(110px, 1fr) auto;
+        gap: 8px;
+        padding: 8px;
       }
 
       .quote-panel {
-        padding: 20px 28px 42px;
+        padding: 12px 24px 40px;
       }
 
       .clock-panel {
-        padding: 14px;
+        padding: 10px;
       }
 
       .clock-reading {
@@ -632,12 +643,25 @@
       }
     }
 
+    @media (max-height: 260px), (max-width: 680px) {
+      .widget-shell { padding-top: 6px; padding-bottom: 6px; }
+      .quote-panel { padding-top: 12px; padding-bottom: 38px; }
+      #quoteText { font-size: clamp(1rem, min(2.3vw, 9vh), 1.7rem); line-height: 1.2; }
+      .quote-mark { font-size: 1.4rem; line-height: 0.55; margin-bottom: 3px; }
+      .quote-mark-end { margin: 2px 0 -6px; }
+      #quoteAuthor { margin-top: 8px; font-size: 0.68rem; }
+      .clock-panel { padding-top: 14px; padding-bottom: 14px; }
+      .clock-reading { font-size: clamp(1.9rem, 3.4vw, 2.2rem); }
+      #clockDate { margin: 0 0 10px; font-size: 0.7rem; line-height: 1.3; }
+      .weather { margin-top: 18px; padding: 0; font-size: 0.76rem; line-height: 1.4; }
+    }
+
     /* ============================================================
        CUSTOMIZER / SETUP VIEW
     ============================================================ */
     #setupView {
       min-height: 100vh;
-      background: #f3f4f6;
+      background: #f5f4f1;
       color: #1f2937;
       padding: 24px;
     }
@@ -670,7 +694,7 @@
 
     .setup-grid {
       display: grid;
-      grid-template-columns: minmax(280px, 360px) minmax(0, 1fr);
+      grid-template-columns: minmax(280px, 320px) minmax(0, 1fr);
       gap: 22px;
       align-items: start;
     }
@@ -805,6 +829,8 @@
 
     .preview-card {
       overflow: hidden;
+      position: sticky;
+      top: 24px;
     }
 
     .preview-top {
@@ -816,6 +842,7 @@
     }
 
     #embedUrlPreview {
+      display: none;
       color: #6b7280;
       font-size: 0.74rem;
       white-space: nowrap;
@@ -831,7 +858,7 @@
     #previewFrame {
       display: block;
       width: 100%;
-      height: 320px;
+      height: 280px;
       border: 1px solid #e5e7eb;
       border-radius: 16px;
       background: #fafafa;
@@ -847,9 +874,10 @@
       .controls-card {
         position: static;
       }
+      .preview-card { position: static; }
 
       #previewFrame {
-        height: 480px;
+        height: 400px;
       }
     }
 
@@ -857,8 +885,8 @@
       .aura { animation: none !important; }
       .quote-content { transition: none; }
       .weather-visual * { animation: none !important; }
-      .background-birds { display: none; }
-      .bird-flight, .bird-wing { animation: none !important; }
+      .background-bubbles { display: none; }
+      .bubble { animation: none !important; }
     }
   </style>
 </head>
@@ -874,30 +902,12 @@
     <div class="aura a3" aria-hidden="true"></div>
 
     <div class="widget-shell">
-    <div class="background-birds" aria-hidden="true">
-      <svg class="bird-definitions" xmlns="http://www.w3.org/2000/svg">
-        <defs>
-          <symbol id="glidingBird" viewBox="0 0 120 100">
-            <g fill="#eed6b6" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round">
-              <g class="bird-wing bird-wing-left">
-                <path d="M59 49C42 44 29 23 8 18C11 32 30 52 53 59Z" />
-                <path d="M8 18C17 20 24 25 30 31L24 34C16 29 11 24 8 18Z" fill="currentColor" />
-              </g>
-              <g class="bird-wing bird-wing-right">
-                <path d="M63 49C79 39 91 15 112 9C107 27 88 50 66 59Z" />
-                <path d="M112 9C104 12 96 17 90 24L98 25C105 19 110 13 112 9Z" fill="currentColor" />
-              </g>
-              <path d="M56 49C55 43 58 36 63 37C69 37 71 42 68 49L65 62L57 75L56 84L50 80L44 81L49 68L52 57Z" />
-              <path d="M69 40L76 44L69 45Z" fill="currentColor" />
-              <circle cx="65" cy="41" r="0.8" fill="currentColor" stroke="none" />
-            </g>
-          </symbol>
-        </defs>
-      </svg>
-      <svg class="bird-flight" viewBox="0 0 120 100"><use href="#glidingBird" /></svg>
-      <svg class="bird-flight" viewBox="0 0 120 100"><use href="#glidingBird" /></svg>
-      <svg class="bird-flight" viewBox="0 0 120 100"><use href="#glidingBird" /></svg>
-    </div>
+      <div class="background-bubbles" aria-hidden="true">
+        <span class="bubble"></span><span class="bubble"></span><span class="bubble"></span>
+        <span class="bubble"></span><span class="bubble"></span>
+        <span class="bubble"></span><span class="bubble"></span><span class="bubble"></span>
+        <span class="bubble"></span><span class="bubble"></span>
+      </div>
 
       <section class="quote-panel">
         <div id="quoteContent" class="quote-content" aria-live="polite">
@@ -907,6 +917,18 @@
           <div id="quoteAuthor"></div>
         </div>
 
+        <details id="sourceCredits" class="source-credits">
+          <summary aria-label="Sources and credits" title="Sources and credits">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true">
+              <circle cx="12" cy="12" r="9" /><path d="M12 11v6" /><circle cx="12" cy="7.5" r="0.75" fill="currentColor" stroke="none" />
+            </svg>
+          </summary>
+          <div class="credits-popup">
+            <strong>Sources &amp; credits</strong>
+            <div id="quoteAttribution" aria-live="polite">Loading quote source…</div>
+            <div>Weather by <a href="https://open-meteo.com/" target="_blank" rel="noopener noreferrer">Open-Meteo</a></div>
+          </div>
+        </details>
         <button id="refreshButton" type="button" aria-label="Load another quote" title="Another quote">
           ↻
         </button>
@@ -914,16 +936,14 @@
 
       <aside class="clock-panel" aria-label="Clock">
         <div class="clock-inner">
-          <div class="clock-kicker">Local time</div>
-
-          <div class="clock-reading">
-            <span id="clockTime"><span id="clockHours">--</span><span class="clock-separator">:</span><span id="clockMinutes">--</span></span>
-            <span id="clockSeconds"></span>
-            <span id="clockMeridiem"></span>
-          </div>
-
           <div id="clockDate"></div>
-          <div id="clockZone"></div>
+          <div class="clock-reading">
+            <span class="clock-digits"><span id="clockTime"><span id="clockHours">--</span><span class="clock-separator">:</span><span id="clockMinutes">--</span></span><span id="clockSeconds"></span></span>
+            <span class="clock-meta">
+              <span id="clockMeridiem"></span>
+              <span id="clockZone"></span>
+            </span>
+          </div>
 
           <div id="weatherCard" class="weather" data-condition="loading" data-period="day" aria-label="Local weather">
             <div class="weather-visual" aria-hidden="true">
@@ -957,22 +977,23 @@
               <div id="weatherSummary" role="status">Loading weather…</div>
               <button id="weatherRetry" type="button" aria-label="Refresh weather" title="Refresh weather">↻</button>
             </div>
-            <div id="weatherForecast" class="weather-forecast" aria-label="Forecast for the next two days" hidden></div>
+            <div id="sunTimes" class="sun-times" aria-label="Today's sunrise, sunset and maximum UV index in the weather location" hidden>
+              <span id="sunriseItem" class="sun-event" tabindex="0">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" aria-hidden="true"><path d="M3 18h18M6 15a6 6 0 0 1 12 0M12 2v6m-3-3 3-3 3 3M3 12l2 1m14 0 2-1" /></svg>
+                <span id="sunriseTime">—</span>
+              </span>
+              <span id="sunsetItem" class="sun-event" tabindex="0">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" aria-hidden="true"><path d="M3 18h18M6 15a6 6 0 0 1 12 0M12 2v6m-3-3 3 3 3-3M3 12l2 1m14 0 2-1" /></svg>
+                <span id="sunsetTime">—</span>
+              </span>
+              <span id="uvItem" class="sun-event" tabindex="0">
+                <span class="uv-label">UV max</span><span id="uvIndex">—</span>
+              </span>
+            </div>
+            <div id="weatherForecast" class="weather-forecast" aria-label="Forecast for the next three days" hidden></div>
           </div>
         </div>
       </aside>
-      <details id="sourceCredits" class="source-credits">
-        <summary aria-label="Sources and credits" title="Sources and credits">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true">
-            <circle cx="12" cy="12" r="9" /><path d="M12 11v6" /><circle cx="12" cy="7.5" r="0.75" fill="currentColor" stroke="none" />
-          </svg>
-        </summary>
-        <div class="credits-popup">
-          <strong>Sources &amp; credits</strong>
-          <div id="quoteAttribution" aria-live="polite">Loading quote source…</div>
-          <div>Weather by <a href="https://open-meteo.com/" target="_blank" rel="noopener noreferrer">Open-Meteo</a></div>
-        </div>
-      </details>
     </div>
   </main>
 
@@ -986,8 +1007,7 @@
         <div>
           <h1>Quote + Clock customizer</h1>
           <p>
-            Configure the widget here, preview it live, then copy the generated URL into a Notion embed.
-            None of these controls appear in the final Notion widget.
+            Make it yours, then copy the embed link into Notion.
           </p>
         </div>
       </header>
@@ -1013,6 +1033,10 @@
           <div class="control-group">
             <label for="fontControl">Quote &amp; clock text style</label>
             <select id="fontControl">
+              <option value="manrope">Manrope — modern</option>
+              <option value="dmsans">DM Sans — soft</option>
+              <option value="outfit">Outfit — geometric</option>
+              <option value="space">Space Grotesk — distinctive</option>
               <option value="serif">Editorial serif</option>
               <option value="sans">Clean sans serif</option>
               <option value="mono">Minimal mono</option>
@@ -1030,7 +1054,7 @@
           <div class="divider"></div>
 
           <h2>Quote</h2>
-          <div class="section-note">Settings keep the current quote. Reload or use ↻ to apply quote filters to the next one.</div>
+          <div class="section-note">Source, category and length changes load a new quote. Appearance changes keep it.</div>
 
           <div class="control-group">
             <label for="sourceControl">Source</label>
@@ -1061,7 +1085,7 @@
           <div class="control-group">
             <label for="maxLengthControl">Maximum quote length</label>
             <div class="range-row">
-              <input id="maxLengthControl" type="range" min="90" max="360" step="10" value="240" />
+              <input id="maxLengthControl" type="range" min="90" max="360" step="10" value="200" />
               <span id="maxLengthValue" class="range-value">240</span>
             </div>
           </div>
@@ -1115,7 +1139,7 @@
           <div class="preview-top">
             <div>
               <h2>Live preview</h2>
-              <div class="section-note" style="margin:4px 0 0">This is approximately what Notion will show.</div>
+              <div class="section-note" style="margin:4px 0 0">Your widget, as it will appear in Notion.</div>
             </div>
             <div id="embedUrlPreview"></div>
           </div>
@@ -1167,6 +1191,10 @@
       document.body.dataset.theme = config.theme;
 
       const fontMap = {
+        manrope: '"Manrope", "Segoe UI", sans-serif',
+        dmsans: '"DM Sans", "Segoe UI", sans-serif',
+        outfit: '"Outfit", "Century Gothic", sans-serif',
+        space: '"Space Grotesk", "Segoe UI", sans-serif',
         serif: 'Georgia, "Times New Roman", serif',
         sans: 'Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif',
         mono: '"SFMono-Regular", Consolas, "Liberation Mono", Menlo, monospace'
@@ -1174,7 +1202,7 @@
 
       document.documentElement.style.setProperty(
         "--quote-font",
-        fontMap[config.font] || fontMap.serif
+        fontMap[config.font] || fontMap.manrope
       );
 
       document.documentElement.style.setProperty(
@@ -1197,7 +1225,7 @@
       ];
 
       const allowedFonts = [
-        "serif", "sans", "mono"
+        "manrope", "dmsans", "outfit", "space", "serif", "sans", "mono"
       ];
 
       const theme = allowedThemes.includes(params.get("theme"))
@@ -1210,7 +1238,7 @@
 
       const font = allowedFonts.includes(params.get("font"))
         ? params.get("font")
-        : "serif";
+        : "manrope";
 
       return {
         theme,
@@ -1358,9 +1386,10 @@
       }
 
       applyAppearance();
+      const fitQuote = startQuoteSizing();
       const updateClock = startClock(config);
-      const clearQuoteQueues = startQuotes(config);
-      startWeather();
+      const reloadQuote = startQuotes(config);
+      const updateWeatherFormat = startWeather(config);
       window.addEventListener("message", event => {
         if (window.parent === window || event.source !== window.parent || event.origin !== window.location.origin) return;
         if (event.data?.type !== "quote-widget-settings" || typeof event.data.url !== "string") return;
@@ -1370,9 +1399,11 @@
         const nextConfig = getWidgetConfig(url.searchParams);
         const quoteSettingsChanged = ["source", "category", "maxLength"].some(key => config[key] !== nextConfig[key]);
         Object.assign(config, nextConfig);
-        if (quoteSettingsChanged) clearQuoteQueues();
+        if (quoteSettingsChanged) reloadQuote();
         applyAppearance();
+        fitQuote();
         updateClock();
+        updateWeatherFormat();
         // Keep reloads on the latest settings without navigating the preview.
         try { window.history.replaceState(null, "", url); } catch { /* Local-file history can be restricted. */ }
       });
@@ -1386,6 +1417,85 @@
           credits.querySelector("summary").focus();
         }
       });
+    }
+
+    function startQuoteSizing() {
+      const shell = document.querySelector(".widget-shell");
+      const panel = document.querySelector(".quote-panel");
+      const content = document.getElementById("quoteContent");
+      const text = document.getElementById("quoteText");
+      const clock = document.querySelector(".clock-panel");
+      const clockInner = document.querySelector(".clock-inner");
+      let frame = 0;
+
+      function verticalSpace(element) {
+        const style = getComputedStyle(element);
+        return ["paddingTop", "paddingBottom", "borderTopWidth", "borderBottomWidth"]
+          .reduce((sum, property) => sum + (parseFloat(style[property]) || 0), 0);
+      }
+
+      function fitAtAvailableWidth() {
+        // Start from the selected style so short quotes and larger embeds regain their normal size.
+        text.style.removeProperty("font-size");
+        const baseSize = parseFloat(getComputedStyle(text).fontSize);
+        const minimum = Math.min(baseSize, parseFloat(getComputedStyle(document.documentElement).fontSize) * 0.875);
+        const viewportSpace = document.documentElement.clientHeight - verticalSpace(shell);
+        // Measure the clock's contents, not its grid-stretched card, to avoid a sizing feedback loop.
+        const clockHeight = clockInner.offsetHeight + verticalSpace(clock);
+        const stacked = window.matchMedia("(max-width: 680px)").matches;
+        const gap = parseFloat(getComputedStyle(shell).rowGap) || 0;
+        const panelBudget = stacked ? Math.max(110, viewportSpace - clockHeight - gap) : Math.max(viewportSpace, clockHeight);
+        const contentBudget = Math.max(0, panelBudget - verticalSpace(panel));
+        const fits = () => content.offsetHeight <= contentBudget + 0.5 && text.scrollWidth <= text.clientWidth + 1;
+        if (fits()) return;
+
+        let low = minimum;
+        let high = baseSize;
+        text.style.fontSize = `${minimum}px`;
+        // Keep all text visible if even the readable minimum needs a taller card.
+        if (!fits()) return;
+        for (let i = 0; i < 9; i++) {
+          const candidate = (low + high) / 2;
+          text.style.fontSize = `${candidate}px`;
+          if (fits()) low = candidate;
+          else high = candidate;
+        }
+        text.style.fontSize = `${Math.max(minimum, Math.floor(low * 10) / 10)}px`;
+      }
+
+      function fit() {
+        frame = 0;
+        const root = document.documentElement;
+        const previousOverflow = root.style.overflowY;
+        // A scrollbar can narrow the clock enough to wrap its rows. Measure without
+        // that transient scrollbar so quote overflow does not become self-sustaining.
+        root.style.overflowY = "hidden";
+        try { fitAtAvailableWidth(); }
+        finally { root.style.overflowY = previousOverflow; }
+      }
+
+      function schedule() {
+        if (!frame) frame = requestAnimationFrame(fit);
+      }
+
+      const changes = new MutationObserver(schedule);
+      changes.observe(content, { childList: true, subtree: true, characterData: true });
+      let lastWidth = panel.clientWidth;
+      let lastClockHeight = clockInner.offsetHeight;
+      const resize = new ResizeObserver(() => {
+        if (panel.clientWidth !== lastWidth || clockInner.offsetHeight !== lastClockHeight) {
+          lastWidth = panel.clientWidth;
+          lastClockHeight = clockInner.offsetHeight;
+          schedule();
+        }
+      });
+      resize.observe(panel);
+      resize.observe(clockInner);
+      window.addEventListener("resize", schedule);
+      document.fonts?.ready.then(schedule);
+      document.fonts?.addEventListener("loadingdone", schedule);
+      schedule();
+      return schedule;
     }
 
     /* ============================================================
@@ -1477,8 +1587,11 @@
     /* ============================================================
        QUOTES
     ============================================================ */
-    async function fetchJson(url, timeoutMs = 14000) {
+    async function fetchJson(url, timeoutMs = 14000, signal) {
       const controller = new AbortController();
+      const abort = () => controller.abort();
+      if (signal?.aborted) abort();
+      else signal?.addEventListener("abort", abort, { once: true });
       const timer = setTimeout(() => controller.abort(), timeoutMs);
 
       try {
@@ -1495,14 +1608,18 @@
         return await response.json();
       } finally {
         clearTimeout(timer);
+        signal?.removeEventListener("abort", abort);
       }
     }
 
-    function startWeather() {
+    function startWeather(config) {
       const weatherCard = document.getElementById("weatherCard");
       const locationEl = document.getElementById("weatherLocation");
       const summaryEl = document.getElementById("weatherSummary");
       const forecastEl = document.getElementById("weatherForecast");
+      const sunTimes = document.getElementById("sunTimes");
+      let displayedDaily = null;
+      let displayedDay = "";
       const picker = document.getElementById("locationPicker");
       const resultsEl = document.getElementById("locationResults");
       const statusEl = document.getElementById("locationSearchStatus");
@@ -1567,7 +1684,7 @@
         forecastEl.hidden = false;
         const days = Array.isArray(daily?.time)
           ? daily.time.map((date, index) => ({ date, index }))
-            .filter(day => /^\d{4}-\d{2}-\d{2}$/.test(day.date) && day.date > today).slice(0, 2)
+            .filter(day => /^\d{4}-\d{2}-\d{2}$/.test(day.date) && day.date > today).slice(0, 3)
           : [];
         if (!days.length) {
           const message = document.createElement("span");
@@ -1611,6 +1728,34 @@
         }
       }
 
+      function renderSunTimes() {
+        const index = displayedDaily?.time?.indexOf(displayedDay) ?? -1;
+        sunTimes.hidden = index < 0;
+        if (index < 0) return;
+        const uv = displayedDaily.uv_index_max?.[index];
+        const uvAvailable = Number.isFinite(uv) && uv >= 0;
+        const uvText = uvAvailable ? String(Math.round(uv * 10) / 10) : "—";
+        document.getElementById("uvIndex").textContent = uvText;
+        const uvItem = document.getElementById("uvItem");
+        uvItem.title = uvAvailable ? `Today's maximum UV index: ${uvText} · ${locationEl.textContent}` : "Today's maximum UV index unavailable";
+        uvItem.setAttribute("aria-label", uvItem.title);
+        for (const kind of ["sunrise", "sunset"]) {
+          const value = displayedDaily[kind]?.[index];
+          // The API returns wall-clock times for the weather location, not the browser's zone.
+          const match = typeof value === "string" && value.match(/T(\d{2}):(\d{2})/);
+          let text = "—";
+          if (match) {
+            const hour = Number(match[1]);
+            text = config.timeFormat === "24" ? `${match[1]}:${match[2]}` : `${hour % 12 || 12}:${match[2]} ${hour < 12 ? "am" : "pm"}`;
+          }
+          const label = kind === "sunrise" ? "Sunrise" : "Sunset";
+          const item = document.getElementById(`${kind}Item`);
+          document.getElementById(`${kind}Time`).textContent = text;
+          item.title = match ? `${label}: ${text} · ${locationEl.textContent} local time` : `${label} time unavailable for today`;
+          item.setAttribute("aria-label", item.title);
+        }
+      }
+
       async function showWeather(place, force = false) {
         if (!validPlace(place)) return;
         const version = ++requestVersion;
@@ -1620,8 +1765,10 @@
         summaryEl.textContent = "Loading weather…";
         weatherCard.dataset.condition = "loading";
         forecastEl.hidden = true;
+        sunTimes.hidden = true;
+        displayedDaily = null;
         summaryEl.removeAttribute("title");
-        const cacheKey = `quote-widget-weather:${place.latitude}:${place.longitude}`;
+        const cacheKey = `quote-widget-weather-v3:${place.latitude}:${place.longitude}`;
         try {
           const cached = readStored("sessionStorage", cacheKey);
           let current = cached?.current;
@@ -1632,7 +1779,7 @@
             url.search = new URLSearchParams({
               latitude: place.latitude, longitude: place.longitude,
               current: "temperature_2m,weather_code,is_day",
-              daily: "weather_code,temperature_2m_max,temperature_2m_min", forecast_days: 3,
+              daily: "weather_code,temperature_2m_max,temperature_2m_min,sunrise,sunset,uv_index_max", forecast_days: 4,
               temperature_unit: "celsius", timezone: "auto"
             });
             const data = await fetchJson(url.toString(), 10000);
@@ -1646,14 +1793,24 @@
           if (!Number.isFinite(current?.temperature_2m)) throw new Error("Weather unavailable");
           const description = describeWeather(current.weather_code, current.is_day);
           animateWeather(current.weather_code, current.is_day);
-          renderForecast(daily, locationDate(timeZone) || current.time?.slice(0, 10) || "");
-          summaryEl.textContent = `${Math.round(current.temperature_2m)}°C${description ? ` · ${description}` : ""}`;
+          displayedDay = locationDate(timeZone) || current.time?.slice(0, 10) || "";
+          displayedDaily = daily;
+          renderForecast(daily, displayedDay);
+          renderSunTimes();
+          const temperature = document.createElement("span");
+          temperature.className = "weather-temperature";
+          temperature.textContent = `${Math.round(current.temperature_2m)}°C`;
+          const condition = document.createElement("span");
+          condition.className = "weather-condition";
+          condition.textContent = description;
+          summaryEl.replaceChildren(temperature, " ", condition);
           summaryEl.title = current.time ? `Weather updated ${current.time.replace("T", " ")} (location time)` : "";
         } catch {
           if (version === requestVersion) {
             summaryEl.textContent = "Weather unavailable · Try ↻";
             weatherCard.dataset.condition = "unavailable";
             forecastEl.hidden = true;
+            sunTimes.hidden = true;
           }
         }
       }
@@ -1665,6 +1822,8 @@
         summaryEl.textContent = "Loading weather…";
         weatherCard.dataset.condition = "loading";
         forecastEl.hidden = true;
+        sunTimes.hidden = true;
+        displayedDaily = null;
         try {
           const cached = readStored("sessionStorage", "quote-widget-auto-location");
           let place = cached?.place;
@@ -1737,6 +1896,16 @@
       setInterval(() => {
         if (activePlace && !document.hidden) showWeather(activePlace);
       }, 15 * 60 * 1000);
+      document.addEventListener("click", event => {
+        if (!picker.contains(event.target)) picker.open = false;
+      });
+      document.addEventListener("keydown", event => {
+        if (event.key === "Escape" && picker.open) {
+          picker.open = false;
+          locationEl.focus();
+        }
+      });
+      return renderSunTimes;
     }
 
     function startQuotes(config) {
@@ -1744,38 +1913,13 @@
       const quoteText = document.getElementById("quoteText");
       const quoteAuthor = document.getElementById("quoteAuthor");
       const refreshButton = document.getElementById("refreshButton");
-      const quoteAttribution = document.getElementById("quoteAttribution");
-
-      let busy = false;
+      const attribution = document.getElementById("quoteAttribution");
       let previousQuote = "";
-      let settingsRevision = 0;
+      let requestVersion = 0;
+      let requestController;
+      let requestTimer;
+      let queues = { notion: [], zenquotes: [], local: [] };
 
-      const sourceLabels = { zenquotes: "ZenQuotes", notion: "Notion Quotes" };
-
-      function updateSourceDisplay(provider) {
-        const sourceUrls = {
-          zenquotes: "https://zenquotes.io/",
-          notion: "https://notion-quotes-generator.vercel.app/"
-        };
-        quoteAttribution.replaceChildren();
-        if (sourceUrls[provider]) {
-          const link = document.createElement("a");
-          link.href = sourceUrls[provider];
-          link.textContent = sourceLabels[provider];
-          link.target = "_blank";
-          link.rel = "noopener noreferrer";
-          quoteAttribution.append("Quotes via ", link);
-        } else {
-          quoteAttribution.textContent = "Quotes from the built-in collection";
-        }
-      }
-
-      const queues = { zenquotes: [], notion: [], local: [] };
-
-      /*
-        Local fallback = intentionally simple original micro-quotes.
-        It prevents the widget from ever displaying an API error.
-      */
       const LOCAL_QUOTES = [
         { text: "Make room for curiosity.", author: "" },
         { text: "Small steps still move you forward.", author: "" },
@@ -1787,166 +1931,121 @@
         { text: "Build the day you want to remember.", author: "" }
       ];
 
-      function normalizeQuotes(records) {
-        const list = Array.isArray(records) ? records : [records];
-
-        return list
+      function normalize(records, settings) {
+        return (Array.isArray(records) ? records : [records])
           .filter(item => item && typeof item === "object")
-          .map(item => {
-            const text = typeof item.q === "string" ? item.q : typeof item.quote === "string" ? item.quote : "";
-            const author = typeof item.a === "string" ? item.a : typeof item.author === "string" ? item.author : "";
-            return { text: text.trim(), author: author.trim() };
-          })
-          .filter(item => item.text && item.text.length <= config.maxLength);
+          .map(item => ({
+            text: typeof item.quote === "string" ? item.quote.trim() : typeof item.q === "string" ? item.q.trim() : "",
+            author: typeof item.author === "string" ? item.author.trim() : typeof item.a === "string" ? item.a.trim() : ""
+          }))
+          .filter(item => item.text && item.text.length <= settings.maxLength && item.text !== previousQuote);
       }
 
-      async function fetchZenQuotes() {
-        const urls = [
-          "https://zenquotes.io/api/random"
-        ];
-
-        let lastError = null;
-
-        for (const urlString of urls) {
-          try {
-            const data = await fetchJson(urlString, 8000);
-            const quotes = normalizeQuotes(data);
-
-            if (quotes.length) {
-              return quotes;
-            }
-
-            lastError = new Error("ZenQuotes returned no usable quotes.");
-          } catch (error) {
-            lastError = error;
-          }
-        }
-
-        if (lastError) {
-          throw lastError;
-        }
-
-        throw new Error("ZenQuotes returned no usable quotes.");
-      }
-
-      async function refillZenQuotes() {
-        queues.zenquotes = await fetchZenQuotes();
-      }
-
-      async function fetchNotionQuotes(useCategory = true) {
+      async function fetchNotion(settings, signal, useCategory = true) {
         const url = new URL("https://notion-quotes-generator.vercel.app/api/quotes/random");
-        url.searchParams.set("count", config.batchSize);
-        url.searchParams.set("maxLength", config.maxLength);
-        if (useCategory && config.category) {
+        url.searchParams.set("count", settings.batchSize);
+        url.searchParams.set("maxLength", settings.maxLength);
+        if (useCategory && settings.category) {
           const tags = { motivational: "motivation", inspirational: "inspiration", funny: "humor" };
-          url.searchParams.set("tags", tags[config.category] || config.category);
+          url.searchParams.set("tags", tags[settings.category] || settings.category);
         }
-        const quotes = normalizeQuotes(await fetchJson(url.toString(), 8000));
-        if (!quotes.length) throw new Error("Notion Quotes returned no usable quotes.");
+        const quotes = normalize(await fetchJson(url.toString(), 8000, signal), settings);
+        if (!quotes.length) throw new Error("No matching quotes returned");
         return quotes;
       }
 
-      async function refillNotionQuotes() {
-        try {
-          queues.notion = await fetchNotionQuotes();
-        } catch (error) {
-          if (!config.category) throw error;
-          queues.notion = await fetchNotionQuotes(false);
-        }
-      }
-
-      function refillLocal() {
-        queues.local = [...LOCAL_QUOTES];
-
-        for (let i = queues.local.length - 1; i > 0; i--) {
-          const j = Math.floor(Math.random() * (i + 1));
-          [queues.local[i], queues.local[j]] =
-            [queues.local[j], queues.local[i]];
-        }
-      }
-
-      async function getFromProvider(provider) {
-        if (!queues[provider].length) {
-          if (provider === "zenquotes") {
-            await refillZenQuotes();
-          } else if (provider === "notion") {
-            await refillNotionQuotes();
-          } else {
-            refillLocal();
-          }
-        }
-
-        let quote = queues[provider].shift();
-
-        if (
-          quote?.text === previousQuote &&
-          queues[provider].length
-        ) {
-          quote = queues[provider].shift();
-        }
-
-        if (!quote) {
-          throw new Error(`No quote available from ${provider}.`);
-        }
-
-        return { ...quote, source: provider };
-      }
-
-      function providerOrder() {
-        if (config.source === "local") return ["local"];
-        if (config.source === "zenquotes") return ["zenquotes", "notion", "local"];
-        return ["notion", "zenquotes", "local"];
-      }
-
-      async function nextQuote() {
-        for (const provider of providerOrder()) {
+      async function nextQuote(settings, activeQueues, signal) {
+        const providers = settings.source === "local" ? ["local"] : settings.source === "zenquotes"
+          ? ["zenquotes", "notion", "local"] : ["notion", "zenquotes", "local"];
+        for (const provider of providers) {
+          if (signal.aborted) throw new DOMException("Aborted", "AbortError");
           try {
-            return await getFromProvider(provider);
+            if (!activeQueues[provider].length) {
+              if (provider === "notion") {
+                try { activeQueues.notion = await fetchNotion(settings, signal); }
+                catch (error) {
+                  if (signal.aborted || !settings.category) throw error;
+                  activeQueues.notion = await fetchNotion(settings, signal, false);
+                }
+              } else if (provider === "zenquotes") {
+                activeQueues.zenquotes = normalize(await fetchJson("https://zenquotes.io/api/random", 8000, signal), settings);
+              } else {
+                activeQueues.local = LOCAL_QUOTES.filter(quote => quote.text !== previousQuote && quote.text.length <= settings.maxLength);
+                for (let i = activeQueues.local.length - 1; i > 0; i--) {
+                  const j = Math.floor(Math.random() * (i + 1));
+                  [activeQueues.local[i], activeQueues.local[j]] = [activeQueues.local[j], activeQueues.local[i]];
+                }
+              }
+            }
+            let quote = activeQueues[provider].shift();
+            while (quote?.text === previousQuote && activeQueues[provider].length) quote = activeQueues[provider].shift();
+            if (quote && quote.text !== previousQuote) return { ...quote, source: provider };
           } catch (error) {
-            console.warn(`[Quote widget] ${provider} failed:`, error);
+            if (signal.aborted) throw error;
+            console.warn(`[Quote widget] ${provider} unavailable:`, error);
           }
         }
-
-        return { text: "Make room for curiosity.", author: "" };
+        return { ...LOCAL_QUOTES.find(quote => quote.text !== previousQuote), source: "local" };
       }
 
-      async function displayNextQuote() {
-        if (busy) return;
-        busy = true;
-
-        refreshButton.classList.add("loading");
-        quoteContent.classList.add("is-changing");
-
-        await new Promise(resolve => setTimeout(resolve, 165));
-
-        const revision = settingsRevision;
-        const quote = await nextQuote();
-        if (revision !== settingsRevision) {
-          Object.keys(queues).forEach(provider => { queues[provider] = []; });
-        }
+      function showQuote(quote) {
         previousQuote = quote.text;
-        updateSourceDisplay(quote.source || "local");
-
         quoteText.textContent = quote.text;
-
-        if (quote.author) {
-          quoteAuthor.textContent = `— ${quote.author}`;
-          quoteAuthor.style.display = "";
-        } else {
-          quoteAuthor.textContent = "";
-          quoteAuthor.style.display = "none";
-        }
-
-        quoteContent.classList.remove("is-changing");
-        refreshButton.classList.remove("loading");
-        busy = false;
+        quoteAuthor.textContent = quote.author ? `— ${quote.author}` : "";
+        quoteAuthor.style.display = quote.author ? "" : "none";
+        const sources = {
+          notion: ["Notion Quotes", "https://notion-quotes-generator.vercel.app/"],
+          zenquotes: ["ZenQuotes", "https://zenquotes.io/"]
+        };
+        attribution.replaceChildren();
+        if (sources[quote.source]) {
+          const link = document.createElement("a");
+          [link.textContent, link.href] = sources[quote.source];
+          link.target = "_blank";
+          link.rel = "noopener noreferrer";
+          attribution.append("Quotes via ", link);
+        } else attribution.textContent = "Quotes from the built-in collection";
       }
 
-      refreshButton.addEventListener("click", displayNextQuote);
-      displayNextQuote();
+      function requestQuote(delay = 0) {
+        clearTimeout(requestTimer);
+        requestController?.abort();
+        const version = ++requestVersion;
+        const controller = new AbortController();
+        requestController = controller;
+        const settings = { ...config };
+        const activeQueues = queues;
+        quoteContent.classList.remove("is-changing");
+        quoteContent.setAttribute("aria-busy", "true");
+        refreshButton.classList.add("loading");
+        refreshButton.disabled = true;
+        requestTimer = setTimeout(async () => {
+          try {
+            const quote = await nextQuote(settings, activeQueues, controller.signal);
+            if (version !== requestVersion) return;
+            quoteContent.classList.add("is-changing");
+            await new Promise(resolve => setTimeout(resolve, 120));
+            if (version === requestVersion) showQuote(quote);
+          } catch (error) {
+            if (version === requestVersion && !controller.signal.aborted) {
+              showQuote({ ...LOCAL_QUOTES.find(quote => quote.text !== previousQuote), source: "local" });
+            }
+          } finally {
+            if (version === requestVersion) {
+              quoteContent.classList.remove("is-changing");
+              quoteContent.setAttribute("aria-busy", "false");
+              refreshButton.classList.remove("loading");
+              refreshButton.disabled = false;
+            }
+          }
+        }, delay);
+      }
+
+      refreshButton.addEventListener("click", () => requestQuote());
+      requestQuote();
       return () => {
-        settingsRevision += 1;
-        Object.keys(queues).forEach(provider => { queues[provider] = []; });
+        queues = { notion: [], zenquotes: [], local: [] };
+        requestQuote(240);
       };
     }
   </script>
