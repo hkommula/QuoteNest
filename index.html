@@ -139,7 +139,7 @@
     #embedView {
       width: 100%;
       min-height: 100vh;
-      height: 100%;
+      height: auto;
       background: var(--bg);
       color: var(--text);
       position: relative;
@@ -193,39 +193,101 @@
       to { transform: translate(-60px, -80px) scale(1.22); }
     }
 
+    .background-birds {
+      position: absolute;
+      inset: 0;
+      z-index: 0;
+      overflow: hidden;
+      pointer-events: none;
+      user-select: none;
+      color: var(--text);
+    }
+    .bird-definitions { position: absolute; width: 0; height: 0; }
+    .bird-flight {
+      position: absolute;
+      left: -120px;
+      top: 12%;
+      width: 96px;
+      height: 76px;
+      opacity: 0.075;
+      animation: bird-crossing 48s linear infinite;
+      animation-delay: -12s;
+    }
+    .bird-flight:nth-of-type(3) {
+      top: 65%;
+      width: 74px;
+      height: 60px;
+      opacity: 0.055;
+      animation-duration: 63s;
+      animation-delay: -39s;
+    }
+    .bird-flight:nth-of-type(4) {
+      top: 32%;
+      width: 84px;
+      height: 67px;
+      opacity: 0.06;
+      animation-duration: 56s;
+      animation-delay: -44s;
+    }
+    .bird-wing { transform-origin: 60px 51px; animation: bird-wingbeat 3.8s ease-in-out infinite; }
+    .bird-wing-right { animation-delay: -0.15s; }
+    @keyframes bird-crossing {
+      0% { transform: translate(-60px, 18px) rotate(-12deg); }
+      45% { transform: translate(calc(45vw + 70px), -14px) rotate(-3deg); }
+      100% { transform: translate(calc(100vw + 180px), -30px) rotate(8deg); }
+    }
+    @keyframes bird-wingbeat {
+      0%, 45%, 100% { transform: scaleY(1) rotate(0deg); }
+      65% { transform: scaleY(0.72) rotate(-3deg); }
+      80% { transform: scaleY(0.96) rotate(1deg); }
+    }
+
     .widget-shell {
       position: relative;
       z-index: 2;
       width: 100%;
-      height: 100%;
-      min-height: 220px;
+      min-height: max(260px, 100vh);
       display: grid;
-      grid-template-columns: minmax(0, 3fr) minmax(165px, 1fr);
-      gap: clamp(22px, 4vw, 54px);
+      grid-template-columns: minmax(0, var(--quote-fraction, 3fr)) minmax(165px, var(--clock-fraction, 1fr));
+      gap: clamp(14px, 2.4vw, 30px);
       align-items: stretch;
-      padding: clamp(20px, 4vw, 44px);
+      padding: 10px clamp(12px, 1.6vw, 22px) 38px;
     }
 
     .quote-panel,
     .clock-panel {
+      font-family: var(--quote-font);
       min-width: 0;
       border: 1px solid var(--border);
+      border-color: color-mix(in srgb, var(--border) 22%, transparent);
       border-radius: var(--radius);
+      box-shadow: 0 8px 30px rgba(40, 30, 20, 0.018);
+    }
+
+    .quote-panel::before,
+    .clock-panel::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      z-index: -1;
+      border-radius: inherit;
+      pointer-events: none;
       background: var(--soft);
-      box-shadow: var(--shadow);
-      backdrop-filter: blur(20px);
-      -webkit-backdrop-filter: blur(20px);
+      background: color-mix(in srgb, var(--soft) 38%, transparent);
+      backdrop-filter: blur(9px);
+      -webkit-backdrop-filter: blur(9px);
     }
 
     .quote-panel {
       position: relative;
       display: flex;
       align-items: center;
-      padding: clamp(30px, 5vw, 72px);
-      padding-right: clamp(42px, 6vw, 80px);
+      padding: 20px clamp(24px, 3.4vw, 48px) 42px;
     }
 
     .quote-content {
+      position: relative;
+      z-index: 1;
       width: 100%;
       transition: opacity 180ms ease, transform 180ms ease;
     }
@@ -237,11 +299,16 @@
 
     .quote-mark {
       font-family: var(--quote-font);
-      font-size: clamp(2.4rem, 5vw, 5.4rem);
+      font-size: clamp(1.8rem, 3.2vw, 3rem);
       line-height: 0.75;
       opacity: 0.15;
       margin-bottom: 7px;
       user-select: none;
+    }
+
+    .quote-mark-end {
+      text-align: right;
+      margin: 6px 0 -8px;
     }
 
     #quoteText {
@@ -255,11 +322,61 @@
     }
 
     #quoteAuthor {
-      margin-top: clamp(16px, 2.2vw, 26px);
+      margin-top: 12px;
       color: var(--muted);
       font-size: clamp(0.72rem, 1vw, 0.92rem);
       letter-spacing: 0.075em;
       font-weight: 600;
+    }
+
+    .source-credits {
+      position: absolute;
+      left: clamp(12px, 1.6vw, 22px);
+      bottom: 4px;
+      font-family: var(--quote-font);
+      z-index: 3;
+    }
+
+    .source-credits summary {
+      display: grid;
+      place-items: center;
+      width: 30px;
+      height: 30px;
+      border-radius: 50%;
+      list-style: none;
+      color: var(--muted);
+      cursor: pointer;
+    }
+
+    .source-credits summary::-webkit-details-marker { display: none; }
+    .source-credits summary:hover, .source-credits[open] summary { background: var(--soft); }
+    .source-credits summary:focus-visible { outline: 2px solid var(--muted); outline-offset: 2px; }
+    .source-credits svg { width: 17px; height: 17px; }
+
+    .credits-popup {
+      position: absolute;
+      bottom: calc(100% + 8px);
+      left: 0;
+      width: min(245px, calc(100vw - 90px));
+      padding: 14px 16px;
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      background: var(--bg);
+      box-shadow: var(--shadow);
+      color: var(--muted);
+      font-size: 0.78rem;
+      line-height: 1.6;
+    }
+
+    .credits-popup strong { display: block; color: var(--text); margin-bottom: 5px; font-weight: 400; }
+    .credits-popup a {
+      color: inherit;
+      text-underline-offset: 3px;
+      text-decoration-color: color-mix(in srgb, currentColor 40%, transparent);
+    }
+
+    .credits-popup a:hover {
+      color: var(--text);
     }
 
     #refreshButton {
@@ -297,15 +414,18 @@
     }
 
     .clock-panel {
-      padding: clamp(22px, 3vw, 38px);
+      position: relative;
+      padding: 12px clamp(10px, 1.2vw, 18px);
       display: flex;
       align-items: center;
       justify-content: center;
       text-align: center;
-      overflow: hidden;
+      overflow: visible;
     }
 
     .clock-inner {
+      position: relative;
+      z-index: 1;
       width: 100%;
     }
 
@@ -314,16 +434,23 @@
       letter-spacing: 0.18em;
       font-size: clamp(0.58rem, 0.8vw, 0.72rem);
       color: var(--muted);
-      margin-bottom: 12px;
+      margin-bottom: 6px;
     }
 
-    #clockTime {
+    .clock-reading {
       font-variant-numeric: tabular-nums;
-      font-size: clamp(2.0rem, 4vw, 4.6rem);
+      font-size: clamp(1.8rem, 3.8vw, 3.8rem);
       line-height: 0.95;
-      letter-spacing: -0.065em;
-      font-weight: 650;
+      letter-spacing: -0.025em;
+      font-weight: 400;
       white-space: nowrap;
+    }
+
+    #clockTime { font-size: inherit; }
+
+    .clock-separator {
+      display: inline-block;
+      margin-inline: 0.12em;
     }
 
     #clockMeridiem {
@@ -344,39 +471,164 @@
     }
 
     #clockDate {
-      margin-top: 17px;
+      margin-top: 8px;
       color: var(--muted);
       font-size: clamp(0.72rem, 1vw, 0.9rem);
       line-height: 1.45;
     }
 
     #clockZone {
-      margin-top: 6px;
+      margin-top: 3px;
       color: var(--muted);
       opacity: 0.72;
       font-size: clamp(0.60rem, 0.8vw, 0.72rem);
       letter-spacing: 0.06em;
     }
 
+    .weather {
+      position: relative;
+      margin-top: 10px;
+      padding: 6px 6px 8px;
+      border-radius: 18px;
+      background: linear-gradient(150deg, rgba(242, 205, 129, 0.08), rgba(158, 199, 229, 0.08));
+      font-size: 0.78rem;
+      line-height: 1.5;
+    }
+
+    .weather-visual { height: 30px; margin-bottom: 3px; pointer-events: none; }
+    .weather-visual svg { width: 58px; height: 34px; overflow: visible; }
+    .weather-visual g { display: none; }
+    .weather-sun { color: #c6923c; }
+    .weather-moon { color: #9faccd; }
+    .weather-cloud { color: #94a8b7; }
+    .weather-rain { color: #7fa7c3; }
+    .weather-snow { color: #9fb8c9; }
+    .weather-fog { color: #98a6ad; }
+    .weather-lightning { color: #d1ad64; }
+    .weather[data-condition="clear"][data-period="day"] .weather-sun,
+    .weather[data-condition="partly-cloudy"][data-period="day"] .weather-sun,
+    .weather[data-condition="clear"][data-period="night"] .weather-moon,
+    .weather[data-condition="partly-cloudy"][data-period="night"] .weather-moon,
+    .weather:is([data-condition="cloudy"], [data-condition="partly-cloudy"], [data-condition="rain"], [data-condition="snow"], [data-condition="storm"]) .weather-cloud,
+    .weather:is([data-condition="rain"], [data-condition="storm"]) .weather-rain,
+    .weather[data-condition="snow"] .weather-snow,
+    .weather[data-condition="fog"] .weather-fog,
+    .weather[data-condition="storm"] .weather-lightning { display: inline; }
+    .weather:is([data-condition="loading"], [data-condition="unavailable"]) .weather-visual { display: none; }
+    .weather[data-condition="clear"][data-period="night"] { background: rgba(127, 145, 197, 0.07); }
+    .weather:is([data-condition="rain"], [data-condition="storm"]) { background: rgba(127, 167, 195, 0.08); }
+    .sun-rays { transform-origin: 30px 22px; animation: weather-turn 28s linear infinite; }
+    .weather-moon { animation: weather-float 6s ease-in-out infinite; }
+    .weather-cloud { animation: weather-float 5s ease-in-out infinite; }
+    .weather-rain path { animation: weather-rain 1.3s linear infinite; }
+    .weather-rain path:nth-child(2) { animation-delay: -0.4s; }
+    .weather-rain path:nth-child(3) { animation-delay: -0.8s; }
+    .weather-snow circle { animation: weather-snow 3s ease-in-out infinite; }
+    .weather-snow circle:nth-child(2) { animation-delay: -1s; }
+    .weather-snow circle:nth-child(3) { animation-delay: -2s; }
+    .weather-fog { animation: weather-float 7s ease-in-out infinite; }
+    .weather-lightning { animation: weather-glow 4s ease-in-out infinite; }
+    @keyframes weather-turn { to { transform: rotate(360deg); } }
+    @keyframes weather-float { 50% { transform: translate(3px, -1px); } }
+    @keyframes weather-rain { from { transform: translate(2px, -3px); opacity: 0; } 30% { opacity: 0.8; } to { transform: translate(-2px, 5px); opacity: 0; } }
+    @keyframes weather-snow { from { transform: translate(-2px, -2px); opacity: 0; } 40% { opacity: 0.9; } to { transform: translate(3px, 6px); opacity: 0; } }
+    @keyframes weather-glow { 0%, 70%, 100% { opacity: 0.3; } 85% { opacity: 1; } }
+
+    .location-picker summary {
+      color: var(--muted);
+      cursor: pointer;
+      list-style: none;
+      overflow-wrap: anywhere;
+    }
+
+    .location-picker summary::-webkit-details-marker { display: none; }
+    .location-picker summary::after { content: " ⌄"; opacity: 0.6; }
+
+    .location-form {
+      position: absolute;
+      z-index: 5;
+      bottom: calc(100% - 6px);
+      left: 50%;
+      transform: translateX(-50%);
+      width: min(260px, calc(100vw - 48px));
+      max-height: min(280px, 52vh);
+      overflow-y: auto;
+      padding: 14px;
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      background: var(--bg);
+      box-shadow: var(--shadow);
+      text-align: left;
+    }
+
+    .location-form label { display: block; margin-bottom: 6px; }
+    .location-search { display: flex; gap: 6px; }
+    .location-search input { min-width: 0; width: 100%; }
+    .location-form input, .location-form button {
+      border: 1px solid var(--border);
+      border-radius: 7px;
+      background: var(--soft);
+      color: var(--text);
+      padding: 7px 9px;
+      font-size: 0.72rem;
+    }
+    .location-form button { cursor: pointer; }
+    #locationResults button { display: block; width: 100%; margin-top: 6px; text-align: left; }
+    #locationSearchStatus { margin: 6px 0; color: var(--muted); }
+    #weatherSummary { margin-top: 5px; }
+    .weather-reading { display: flex; justify-content: center; align-items: baseline; gap: 4px; }
+    #weatherRetry { border: 0; padding: 2px; background: none; color: var(--muted); cursor: pointer; }
+
+    .weather-forecast {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 8px;
+      margin-top: 8px;
+      padding-top: 6px;
+      border-top: 1px solid color-mix(in srgb, var(--border) 45%, transparent);
+      font-size: 0.67rem;
+      line-height: 1.4;
+      color: var(--muted);
+      font-variant-numeric: tabular-nums;
+    }
+    .weather-forecast[hidden] { display: none; }
+    .forecast-heading { display: flex; justify-content: center; gap: 5px; align-items: center; }
+    .forecast-temperatures { margin-top: 2px; }
+    .forecast-high { color: var(--text); }
+    .forecast-unavailable { grid-column: 1 / -1; }
+
+    @media (min-width: 681px) and (max-height: 340px) {
+      .weather {
+        display: grid;
+        grid-template-columns: 38px minmax(0, 1fr);
+        align-items: center;
+      }
+      .weather-visual { grid-row: 1 / 3; height: 34px; margin: 0; }
+      .weather-visual svg { width: 42px; height: 34px; }
+      .location-picker, .weather-reading { grid-column: 2; }
+      .weather-forecast { grid-column: 1 / -1; }
+      .weather:is([data-condition="loading"], [data-condition="unavailable"]) { grid-template-columns: 1fr; }
+      .weather:is([data-condition="loading"], [data-condition="unavailable"]) :is(.location-picker, .weather-reading) { grid-column: 1; }
+    }
+
     @media (max-width: 680px) {
       .widget-shell {
         grid-template-columns: 1fr;
-        grid-template-rows: minmax(210px, 1fr) auto;
-        gap: 16px;
-        padding: 15px;
+        grid-template-rows: minmax(150px, 1fr) auto;
+        gap: 12px;
+        padding: 12px 12px 38px;
       }
 
       .quote-panel {
-        padding: 28px 42px 32px 28px;
+        padding: 20px 28px 42px;
       }
 
       .clock-panel {
-        min-height: 130px;
-        padding: 20px;
+        padding: 14px;
       }
 
-      #clockTime {
-        font-size: clamp(2rem, 11vw, 3.8rem);
+      .clock-reading {
+        font-size: clamp(2rem, 9vw, 3rem);
       }
     }
 
@@ -579,7 +831,7 @@
     #previewFrame {
       display: block;
       width: 100%;
-      height: 430px;
+      height: 320px;
       border: 1px solid #e5e7eb;
       border-radius: 16px;
       background: #fafafa;
@@ -597,13 +849,16 @@
       }
 
       #previewFrame {
-        height: 520px;
+        height: 480px;
       }
     }
 
     @media (prefers-reduced-motion: reduce) {
       .aura { animation: none !important; }
       .quote-content { transition: none; }
+      .weather-visual * { animation: none !important; }
+      .background-birds { display: none; }
+      .bird-flight, .bird-wing { animation: none !important; }
     }
   </style>
 </head>
@@ -619,10 +874,36 @@
     <div class="aura a3" aria-hidden="true"></div>
 
     <div class="widget-shell">
+    <div class="background-birds" aria-hidden="true">
+      <svg class="bird-definitions" xmlns="http://www.w3.org/2000/svg">
+        <defs>
+          <symbol id="glidingBird" viewBox="0 0 120 100">
+            <g fill="#eed6b6" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round">
+              <g class="bird-wing bird-wing-left">
+                <path d="M59 49C42 44 29 23 8 18C11 32 30 52 53 59Z" />
+                <path d="M8 18C17 20 24 25 30 31L24 34C16 29 11 24 8 18Z" fill="currentColor" />
+              </g>
+              <g class="bird-wing bird-wing-right">
+                <path d="M63 49C79 39 91 15 112 9C107 27 88 50 66 59Z" />
+                <path d="M112 9C104 12 96 17 90 24L98 25C105 19 110 13 112 9Z" fill="currentColor" />
+              </g>
+              <path d="M56 49C55 43 58 36 63 37C69 37 71 42 68 49L65 62L57 75L56 84L50 80L44 81L49 68L52 57Z" />
+              <path d="M69 40L76 44L69 45Z" fill="currentColor" />
+              <circle cx="65" cy="41" r="0.8" fill="currentColor" stroke="none" />
+            </g>
+          </symbol>
+        </defs>
+      </svg>
+      <svg class="bird-flight" viewBox="0 0 120 100"><use href="#glidingBird" /></svg>
+      <svg class="bird-flight" viewBox="0 0 120 100"><use href="#glidingBird" /></svg>
+      <svg class="bird-flight" viewBox="0 0 120 100"><use href="#glidingBird" /></svg>
+    </div>
+
       <section class="quote-panel">
         <div id="quoteContent" class="quote-content" aria-live="polite">
           <div class="quote-mark" aria-hidden="true">“</div>
           <blockquote id="quoteText">Loading quote…</blockquote>
+          <div class="quote-mark quote-mark-end" aria-hidden="true">”</div>
           <div id="quoteAuthor"></div>
         </div>
 
@@ -635,16 +916,63 @@
         <div class="clock-inner">
           <div class="clock-kicker">Local time</div>
 
-          <div>
-            <span id="clockTime">--:--</span>
+          <div class="clock-reading">
+            <span id="clockTime"><span id="clockHours">--</span><span class="clock-separator">:</span><span id="clockMinutes">--</span></span>
             <span id="clockSeconds"></span>
             <span id="clockMeridiem"></span>
           </div>
 
           <div id="clockDate"></div>
           <div id="clockZone"></div>
+
+          <div id="weatherCard" class="weather" data-condition="loading" data-period="day" aria-label="Local weather">
+            <div class="weather-visual" aria-hidden="true">
+              <svg viewBox="0 0 76 50" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round">
+                <g class="weather-sun">
+                  <circle cx="30" cy="22" r="8" fill="currentColor" fill-opacity="0.12" />
+                  <path class="sun-rays" d="M30 8V5M30 39v-3M16 22h-3M47 22h-3M20 12l-2-2M42 34l-2-2M20 32l-2 2M42 10l-2 2" />
+                </g>
+                <g class="weather-moon"><path d="M38 8a14 14 0 1 0 10 23A15 15 0 0 1 38 8Z" fill="currentColor" fill-opacity="0.15" /><path d="M53 9v4m-2-2h4" /></g>
+                <g class="weather-cloud"><path d="M25 34a8 8 0 0 1-1-16 12 12 0 0 1 23-2 9 9 0 1 1 5 18Z" fill="var(--bg)" fill-opacity="0.85" /></g>
+                <g class="weather-rain"><path d="m29 38-2 5" /><path d="m39 38-2 5" /><path d="m49 38-2 5" /></g>
+                <g class="weather-snow" fill="currentColor" stroke="none"><circle cx="28" cy="40" r="1.6" /><circle cx="39" cy="41" r="1.6" /><circle cx="50" cy="39" r="1.6" /></g>
+                <g class="weather-fog"><path d="M18 18h37M23 25h37M16 32h37M25 39h28" /></g>
+                <g class="weather-lightning"><path d="m39 30-5 9h6l-4 8 12-13h-7l4-4" fill="currentColor" stroke="none" /></g>
+              </svg>
+            </div>
+            <details id="locationPicker" class="location-picker">
+              <summary id="weatherLocation" title="Change weather location">Finding location…</summary>
+              <form id="locationForm" class="location-form">
+                <label for="locationInput">Weather location</label>
+                <div class="location-search">
+                  <input id="locationInput" type="search" placeholder="City, country" required minlength="2" maxlength="120" />
+                  <button type="submit">Find</button>
+                </div>
+                <div id="locationSearchStatus" role="status"></div>
+                <div id="locationResults"></div>
+                <button id="automaticLocation" type="button">Use automatic location</button>
+              </form>
+            </details>
+            <div class="weather-reading">
+              <div id="weatherSummary" role="status">Loading weather…</div>
+              <button id="weatherRetry" type="button" aria-label="Refresh weather" title="Refresh weather">↻</button>
+            </div>
+            <div id="weatherForecast" class="weather-forecast" aria-label="Forecast for the next two days" hidden></div>
+          </div>
         </div>
       </aside>
+      <details id="sourceCredits" class="source-credits">
+        <summary aria-label="Sources and credits" title="Sources and credits">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true">
+            <circle cx="12" cy="12" r="9" /><path d="M12 11v6" /><circle cx="12" cy="7.5" r="0.75" fill="currentColor" stroke="none" />
+          </svg>
+        </summary>
+        <div class="credits-popup">
+          <strong>Sources &amp; credits</strong>
+          <div id="quoteAttribution" aria-live="polite">Loading quote source…</div>
+          <div>Weather by <a href="https://open-meteo.com/" target="_blank" rel="noopener noreferrer">Open-Meteo</a></div>
+        </div>
+      </details>
     </div>
   </main>
 
@@ -683,7 +1011,7 @@
           </div>
 
           <div class="control-group">
-            <label for="fontControl">Quote font</label>
+            <label for="fontControl">Quote &amp; clock text style</label>
             <select id="fontControl">
               <option value="serif">Editorial serif</option>
               <option value="sans">Clean sans serif</option>
@@ -702,15 +1030,15 @@
           <div class="divider"></div>
 
           <h2>Quote</h2>
-          <div class="section-note">Source and filtering are encoded into the embed URL.</div>
+          <div class="section-note">Settings keep the current quote. Reload or use ↻ to apply quote filters to the next one.</div>
 
           <div class="control-group">
             <label for="sourceControl">Source</label>
             <select id="sourceControl">
-              <option value="auto">Auto — QuoteSlate → QuoteGarden → local</option>
-              <option value="quoteslate">QuoteSlate first</option>
-              <option value="quotegarden">QuoteGarden first</option>
-              <option value="local">Local fallback only</option>
+              <option value="auto">Auto — Notion Quotes → ZenQuotes</option>
+              <option value="notion">Notion Quotes first</option>
+              <option value="zenquotes">ZenQuotes first</option>
+              <option value="local">Built-in quotes only</option>
             </select>
           </div>
 
@@ -824,6 +1152,7 @@
        SHARED HELPERS
     ============================================================ */
     function clampNumber(value, min, max, fallback) {
+      if (value === null || value === "") return fallback;
       const n = Number(value);
       if (!Number.isFinite(n)) return fallback;
       return Math.min(max, Math.max(min, n));
@@ -857,15 +1186,14 @@
     /* ============================================================
        WIDGET CONFIG
     ============================================================ */
-    function getWidgetConfig() {
-      const params = new URLSearchParams(window.location.search);
+    function getWidgetConfig(params = new URLSearchParams(window.location.search)) {
 
       const allowedThemes = [
         "aura", "sunset", "ocean", "forest", "cream", "graphite", "midnight"
       ];
 
       const allowedSources = [
-        "auto", "quoteslate", "quotegarden", "local"
+        "auto", "notion", "zenquotes", "local"
       ];
 
       const allowedFonts = [
@@ -924,6 +1252,16 @@
       const previewFrame = document.getElementById("previewFrame");
       const embedUrlPreview = document.getElementById("embedUrlPreview");
       const copyStatus = document.getElementById("copyStatus");
+      let previewStarted = false;
+      let latestPreviewUrl = "";
+
+      function sendPreviewSettings() {
+        if (!latestPreviewUrl) return;
+        const targetOrigin = window.location.protocol === "file:" ? "*" : window.location.origin;
+        previewFrame.contentWindow.postMessage({ type: "quote-widget-settings", url: latestPreviewUrl }, targetOrigin);
+      }
+
+      previewFrame.addEventListener("load", sendPreviewSettings);
 
       function buildEmbedUrl() {
         const url = new URL(window.location.href);
@@ -961,9 +1299,16 @@
         clockWidthValue.textContent = `${controls.clockWidth.value}%`;
 
         const url = buildEmbedUrl();
-        previewFrame.src = url;
         embedUrlPreview.textContent = url;
         embedUrlPreview.title = url;
+        if (url === latestPreviewUrl) return;
+        latestPreviewUrl = url;
+        if (!previewStarted) {
+          previewStarted = true;
+          previewFrame.src = url;
+        } else {
+          sendPreviewSettings();
+        }
       }
 
       Object.values(controls).forEach(control => {
@@ -1005,28 +1350,50 @@
     function startWidget() {
       const config = getWidgetConfig();
 
-      applyThemeAndFont(config);
+      function applyAppearance() {
+        applyThemeAndFont(config);
+        const shell = document.querySelector(".widget-shell");
+        shell.style.setProperty("--quote-fraction", `${Math.max(1, 100 - config.clockWidth)}fr`);
+        shell.style.setProperty("--clock-fraction", `${config.clockWidth}fr`);
+      }
 
-      /*
-        75 / 25 is the default.
-        If the user adjusts clock width in the customizer, translate it
-        into quote/clock grid fractions while preserving the buffer gap.
-      */
-      const quoteFraction = Math.max(1, 100 - config.clockWidth);
-      const clockFraction = config.clockWidth;
-
-      document.querySelector(".widget-shell").style.gridTemplateColumns =
-        `minmax(0, ${quoteFraction}fr) minmax(165px, ${clockFraction}fr)`;
-
-      startClock(config);
-      startQuotes(config);
+      applyAppearance();
+      const updateClock = startClock(config);
+      const clearQuoteQueues = startQuotes(config);
+      startWeather();
+      window.addEventListener("message", event => {
+        if (window.parent === window || event.source !== window.parent || event.origin !== window.location.origin) return;
+        if (event.data?.type !== "quote-widget-settings" || typeof event.data.url !== "string") return;
+        let url;
+        try { url = new URL(event.data.url); } catch { return; }
+        if (url.origin !== window.location.origin || url.pathname !== window.location.pathname) return;
+        const nextConfig = getWidgetConfig(url.searchParams);
+        const quoteSettingsChanged = ["source", "category", "maxLength"].some(key => config[key] !== nextConfig[key]);
+        Object.assign(config, nextConfig);
+        if (quoteSettingsChanged) clearQuoteQueues();
+        applyAppearance();
+        updateClock();
+        // Keep reloads on the latest settings without navigating the preview.
+        try { window.history.replaceState(null, "", url); } catch { /* Local-file history can be restricted. */ }
+      });
+      const credits = document.getElementById("sourceCredits");
+      document.addEventListener("click", event => {
+        if (!credits.contains(event.target)) credits.open = false;
+      });
+      document.addEventListener("keydown", event => {
+        if (event.key === "Escape" && credits.open) {
+          credits.open = false;
+          credits.querySelector("summary").focus();
+        }
+      });
     }
 
     /* ============================================================
        CLOCK
     ============================================================ */
     function startClock(config) {
-      const timeEl = document.getElementById("clockTime");
+      const hoursEl = document.getElementById("clockHours");
+      const minutesEl = document.getElementById("clockMinutes");
       const secondsEl = document.getElementById("clockSeconds");
       const meridiemEl = document.getElementById("clockMeridiem");
       const dateEl = document.getElementById("clockDate");
@@ -1043,7 +1410,8 @@
         }
       }
 
-      const requestedZone = validTimeZone(config.timeZone);
+      let requestedZone = validTimeZone(config.timeZone);
+      let clockTimer;
 
       function renderClock() {
         const now = new Date();
@@ -1064,7 +1432,8 @@
         const second = part("second");
         const dayPeriod = part("dayPeriod");
 
-        timeEl.textContent = `${hour}:${minute}`;
+        hoursEl.textContent = hour;
+        minutesEl.textContent = minute;
         secondsEl.textContent = config.showSeconds ? `:${second}` : "";
         meridiemEl.textContent =
           config.timeFormat === "12" ? dayPeriod.toUpperCase() : "";
@@ -1095,27 +1464,313 @@
         }
       }
 
-      renderClock();
-      setInterval(renderClock, config.showSeconds ? 1000 : 15000);
+      function updateClock() {
+        requestedZone = validTimeZone(config.timeZone);
+        clearInterval(clockTimer);
+        renderClock();
+        clockTimer = setInterval(renderClock, config.showSeconds ? 1000 : 15000);
+      }
+      updateClock();
+      return updateClock;
     }
 
     /* ============================================================
        QUOTES
     ============================================================ */
+    async function fetchJson(url, timeoutMs = 14000) {
+      const controller = new AbortController();
+      const timer = setTimeout(() => controller.abort(), timeoutMs);
+
+      try {
+        const response = await fetch(url, {
+          signal: controller.signal,
+          cache: "no-store",
+          headers: { Accept: "application/json" }
+        });
+
+        if (!response.ok) {
+          throw new Error(`HTTP ${response.status}`);
+        }
+
+        return await response.json();
+      } finally {
+        clearTimeout(timer);
+      }
+    }
+
+    function startWeather() {
+      const weatherCard = document.getElementById("weatherCard");
+      const locationEl = document.getElementById("weatherLocation");
+      const summaryEl = document.getElementById("weatherSummary");
+      const forecastEl = document.getElementById("weatherForecast");
+      const picker = document.getElementById("locationPicker");
+      const resultsEl = document.getElementById("locationResults");
+      const statusEl = document.getElementById("locationSearchStatus");
+      let activePlace = null;
+      let requestVersion = 0;
+      let searchVersion = 0;
+
+      function readStored(storage, key) {
+        try { return JSON.parse(window[storage].getItem(key)); } catch { return null; }
+      }
+
+      function writeStored(storage, key, value) {
+        try { window[storage].setItem(key, JSON.stringify(value)); } catch { /* Storage may be blocked in embeds. */ }
+      }
+
+      function validPlace(place) {
+        return place && typeof place.name === "string" && place.name.trim() &&
+          Number.isFinite(place.latitude) && Math.abs(place.latitude) <= 90 &&
+          Number.isFinite(place.longitude) && Math.abs(place.longitude) <= 180;
+      }
+
+      function describeWeather(code, isDay) {
+        if (code === 0) return isDay ? "Clear sky" : "Clear night";
+        if (code === 1) return "Mainly clear";
+        if (code === 2) return "Partly cloudy";
+        if (code === 3) return "Overcast";
+        if ([45, 48].includes(code)) return "Foggy";
+        if ([51, 53, 55].includes(code)) return "Drizzle";
+        if ([56, 57, 66, 67].includes(code)) return "Freezing rain";
+        if ([61, 63, 65].includes(code)) return "Rain";
+        if ([71, 73, 75, 77].includes(code)) return "Snow";
+        if ([80, 81, 82].includes(code)) return "Rain showers";
+        if ([85, 86].includes(code)) return "Snow showers";
+        if ([95, 96, 99].includes(code)) return "Thunderstorms";
+        return "";
+      }
+
+      function animateWeather(code, isDay) {
+        let condition = "unavailable";
+        if ([0, 1].includes(code)) condition = "clear";
+        else if (code === 2) condition = "partly-cloudy";
+        else if (code === 3) condition = "cloudy";
+        else if ([45, 48].includes(code)) condition = "fog";
+        else if ([51, 53, 55, 56, 57, 61, 63, 65, 66, 67, 80, 81, 82].includes(code)) condition = "rain";
+        else if ([71, 73, 75, 77, 85, 86].includes(code)) condition = "snow";
+        else if ([95, 96, 99].includes(code)) condition = "storm";
+        weatherCard.dataset.condition = condition;
+        weatherCard.dataset.period = isDay === 0 ? "night" : "day";
+      }
+
+      function locationDate(timeZone) {
+        try {
+          const parts = new Intl.DateTimeFormat("en", {
+            timeZone, year: "numeric", month: "2-digit", day: "2-digit"
+          }).formatToParts(new Date());
+          return ["year", "month", "day"].map(type => parts.find(part => part.type === type).value).join("-");
+        } catch { return ""; }
+      }
+
+      function renderForecast(daily, today) {
+        forecastEl.replaceChildren();
+        forecastEl.hidden = false;
+        const days = Array.isArray(daily?.time)
+          ? daily.time.map((date, index) => ({ date, index }))
+            .filter(day => /^\d{4}-\d{2}-\d{2}$/.test(day.date) && day.date > today).slice(0, 2)
+          : [];
+        if (!days.length) {
+          const message = document.createElement("span");
+          message.className = "forecast-unavailable";
+          message.textContent = "Forecast unavailable";
+          forecastEl.append(message);
+          return;
+        }
+        for (const { date, index } of days) {
+          const high = daily.temperature_2m_max?.[index];
+          const low = daily.temperature_2m_min?.[index];
+          const code = daily.weather_code?.[index];
+          const description = describeWeather(code, 1) || "Conditions unavailable";
+          const day = new Date(`${date}T12:00:00Z`);
+          const card = document.createElement("div");
+          card.className = "forecast-day";
+          card.dataset.date = date;
+          const highLabel = Number.isFinite(high) ? `${Math.round(high)}°` : "—";
+          const lowLabel = Number.isFinite(low) ? `${Math.round(low)}°` : "—";
+          card.title = `${date}: ${description}. High ${highLabel}C, low ${lowLabel}C.`;
+          card.setAttribute("aria-label", card.title);
+          const heading = document.createElement("div");
+          heading.className = "forecast-heading";
+          const label = document.createElement("time");
+          label.dateTime = date;
+          label.textContent = new Intl.DateTimeFormat("en-AU", { weekday: "short", timeZone: "UTC" }).format(day);
+          const icon = document.createElement("span");
+          icon.setAttribute("aria-hidden", "true");
+          icon.textContent = [0, 1].includes(code) ? "☀︎" : [2, 3].includes(code) ? "☁︎" :
+            [45, 48].includes(code) ? "≋" : [71, 73, 75, 77, 85, 86].includes(code) ? "❄︎" :
+            [95, 96, 99].includes(code) ? "ϟ" : [51, 53, 55, 56, 57, 61, 63, 65, 66, 67, 80, 81, 82].includes(code) ? "☂︎" : "–";
+          heading.append(label, icon);
+          const temperatures = document.createElement("div");
+          temperatures.className = "forecast-temperatures";
+          const highEl = document.createElement("span");
+          highEl.className = "forecast-high";
+          highEl.textContent = highLabel;
+          temperatures.append(highEl, ` / ${lowLabel}`);
+          card.append(heading, temperatures);
+          forecastEl.append(card);
+        }
+      }
+
+      async function showWeather(place, force = false) {
+        if (!validPlace(place)) return;
+        const version = ++requestVersion;
+        activePlace = place;
+        locationEl.textContent = place.name;
+        locationEl.title = place.approximate ? "Approximate location from your network · Click to change" : "Change weather location";
+        summaryEl.textContent = "Loading weather…";
+        weatherCard.dataset.condition = "loading";
+        forecastEl.hidden = true;
+        summaryEl.removeAttribute("title");
+        const cacheKey = `quote-widget-weather:${place.latitude}:${place.longitude}`;
+        try {
+          const cached = readStored("sessionStorage", cacheKey);
+          let current = cached?.current;
+          let daily = cached?.daily;
+          let timeZone = cached?.timeZone;
+          if (force || !cached || !daily || daily.time?.[0] !== locationDate(timeZone) || Date.now() - cached.savedAt > 15 * 60 * 1000) {
+            const url = new URL("https://api.open-meteo.com/v1/forecast");
+            url.search = new URLSearchParams({
+              latitude: place.latitude, longitude: place.longitude,
+              current: "temperature_2m,weather_code,is_day",
+              daily: "weather_code,temperature_2m_max,temperature_2m_min", forecast_days: 3,
+              temperature_unit: "celsius", timezone: "auto"
+            });
+            const data = await fetchJson(url.toString(), 10000);
+            current = data.current;
+            daily = data.daily;
+            timeZone = data.timezone;
+            if (!Number.isFinite(current?.temperature_2m)) throw new Error("Weather unavailable");
+            writeStored("sessionStorage", cacheKey, { current, daily, timeZone, savedAt: Date.now() });
+          }
+          if (version !== requestVersion) return;
+          if (!Number.isFinite(current?.temperature_2m)) throw new Error("Weather unavailable");
+          const description = describeWeather(current.weather_code, current.is_day);
+          animateWeather(current.weather_code, current.is_day);
+          renderForecast(daily, locationDate(timeZone) || current.time?.slice(0, 10) || "");
+          summaryEl.textContent = `${Math.round(current.temperature_2m)}°C${description ? ` · ${description}` : ""}`;
+          summaryEl.title = current.time ? `Weather updated ${current.time.replace("T", " ")} (location time)` : "";
+        } catch {
+          if (version === requestVersion) {
+            summaryEl.textContent = "Weather unavailable · Try ↻";
+            weatherCard.dataset.condition = "unavailable";
+            forecastEl.hidden = true;
+          }
+        }
+      }
+
+      async function detectLocation() {
+        const version = ++requestVersion;
+        activePlace = null;
+        locationEl.textContent = "Finding location…";
+        summaryEl.textContent = "Loading weather…";
+        weatherCard.dataset.condition = "loading";
+        forecastEl.hidden = true;
+        try {
+          const cached = readStored("sessionStorage", "quote-widget-auto-location");
+          let place = cached?.place;
+          if (!validPlace(place) || Date.now() - cached.savedAt > 60 * 60 * 1000) {
+            const data = await fetchJson("https://ipapi.co/json/", 8000);
+            if (data.error || !data.city) throw new Error("Location unavailable");
+            place = {
+              name: [data.city, data.country_code].filter(Boolean).join(", "),
+              latitude: data.latitude, longitude: data.longitude, approximate: true
+            };
+            if (!validPlace(place)) throw new Error("Location unavailable");
+            writeStored("sessionStorage", "quote-widget-auto-location", { place, savedAt: Date.now() });
+          }
+          if (version === requestVersion) await showWeather(place);
+        } catch {
+          if (version !== requestVersion) return;
+          locationEl.textContent = "Set your location";
+          summaryEl.textContent = "Choose a city for weather";
+          weatherCard.dataset.condition = "unavailable";
+        }
+      }
+
+      document.getElementById("locationForm").addEventListener("submit", async event => {
+        event.preventDefault();
+        const version = ++searchVersion;
+        const name = document.getElementById("locationInput").value.trim();
+        if (name.length < 2) return;
+        statusEl.textContent = "Searching…";
+        resultsEl.replaceChildren();
+        try {
+          const url = new URL("https://geocoding-api.open-meteo.com/v1/search");
+          url.search = new URLSearchParams({ name, count: 5, language: "en", format: "json" });
+          const data = await fetchJson(url.toString(), 8000);
+          if (version !== searchVersion) return;
+          const places = (data.results || []).filter(validPlace);
+          statusEl.textContent = places.length ? "Choose a location:" : "No cities found. Try another name.";
+          for (const place of places) {
+            const button = document.createElement("button");
+            button.type = "button";
+            button.textContent = [place.name, place.admin1, place.country].filter(Boolean).join(", ");
+            button.addEventListener("click", () => {
+              const selected = {
+                name: [place.name, place.country_code].filter(Boolean).join(", "),
+                latitude: place.latitude, longitude: place.longitude
+              };
+              writeStored("localStorage", "quote-widget-location", selected);
+              picker.open = false;
+              showWeather(selected);
+            });
+            resultsEl.append(button);
+          }
+        } catch {
+          if (version === searchVersion) statusEl.textContent = "Search unavailable. Please try again.";
+        }
+      });
+
+      document.getElementById("automaticLocation").addEventListener("click", () => {
+        writeStored("localStorage", "quote-widget-location", null);
+        writeStored("sessionStorage", "quote-widget-auto-location", null);
+        picker.open = false;
+        detectLocation();
+      });
+      document.getElementById("weatherRetry").addEventListener("click", () => {
+        if (activePlace) showWeather(activePlace, true);
+        else detectLocation();
+      });
+      const savedPlace = readStored("localStorage", "quote-widget-location");
+      if (validPlace(savedPlace)) showWeather(savedPlace);
+      else detectLocation();
+      setInterval(() => {
+        if (activePlace && !document.hidden) showWeather(activePlace);
+      }, 15 * 60 * 1000);
+    }
+
     function startQuotes(config) {
       const quoteContent = document.getElementById("quoteContent");
       const quoteText = document.getElementById("quoteText");
       const quoteAuthor = document.getElementById("quoteAuthor");
       const refreshButton = document.getElementById("refreshButton");
+      const quoteAttribution = document.getElementById("quoteAttribution");
 
       let busy = false;
       let previousQuote = "";
+      let settingsRevision = 0;
 
-      const queues = {
-        quoteslate: [],
-        quotegarden: [],
-        local: []
-      };
+      const sourceLabels = { zenquotes: "ZenQuotes", notion: "Notion Quotes" };
+
+      function updateSourceDisplay(provider) {
+        const sourceUrls = {
+          zenquotes: "https://zenquotes.io/",
+          notion: "https://notion-quotes-generator.vercel.app/"
+        };
+        quoteAttribution.replaceChildren();
+        if (sourceUrls[provider]) {
+          const link = document.createElement("a");
+          link.href = sourceUrls[provider];
+          link.textContent = sourceLabels[provider];
+          link.target = "_blank";
+          link.rel = "noopener noreferrer";
+          quoteAttribution.append("Quotes via ", link);
+        } else {
+          quoteAttribution.textContent = "Quotes from the built-in collection";
+        }
+      }
+
+      const queues = { zenquotes: [], notion: [], local: [] };
 
       /*
         Local fallback = intentionally simple original micro-quotes.
@@ -1132,128 +1787,71 @@
         { text: "Build the day you want to remember.", author: "" }
       ];
 
-      function translateCategory(provider, category) {
-        if (!category) return "";
+      function normalizeQuotes(records) {
+        const list = Array.isArray(records) ? records : [records];
 
-        const mapping = {
-          quoteslate: {
-            motivational: "motivation",
-            inspirational: "inspiration",
-            funny: "humor"
-          },
-          quotegarden: {
-            motivation: "motivational",
-            inspiration: "inspirational"
-          }
-        };
-
-        return mapping[provider]?.[category] || category;
+        return list
+          .filter(item => item && typeof item === "object")
+          .map(item => {
+            const text = typeof item.q === "string" ? item.q : typeof item.quote === "string" ? item.quote : "";
+            const author = typeof item.a === "string" ? item.a : typeof item.author === "string" ? item.author : "";
+            return { text: text.trim(), author: author.trim() };
+          })
+          .filter(item => item.text && item.text.length <= config.maxLength);
       }
 
-      async function fetchJson(url, timeoutMs = 14000) {
-        const controller = new AbortController();
-        const timer = setTimeout(() => controller.abort(), timeoutMs);
+      async function fetchZenQuotes() {
+        const urls = [
+          "https://zenquotes.io/api/random"
+        ];
 
-        try {
-          const response = await fetch(url, {
-            signal: controller.signal,
-            cache: "no-store",
-            headers: { Accept: "application/json" }
-          });
+        let lastError = null;
 
-          if (!response.ok) {
-            throw new Error(`HTTP ${response.status}`);
+        for (const urlString of urls) {
+          try {
+            const data = await fetchJson(urlString, 8000);
+            const quotes = normalizeQuotes(data);
+
+            if (quotes.length) {
+              return quotes;
+            }
+
+            lastError = new Error("ZenQuotes returned no usable quotes.");
+          } catch (error) {
+            lastError = error;
           }
-
-          return await response.json();
-        } finally {
-          clearTimeout(timer);
         }
+
+        if (lastError) {
+          throw lastError;
+        }
+
+        throw new Error("ZenQuotes returned no usable quotes.");
       }
 
-      async function fetchQuoteSlate(useCategory = true) {
-        const url = new URL("https://quoteslate.vercel.app/api/quotes/random");
+      async function refillZenQuotes() {
+        queues.zenquotes = await fetchZenQuotes();
+      }
 
+      async function fetchNotionQuotes(useCategory = true) {
+        const url = new URL("https://notion-quotes-generator.vercel.app/api/quotes/random");
         url.searchParams.set("count", config.batchSize);
         url.searchParams.set("maxLength", config.maxLength);
-
         if (useCategory && config.category) {
-          url.searchParams.set(
-            "tags",
-            translateCategory("quoteslate", config.category)
-          );
+          const tags = { motivational: "motivation", inspirational: "inspiration", funny: "humor" };
+          url.searchParams.set("tags", tags[config.category] || config.category);
         }
-
-        const data = await fetchJson(url.toString());
-        const records = Array.isArray(data) ? data : [data];
-
-        const quotes = records
-          .filter(item => item && typeof item.quote === "string")
-          .map(item => ({
-            text: item.quote.trim(),
-            author: (item.author || "").trim()
-          }))
-          .filter(item => item.text.length <= config.maxLength);
-
-        if (!quotes.length) {
-          throw new Error("QuoteSlate returned no usable quotes.");
-        }
-
+        const quotes = normalizeQuotes(await fetchJson(url.toString(), 8000));
+        if (!quotes.length) throw new Error("Notion Quotes returned no usable quotes.");
         return quotes;
       }
 
-      async function refillQuoteSlate() {
+      async function refillNotionQuotes() {
         try {
-          queues.quoteslate = await fetchQuoteSlate(true);
-        } catch (categoryError) {
-          /*
-            QuoteSlate validates tag names. If a shared UI category is not
-            a valid QuoteSlate tag, retry without the category instead of
-            breaking the embed.
-          */
-          queues.quoteslate = await fetchQuoteSlate(false);
-        }
-      }
-
-      async function fetchQuoteGarden(useCategory = true) {
-        const url = new URL("https://quote-garden.onrender.com/api/v3/quotes/random");
-
-        url.searchParams.set("count", config.batchSize);
-
-        if (useCategory && config.category) {
-          url.searchParams.set(
-            "genre",
-            translateCategory("quotegarden", config.category)
-          );
-        }
-
-        /*
-          Render free instances can cold-start, hence the slightly longer timeout.
-        */
-        const data = await fetchJson(url.toString(), 25000);
-
-        const records = Array.isArray(data?.data) ? data.data : [];
-
-        const quotes = records
-          .filter(item => item && typeof item.quoteText === "string")
-          .map(item => ({
-            text: item.quoteText.trim(),
-            author: (item.quoteAuthor || "").trim()
-          }))
-          .filter(item => item.text.length <= config.maxLength);
-
-        if (!quotes.length) {
-          throw new Error("QuoteGarden returned no usable quotes.");
-        }
-
-        return quotes;
-      }
-
-      async function refillQuoteGarden() {
-        try {
-          queues.quotegarden = await fetchQuoteGarden(true);
-        } catch (categoryError) {
-          queues.quotegarden = await fetchQuoteGarden(false);
+          queues.notion = await fetchNotionQuotes();
+        } catch (error) {
+          if (!config.category) throw error;
+          queues.notion = await fetchNotionQuotes(false);
         }
       }
 
@@ -1269,10 +1867,10 @@
 
       async function getFromProvider(provider) {
         if (!queues[provider].length) {
-          if (provider === "quoteslate") {
-            await refillQuoteSlate();
-          } else if (provider === "quotegarden") {
-            await refillQuoteGarden();
+          if (provider === "zenquotes") {
+            await refillZenQuotes();
+          } else if (provider === "notion") {
+            await refillNotionQuotes();
           } else {
             refillLocal();
           }
@@ -1291,24 +1889,13 @@
           throw new Error(`No quote available from ${provider}.`);
         }
 
-        return quote;
+        return { ...quote, source: provider };
       }
 
       function providerOrder() {
-        switch (config.source) {
-          case "quoteslate":
-            return ["quoteslate", "quotegarden", "local"];
-
-          case "quotegarden":
-            return ["quotegarden", "quoteslate", "local"];
-
-          case "local":
-            return ["local"];
-
-          case "auto":
-          default:
-            return ["quoteslate", "quotegarden", "local"];
-        }
+        if (config.source === "local") return ["local"];
+        if (config.source === "zenquotes") return ["zenquotes", "notion", "local"];
+        return ["notion", "zenquotes", "local"];
       }
 
       async function nextQuote() {
@@ -1332,8 +1919,13 @@
 
         await new Promise(resolve => setTimeout(resolve, 165));
 
+        const revision = settingsRevision;
         const quote = await nextQuote();
+        if (revision !== settingsRevision) {
+          Object.keys(queues).forEach(provider => { queues[provider] = []; });
+        }
         previousQuote = quote.text;
+        updateSourceDisplay(quote.source || "local");
 
         quoteText.textContent = quote.text;
 
@@ -1352,6 +1944,10 @@
 
       refreshButton.addEventListener("click", displayNextQuote);
       displayNextQuote();
+      return () => {
+        settingsRevision += 1;
+        Object.keys(queues).forEach(provider => { queues[provider] = []; });
+      };
     }
   </script>
 </body>
