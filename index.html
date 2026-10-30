@@ -137,6 +137,69 @@
       --aura-3: rgba(155, 69, 114, 0.35);
     }
 
+    body[data-theme="prism"] {
+      --bg: #f6f5fb;
+      --text: #29283a;
+      --muted: rgba(41, 40, 58, 0.58);
+      --soft: rgba(255, 255, 255, 0.40);
+      --soft-strong: rgba(255, 255, 255, 0.68);
+      --border: rgba(72, 63, 116, 0.10);
+      --aura-1: rgba(151, 133, 255, 0.52);
+      --aura-2: rgba(105, 220, 225, 0.46);
+      --aura-3: rgba(255, 153, 190, 0.44);
+    }
+
+    body[data-theme="sage-dawn"] {
+      --bg: #f3f4eb;
+      --text: #29352e;
+      --muted: rgba(41, 53, 46, 0.58);
+      --soft: rgba(255, 255, 255, 0.38);
+      --soft-strong: rgba(255, 255, 255, 0.66);
+      --border: rgba(50, 78, 61, 0.10);
+      --aura-1: rgba(157, 194, 145, 0.50);
+      --aura-2: rgba(217, 194, 128, 0.43);
+      --aura-3: rgba(134, 188, 179, 0.42);
+    }
+
+    body[data-theme="electric-dusk"] {
+      --bg: #111521;
+      --text: #f2f4ff;
+      --muted: rgba(242, 244, 255, 0.60);
+      --soft: rgba(255, 255, 255, 0.055);
+      --soft-strong: rgba(255, 255, 255, 0.095);
+      --border: rgba(216, 223, 255, 0.09);
+      --shadow: 0 18px 55px rgba(0, 0, 0, 0.26);
+      --aura-1: rgba(118, 78, 255, 0.52);
+      --aura-2: rgba(29, 190, 210, 0.42);
+      --aura-3: rgba(238, 72, 161, 0.36);
+    }
+
+    body[data-theme="stardust"] {
+      --bg: #10181b;
+      --text: #edf7f5;
+      --muted: rgba(237, 247, 245, 0.60);
+      --soft: rgba(226, 255, 249, 0.052);
+      --soft-strong: rgba(226, 255, 249, 0.09);
+      --border: rgba(198, 235, 228, 0.09);
+      --shadow: 0 18px 55px rgba(0, 10, 12, 0.25);
+      --aura-1: rgba(105, 205, 183, 0.30);
+      --aura-2: rgba(66, 150, 164, 0.30);
+      --aura-3: rgba(145, 185, 204, 0.22);
+    }
+
+    body[data-theme="southern-lights"] {
+      --bg: #111923;
+      --text: #f0f6f5;
+      --muted: rgba(240, 246, 245, 0.60);
+      --soft: rgba(235, 255, 250, 0.052);
+      --soft-strong: rgba(235, 255, 250, 0.09);
+      --border: rgba(202, 233, 229, 0.09);
+      --shadow: 0 18px 55px rgba(0, 7, 13, 0.26);
+      --aura-1: rgba(91, 194, 153, 0.34);
+      --aura-2: rgba(54, 154, 181, 0.32);
+      --aura-3: rgba(132, 103, 184, 0.25);
+    }
+
     /* ============================================================
        EMBED VIEW
     ============================================================ */
@@ -159,16 +222,8 @@
     }
 
     body[data-motion="gradient"] .aura { opacity: 0; }
-    body[data-motion="stars"] {
-      --bg: #05090d;
-      --text: #eef3fa;
-      --muted: rgba(238, 243, 250, 0.62);
-      --soft: rgba(255, 255, 255, 0.025);
-      --soft-strong: rgba(255, 255, 255, 0.055);
-      --border: rgba(255, 255, 255, 0.06);
-      --shadow: 0 18px 55px rgba(0, 0, 0, 0.2);
-    }
-    body[data-motion="stars"] .aura { opacity: 0.12; }
+    body[data-motion="stars"] .aura { opacity: 0.34; }
+    body[data-motion="aurora"] .aura { opacity: 0.18; }
 
     @property --ambient-angle {
       syntax: "<angle>";
@@ -186,6 +241,61 @@
     }
     body[data-motion="gradient"] .gradient-motion { display: block; }
     @keyframes gradient-angle { from { --ambient-angle: 135deg; } to { --ambient-angle: 495deg; } }
+
+    .aurora-motion {
+      display: none;
+      position: absolute;
+      inset: 0;
+      z-index: 0;
+      overflow: hidden;
+      pointer-events: none;
+      user-select: none;
+      opacity: 0.72;
+      -webkit-mask-image: linear-gradient(to bottom, transparent 0, #000 16%, #000 86%, transparent 100%);
+      mask-image: linear-gradient(to bottom, transparent 0, #000 16%, #000 86%, transparent 100%);
+    }
+    body[data-motion="aurora"] .aurora-motion { display: block; }
+    .aurora-band {
+      position: absolute;
+      left: -18%;
+      top: -38%;
+      width: 136%;
+      height: 108%;
+      border-radius: 42% 58% 54% 46%;
+      filter: blur(clamp(32px, 6vw, 72px));
+      opacity: 0.18;
+      transform-origin: 50% 30%;
+      will-change: transform, opacity;
+      background:
+        radial-gradient(ellipse at 28% 62%, rgba(105, 196, 159, 0.58), transparent 37%),
+        radial-gradient(ellipse at 58% 46%, rgba(73, 174, 185, 0.50), transparent 42%),
+        radial-gradient(ellipse at 82% 64%, rgba(105, 133, 205, 0.40), transparent 36%);
+      animation: aurora-curtain 42s ease-in-out infinite alternate;
+    }
+    .aurora-band:nth-child(2) {
+      top: -18%;
+      left: -28%;
+      opacity: 0.13;
+      background:
+        radial-gradient(ellipse at 35% 55%, rgba(103, 202, 184, 0.52), transparent 38%),
+        radial-gradient(ellipse at 70% 48%, rgba(137, 112, 190, 0.38), transparent 42%);
+      animation-duration: 55s;
+      animation-delay: -18s;
+      animation-direction: alternate-reverse;
+    }
+    .aurora-band:nth-child(3) {
+      top: 6%;
+      left: -8%;
+      opacity: 0.09;
+      background: linear-gradient(108deg, transparent 13%, rgba(88, 189, 166, 0.45) 38%, rgba(77, 142, 192, 0.34) 58%, transparent 82%);
+      animation-duration: 62s;
+      animation-delay: -31s;
+    }
+    @keyframes aurora-curtain {
+      0% { transform: translate3d(-4%, 2%, 0) skewX(-5deg) scale(1, 0.92); opacity: 0.10; }
+      48% { transform: translate3d(3%, 7%, 0) skewX(4deg) scale(1.04, 1.06); opacity: 0.20; }
+      100% { transform: translate3d(7%, -1%, 0) skewX(-2deg) scale(0.98, 1.12); opacity: 0.14; }
+    }
 
     .aura.a1 {
       width: 470px;
@@ -233,6 +343,16 @@
       display: none;
     }
     body:is([data-motion="petals"], [data-motion="stars"], [data-motion="rain"]) .ambient-objects { display: block; }
+    body[data-motion="rain"] .ambient-objects {
+      -webkit-mask-image:
+        linear-gradient(to bottom, transparent 0, #000 9%, #000 100%),
+        linear-gradient(to right, transparent 0, #000 5%, #000 95%, transparent 100%);
+      -webkit-mask-composite: source-in;
+      mask-image:
+        linear-gradient(to bottom, transparent 0, #000 9%, #000 100%),
+        linear-gradient(to right, transparent 0, #000 5%, #000 95%, transparent 100%);
+      mask-composite: intersect;
+    }
     .ambient-piece {
       position: absolute;
       left: var(--x);
@@ -245,33 +365,48 @@
       pointer-events: none;
     }
     .ambient-piece.petals {
-      top: -30px;
-      height: calc(var(--size) * 0.65);
-      border-radius: 80% 20% 70% 25%;
-      background: color-mix(in srgb, var(--aura-3) 75%, var(--text));
+      top: -24px;
+      height: calc(var(--size) * 0.62);
+      border-radius: 82% 18% 72% 28%;
+      color: color-mix(in srgb, var(--aura-3) 78%, #d7a5ad);
+      background: currentColor;
       opacity: 0;
       animation-name: petal-fall;
-      animation-timing-function: linear;
+      animation-timing-function: cubic-bezier(0.38, 0.05, 0.58, 0.96);
+      transform-origin: 45% 55%;
+      will-change: top, transform, opacity;
+      filter: blur(var(--petal-blur, 0));
     }
     body:is([data-theme="forest"], [data-theme="cream"]) .ambient-piece.petals {
       border-radius: 85% 0 85% 0;
-      background: color-mix(in srgb, var(--aura-1) 65%, var(--text));
+      color: color-mix(in srgb, var(--aura-1) 64%, #c9aa91);
     }
-    body:is([data-theme="forest"], [data-theme="cream"]) .ambient-piece.petals::after {
-      content: "";
-      position: absolute;
-      width: 70%;
-      left: 15%;
-      top: 50%;
-      border-top: 1px solid currentColor;
-      opacity: 0.2;
-      transform: rotate(-25deg);
+    body:is([data-theme="midnight"], [data-theme="electric-dusk"]) .ambient-piece.petals {
+      color: color-mix(in srgb, var(--aura-3) 58%, #e9cbd7);
+      --petal-opacity-cap: 0.20;
+    }
+    .ambient-piece.petals.petal-cluster {
+      box-shadow:
+        7px 4px 0 -1px color-mix(in srgb, currentColor 78%, transparent),
+        -5px 8px 0 -2px color-mix(in srgb, currentColor 62%, transparent);
+    }
+    .ambient-piece.petals.petal-far {
+      --petal-opacity-cap: 0.14;
+      --petal-blur: 0.65px;
     }
     @keyframes petal-fall {
-      0% { top: -30px; transform: translateX(0) rotate(-20deg); opacity: 0; }
-      12%, 80% { opacity: 0.18; }
-      50% { transform: translateX(var(--wind)) rotate(45deg); }
-      100% { top: calc(100% + 25px); transform: translateX(12px) rotate(120deg); opacity: 0; }
+      0% { top: -24px; transform: translate3d(0, -8px, 0) rotate(var(--petal-start)); opacity: 0; }
+      10% { opacity: min(var(--petal-opacity), var(--petal-opacity-cap, 0.24)); }
+      30% { transform: translate3d(var(--sway-a), 0, 0) rotate(calc(var(--petal-start) + 55deg)); }
+      55% { top: 53%; transform: translate3d(var(--wind), 0, 0) rotate(calc(var(--petal-start) + 135deg)); opacity: min(var(--petal-opacity), var(--petal-opacity-cap, 0.24)); }
+      74% { transform: translate3d(var(--sway-b), 0, 0) rotate(calc(var(--petal-start) + 205deg)); }
+      84% { top: calc(100% - var(--settle-height)); transform: translate3d(var(--settle-x), 0, 0) rotate(calc(var(--petal-start) + 245deg)); opacity: min(var(--petal-opacity), var(--petal-opacity-cap, 0.24)); }
+      92% { top: calc(100% - var(--settle-height)); transform: translate3d(calc(var(--settle-x) + 3px), -1px, 0) rotate(calc(var(--petal-start) + 252deg)); opacity: min(var(--petal-opacity), 0.09); }
+      100% { top: calc(100% + 20px); transform: translate3d(calc(var(--settle-x) + 10px), -5px, 0) rotate(calc(var(--petal-start) + 285deg)); opacity: 0; }
+    }
+
+    @media (max-width: 680px) {
+      .ambient-piece.petals:nth-of-type(n + 10) { display: none; }
     }
     .ambient-piece.rain {
       top: -28px;
@@ -285,19 +420,42 @@
       animation-name: rain-fall;
       animation-timing-function: linear;
     }
-    .ambient-piece.rain::after {
+    .rain-splash {
+      position: absolute;
+      left: var(--x);
+      bottom: 2px;
+      width: 1px;
+      height: 1px;
+      color: color-mix(in srgb, var(--text) 70%, var(--aura-2));
+      pointer-events: none;
+    }
+    .rain-splash::before {
       content: "";
       position: absolute;
       left: 50%;
-      top: calc(100% - 1px);
+      bottom: 0;
       width: var(--splash-width);
-      height: 3px;
+      height: 2px;
       border-top: 1px solid currentColor;
       border-radius: 50%;
       opacity: 0;
       transform: translateX(-50%) scaleX(0.25);
       animation: rain-splash var(--duration) linear var(--delay) infinite;
     }
+    .rain-splash i {
+      position: absolute;
+      left: 0;
+      bottom: 0;
+      width: var(--splash-dot);
+      height: var(--splash-dot);
+      border-radius: 50%;
+      background: currentColor;
+      opacity: 0;
+      animation: rain-splash-droplet var(--duration) linear var(--delay) infinite;
+    }
+    .rain-splash i:nth-child(1) { --splash-x: -5px; --splash-x-end: -6px; --splash-y: -5px; }
+    .rain-splash i:nth-child(2) { --splash-x: 1px; --splash-x-end: 1.2px; --splash-y: -7px; animation-delay: calc(var(--delay) + 35ms); }
+    .rain-splash i:nth-child(3) { --splash-x: 6px; --splash-x-end: 7px; --splash-y: -4px; animation-delay: calc(var(--delay) + 65ms); }
     @keyframes rain-fall {
       0% { top: -28px; transform: translateX(0); opacity: 0; }
       8% { opacity: var(--rain-opacity); }
@@ -307,12 +465,18 @@
     }
     @keyframes rain-splash {
       0%, 87% { opacity: 0; transform: translateX(-50%) scaleX(0.25) translateY(0); }
-      91% { opacity: 0.3; transform: translateX(-50%) scaleX(0.6) translateY(0); }
-      97%, 100% { opacity: 0; transform: translateX(-50%) scaleX(1.15) translateY(-2px); }
+      90% { opacity: 0.26; transform: translateX(-50%) scaleX(0.55) translateY(0); }
+      97%, 100% { opacity: 0; transform: translateX(-50%) scaleX(1.12) translateY(-1px); }
+    }
+    @keyframes rain-splash-droplet {
+      0%, 88% { opacity: 0; transform: translate3d(0, 0, 0) scale(0.65); }
+      90% { opacity: 0.32; }
+      94% { opacity: 0.22; transform: translate3d(var(--splash-x), var(--splash-y), 0) scale(1); }
+      98%, 100% { opacity: 0; transform: translate3d(var(--splash-x-end), -1px, 0) scale(0.7); }
     }
     .ambient-piece.stars {
       border-radius: 50%;
-      color: var(--star-color);
+      color: color-mix(in srgb, var(--star-color) 62%, var(--text));
       background: currentColor;
       opacity: var(--brightness);
       animation-name: star-twinkle, star-drift;
@@ -320,6 +484,15 @@
       animation-delay: var(--delay), var(--drift-delay);
       animation-timing-function: ease-in-out, ease-in-out;
       animation-direction: normal, alternate;
+    }
+    .ambient-piece.stars.ambient-physics {
+      left: 0;
+      top: 0;
+      animation-name: star-twinkle;
+      animation-duration: var(--duration);
+      animation-delay: var(--delay);
+      animation-direction: normal;
+      will-change: transform;
     }
     .ambient-piece.stars.star-glow { box-shadow: 0 0 4px currentColor, 0 0 9px color-mix(in srgb, currentColor 35%, transparent); }
     .ambient-piece.stars.star-flare::before,
@@ -600,6 +773,7 @@
       justify-content: center;
       text-align: center;
       overflow: visible;
+      container-type: inline-size;
     }
 
     .clock-inner {
@@ -807,6 +981,17 @@
     .sun-event:focus-visible { outline: 1px solid var(--muted); outline-offset: 3px; border-radius: 4px; }
     button:focus-visible, .location-picker summary:focus-visible { outline: 2px solid var(--muted); outline-offset: 2px; }
 
+    @container (max-width: 205px) {
+      .sun-times {
+        grid-template-columns: repeat(2, max-content);
+        justify-content: center;
+        row-gap: 5px;
+      }
+      #uvItem { grid-column: 1 / -1; justify-self: center; }
+      .weather-forecast { gap: 3px; font-size: 0.66rem; }
+      .forecast-date { font-size: 0.55rem; }
+    }
+
     @media (max-width: 680px) {
       .widget-shell {
         grid-template-columns: 1fr;
@@ -845,6 +1030,68 @@
       .clock-reading { font-size: clamp(1.9rem, 3.4vw, 2.2rem); }
       #clockDate { margin: 0 0 10px; font-size: 0.7rem; line-height: 1.3; }
       .weather { margin-top: 18px; padding: 0; font-size: 0.76rem; line-height: 1.4; }
+    }
+
+    @media (max-height: 260px) and (min-width: 681px) {
+      .widget-shell {
+        height: 100vh;
+        min-height: 182px;
+        gap: 10px;
+        padding: 5px 8px;
+      }
+      .quote-panel { padding: 8px 26px 34px; }
+      .clock-panel { padding: 5px 9px; }
+      .clock-reading { font-size: clamp(1.65rem, 4.2vw, 2rem); }
+      #clockDate { margin-bottom: 4px; font-size: 0.61rem; }
+      #clockMeridiem { font-size: 0.57rem; }
+      #clockZone { font-size: 0.54rem; }
+      .weather {
+        grid-template-columns: 26px minmax(0, 1fr);
+        margin-top: 5px;
+        column-gap: 4px;
+        font-size: 0.68rem;
+        line-height: 1.25;
+      }
+      .weather-visual { height: 27px; }
+      .forecast-symbol.current-weather-symbol { width: 24px; height: 24px; }
+      .location-picker summary { font-size: 0.62rem; }
+      #weatherSummary { margin-top: 2px; gap: 2px 5px; }
+      .weather-temperature { font-size: 0.84rem; }
+      .weather-condition { font-size: 0.6rem; }
+      .sun-times {
+        grid-template-columns: max-content max-content minmax(0, 1fr);
+        justify-content: start;
+        column-gap: 5px;
+        row-gap: 0;
+        margin-top: 5px;
+        font-size: 0.55rem;
+      }
+      .sun-event svg { width: 12px; height: 12px; }
+      #uvItem { grid-column: auto; justify-self: end; }
+      .uv-label { font-size: 0.52rem; }
+      .weather-forecast {
+        gap: 3px;
+        margin-top: 5px;
+        padding-top: 5px;
+        font-size: 0.59rem;
+        line-height: 1.2;
+      }
+      .forecast-date { font-size: 0.5rem; }
+      .forecast-symbol { width: 13px; height: 13px; flex-basis: 13px; }
+      .forecast-temperatures { margin-top: 2px; }
+      .credits-popup {
+        position: fixed;
+        left: 8px;
+        right: auto;
+        bottom: 8px;
+        width: min(320px, calc(100vw - 16px));
+      }
+      .location-form {
+        position: fixed;
+        right: 8px;
+        bottom: 8px;
+        max-height: calc(100vh - 16px);
+      }
     }
 
     /* ============================================================
@@ -998,6 +1245,12 @@
       border-color: #6b7280;
       box-shadow: 0 0 0 3px rgba(107, 114, 128, 0.11);
       background: white;
+    }
+
+    .control-group select:disabled {
+      cursor: not-allowed;
+      opacity: 0.56;
+      background: rgba(241, 243, 248, 0.72);
     }
 
     .control-group input[type="range"] { accent-color: #6d5dfc; }
@@ -1175,13 +1428,18 @@
       .divider { margin: 16px 0; }
     }
 
+    @media (max-width: 360px) {
+      #previewFrame { height: 460px; }
+    }
+
     @media (prefers-reduced-motion: reduce) {
       .aura { animation: none !important; }
       .quote-content { transition: none; }
       .weather-visual *, .forecast-symbol, .forecast-symbol *, .sun-event svg { animation: none !important; }
       body .background-bubbles, body .ambient-objects { display: none !important; }
       .bubble { animation: none !important; }
-      .ambient-piece, .ambient-piece::after, .gradient-motion { animation: none !important; }
+      body .aurora-motion { display: none !important; }
+      .ambient-piece, .ambient-piece::after, .gradient-motion, .aurora-band { animation: none !important; }
     }
   </style>
 </head>
@@ -1196,6 +1454,11 @@
     <div class="aura a2" aria-hidden="true"></div>
     <div class="aura a3" aria-hidden="true"></div>
     <div class="gradient-motion" aria-hidden="true"></div>
+    <div class="aurora-motion" aria-hidden="true">
+      <span class="aurora-band"></span>
+      <span class="aurora-band"></span>
+      <span class="aurora-band"></span>
+    </div>
 
     <div class="widget-shell">
       <div class="background-bubbles" aria-hidden="true">
@@ -1326,6 +1589,11 @@
               <option value="cream">Cream</option>
               <option value="graphite">Graphite</option>
               <option value="midnight">Midnight</option>
+              <option value="prism">Prism</option>
+              <option value="sage-dawn">Sage dawn</option>
+              <option value="electric-dusk">Electric dusk</option>
+              <option value="stardust">Stardust</option>
+              <option value="southern-lights">Southern lights</option>
             </select>
           </div>
 
@@ -1333,8 +1601,7 @@
             <label for="motionControl">Background motion</label>
             <select id="motionControl">
               <option value="bubbles">Floating bubbles</option>
-              <option value="petals">Falling petals / leaves</option>
-              <option value="stars">Star dust</option>
+              <option value="petals">Floating petals</option>
               <option value="rain">Rain effect</option>
               <option value="gradient">Animated gradient angle</option>
               <option value="none">Static background</option>
@@ -1588,25 +1855,27 @@
             fragments = layer;
             document.body.append(layer);
             const animations = [];
-            for (let row = 0; row < 3; row++) {
-              for (let col = 0; col < 5; col++) {
+            for (let row = 0; row < 4; row++) {
+              for (let col = 0; col < 6; col++) {
                 const tile = document.createElement("div");
                 tile.className = "popup-fragment";
                 Object.assign(tile.style, {
                   left: `${rect.left}px`, top: `${rect.top}px`,
                   width: `${rect.width}px`, height: `${rect.height}px`,
-                  clipPath: `inset(${row * 100 / 3}% ${100 - (col + 1) * 20}% ${100 - (row + 1) * 100 / 3}% ${col * 20}%)`
+                  clipPath: `inset(${row * 25}% ${100 - (col + 1) * 100 / 6}% ${100 - (row + 1) * 25}% ${col * 100 / 6}%)`
                 });
                 const content = snapshot.cloneNode(true);
                 tile.append(content);
                 layer.append(tile);
                 content.scrollTop = panel.scrollTop;
-                const dx = (col - 2) * 12;
-                const dy = (row - 1) * 10 + 14;
+                const dx = (col - 2.5) * 16 + (row % 2 ? 4 : -4);
+                const dy = (row - 1.5) * 14 + 22;
+                const rotation = (col - 2.5) * 4.2 + (row % 2 ? 2 : -2);
                 const animation = tile.animate([
-                  { transform: "translate(0, 0) scale(1)", opacity: 1 },
-                  { transform: `translate(${dx}px, ${dy}px) rotate(${(col - 2) * 3}deg) scale(0.9)`, opacity: 0 }
-                ], { duration: 650, delay: (col + row) * 20, easing: "cubic-bezier(.2,.65,.3,1)", fill: "forwards" });
+                  { transform: "translate(0, 0) rotate(0) scale(1)", opacity: 1, filter: "blur(0)" },
+                  { offset: 0.38, transform: `translate(${dx * 0.16}px, ${dy * 0.12}px) rotate(${rotation * 0.12}deg) scale(0.985)`, opacity: 0.94, filter: "blur(0)" },
+                  { transform: `translate(${dx}px, ${dy}px) rotate(${rotation}deg) scale(0.82)`, opacity: 0, filter: "blur(1.7px)" }
+                ], { duration: 920, delay: (col + row) * 24, easing: "cubic-bezier(.18,.7,.22,1)", fill: "forwards" });
                 animations.push(animation.finished);
               }
             }
@@ -1638,9 +1907,13 @@
       });
     }
 
+    function getThemeMotion(theme) {
+      return { stardust: "stars", "southern-lights": "aurora" }[theme] || null;
+    }
+
     function applyThemeAndFont(config) {
       document.body.dataset.theme = config.theme;
-      applyBackgroundMotion(config.motion);
+      applyBackgroundMotion(getThemeMotion(config.theme) || config.motion);
 
       const fontMap = {
         manrope: '"Manrope", "Segoe UI", sans-serif',
@@ -1679,7 +1952,7 @@
       document.body.dataset.motion = motion;
       const objects = document.getElementById("ambientObjects");
       objects.replaceChildren();
-      const count = { petals: 12, stars: 320, rain: 28 }[motion] || 0;
+      const count = { petals: 13, stars: 84, rain: 28 }[motion] || 0;
       const pieces = document.createDocumentFragment();
       // A seeded scatter avoids repeating rows and keeps the sky stable across settings changes.
       let seed = 4917;
@@ -1690,34 +1963,92 @@
       for (let i = 0; i < count; i++) {
         const piece = document.createElement("span");
         piece.className = `ambient-piece ${motion}`;
-        piece.style.setProperty("--x", `${1 + random() * 98}%`);
-        piece.style.setProperty("--y", `${2 + random() * 96}%`);
-        const prominent = motion === "stars" && i % 19 === 0;
-        const size = motion === "petals" ? 7 + random() * 23 : motion === "rain" ? 12 + random() * 13 : prominent ? 2.2 + random() * 1.2 : 0.65 + random() * 1.15;
-        const duration = motion === "stars" ? 6 + random() * 9 : motion === "rain" ? 6.5 + random() * 4 : 38 + random() * 32;
+        const xRatio = 0.01 + random() * 0.98;
+        const yRatio = 0.02 + random() * 0.96;
+        piece.style.setProperty("--x", `${xRatio * 100}%`);
+        piece.style.setProperty("--y", `${yRatio * 100}%`);
+        piece.dataset.xRatio = String(xRatio);
+        piece.dataset.yRatio = String(yRatio);
+        const prominent = motion === "stars" && i % 17 === 0;
+        const size = motion === "petals" ? 7 + random() * 13 : motion === "rain" ? 12 + random() * 13 : prominent ? 1.8 + random() * 0.8 : 0.55 + random() * 0.95;
+        const duration = motion === "stars" ? 9 + random() * 9 : motion === "rain" ? 6.5 + random() * 4 : 42 + random() * 30;
         if (motion === "stars") {
           const tint = random();
-          piece.style.setProperty("--star-color", tint < 0.1 ? "#e6ac72" : tint < 0.55 ? "#94cce8" : "#f1f6ff");
-          piece.style.setProperty("--brightness", prominent ? "0.9" : `${0.25 + random() * 0.5}`);
+          piece.style.setProperty("--star-color", tint < 0.34 ? "#f3faf8" : tint < 0.68 ? "#9bd8ca" : "#71bcb7");
+          piece.style.setProperty("--brightness", prominent ? "0.48" : `${0.10 + random() * 0.20}`);
           piece.classList.toggle("star-glow", prominent);
           piece.classList.toggle("star-flare", i % 137 === 0);
           piece.style.setProperty("--drift-x", `${24 + random() * 42}px`);
           piece.style.setProperty("--drift-y", `${-22 - random() * 30}px`);
-          piece.style.setProperty("--drift-duration", `${24 + random() * 28}s`);
+          piece.style.setProperty("--drift-duration", `${32 + random() * 34}s`);
           piece.style.setProperty("--drift-delay", `${-random() * 48}s`);
+          piece.classList.add("ambient-physics");
+        }
+        if (motion === "petals") {
+          const direction = i % 2 ? -1 : 1;
+          piece.classList.toggle("petal-far", i % 4 === 0);
+          piece.classList.toggle("petal-cluster", i % 6 === 2);
+          piece.style.setProperty("--petal-start", `${-65 + random() * 130}deg`);
+          piece.style.setProperty("--petal-opacity", `${0.17 + random() * 0.09}`);
+          piece.style.setProperty("--sway-a", `${direction * (5 + random() * 12)}px`);
+          piece.style.setProperty("--sway-b", `${direction * (-4 - random() * 10)}px`);
+          piece.style.setProperty("--wind", `${direction * (16 + random() * 30)}px`);
+          piece.style.setProperty("--settle-x", `${direction * (8 + random() * 24)}px`);
+          piece.style.setProperty("--settle-height", `${8 + size * 0.64}px`);
         }
         if (motion === "rain") {
           piece.style.setProperty("--rain-drift", `${-7 + random() * 14}px`);
           piece.style.setProperty("--rain-opacity", `${0.16 + random() * 0.1}`);
           piece.style.setProperty("--splash-width", `${5 + random() * 5}px`);
         }
+        const delay = `${-(i * 13 + 9) % duration}s`;
         piece.style.setProperty("--size", `${size}px`);
         piece.style.setProperty("--duration", `${duration}s`);
-        piece.style.setProperty("--delay", `${-(i * 13 + 9) % duration}s`);
-        piece.style.setProperty("--wind", `${i % 2 ? -25 - i % 25 : 20 + i % 30}px`);
+        piece.style.setProperty("--delay", delay);
+        if (motion !== "petals") piece.style.setProperty("--wind", `${i % 2 ? -25 - i % 25 : 20 + i % 30}px`);
         pieces.append(piece);
+        if (motion === "rain") {
+          const splash = document.createElement("span");
+          splash.className = "rain-splash";
+          splash.setAttribute("aria-hidden", "true");
+          splash.style.setProperty("--x", `${xRatio * 100}%`);
+          splash.style.setProperty("--duration", `${duration}s`);
+          splash.style.setProperty("--delay", delay);
+          splash.style.setProperty("--splash-width", piece.style.getPropertyValue("--splash-width"));
+          splash.style.setProperty("--splash-dot", `${0.8 + random() * 0.55}px`);
+          splash.append(document.createElement("i"), document.createElement("i"), document.createElement("i"));
+          pieces.append(splash);
+        }
       }
       objects.append(pieces);
+    }
+
+    function resolveParticleCollisions(states) {
+      for (let i = 0; i < states.length; i++) {
+        for (let j = i + 1; j < states.length; j++) {
+          const a = states[i];
+          const b = states[j];
+          const dx = b.x + b.width / 2 - (a.x + a.width / 2);
+          const dy = b.y + b.height / 2 - (a.y + a.height / 2);
+          const minDistance = (Math.max(a.width, a.height) + Math.max(b.width, b.height)) * 0.5;
+          const distanceSquared = dx * dx + dy * dy;
+          if (distanceSquared >= minDistance * minDistance) continue;
+          const distance = Math.sqrt(distanceSquared) || 0.01;
+          const nx = dx / distance;
+          const ny = dy / distance;
+          const overlap = (minDistance - distance) * 0.5;
+          a.x -= nx * overlap;
+          a.y -= ny * overlap;
+          b.x += nx * overlap;
+          b.y += ny * overlap;
+          const approach = (b.vx - a.vx) * nx + (b.vy - a.vy) * ny;
+          if (approach >= 0) continue;
+          a.vx += approach * nx;
+          a.vy += approach * ny;
+          b.vx -= approach * nx;
+          b.vy -= approach * ny;
+        }
+      }
     }
 
     function startBouncingBubbles() {
@@ -1744,6 +2075,8 @@
           const elapsed = previousTime ? Math.min(0.05, (time - previousTime) / 1000) : 0;
           states.forEach(state => {
             const size = state.bubble.offsetWidth;
+            state.width = size;
+            state.height = size;
             const maxX = Math.max(0, width - size);
             const maxY = Math.max(0, height - size);
             if (!state.ready) {
@@ -1762,6 +2095,13 @@
                 state.vy *= -1;
               }
             }
+          });
+          resolveParticleCollisions(states);
+          states.forEach(state => {
+            const maxX = Math.max(0, width - state.width);
+            const maxY = Math.max(0, height - state.height);
+            state.x = Math.min(maxX, Math.max(0, state.x));
+            state.y = Math.min(maxY, Math.max(0, state.y));
             state.bubble.style.transform = `translate3d(${state.x}px, ${state.y}px, 0)`;
           });
           previousTime = time;
@@ -1773,13 +2113,87 @@
       requestAnimationFrame(animate);
     }
 
+    function startAmbientBoundaryMotion() {
+      const layer = document.getElementById("ambientObjects");
+      const reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)");
+      let states = [];
+      let activeMotion = "";
+      let previousTime;
+      let previousPaint = 0;
+
+      function rebuild(motion, width, height) {
+        activeMotion = motion;
+        states = [...layer.querySelectorAll(`.ambient-piece.${motion}`)].map((piece, index) => {
+          const pieceWidth = piece.offsetWidth;
+          const pieceHeight = piece.offsetHeight;
+          const radius = Math.hypot(pieceWidth, pieceHeight) / 2;
+          const padX = motion === "petals" ? Math.max(0, radius - pieceWidth / 2) : 0;
+          const padY = motion === "petals" ? Math.max(0, radius - pieceHeight / 2) : 0;
+          const x = Math.max(padX, Math.min(width - pieceWidth - padX, Number(piece.dataset.xRatio) * width - pieceWidth / 2));
+          const y = Math.max(padY, Math.min(height - pieceHeight - padY, Number(piece.dataset.yRatio) * height - pieceHeight / 2));
+          const speed = motion === "petals" ? 10 + index % 7 * 1.7 : 2.2 + index % 9 * 0.42;
+          return {
+            piece, x, y, width: pieceWidth, height: pieceHeight, padX, padY,
+            vx: (index % 2 ? -1 : 1) * speed,
+            vy: (index % 3 ? 1 : -1) * speed * (motion === "petals" ? 0.72 : 0.48)
+          };
+        });
+      }
+
+      function animate(time) {
+        const motion = document.body.dataset.motion;
+        const width = layer.clientWidth;
+        const height = layer.clientHeight;
+        const active = motion === "stars" && !reducedMotion.matches && width && height;
+        if (!active) {
+          previousTime = undefined;
+          activeMotion = "";
+          requestAnimationFrame(animate);
+          return;
+        }
+        // Tiny stars remain smooth at 30fps while keeping the large star field inexpensive.
+        if (motion === "stars" && time - previousPaint < 32) {
+          requestAnimationFrame(animate);
+          return;
+        }
+        previousPaint = time;
+        if (motion !== activeMotion || states.length !== layer.children.length) rebuild(motion, width, height);
+        const elapsed = previousTime ? Math.min(0.05, (time - previousTime) / 1000) : 0;
+        states.forEach(state => {
+          state.x += state.vx * elapsed;
+          state.y += state.vy * elapsed;
+          const minX = state.padX;
+          const minY = state.padY;
+          const maxX = Math.max(minX, width - state.width - state.padX);
+          const maxY = Math.max(minY, height - state.height - state.padY);
+          if (state.x <= minX || state.x >= maxX) {
+            state.x = Math.min(maxX, Math.max(minX, state.x));
+            state.vx *= -1;
+          }
+          if (state.y <= minY || state.y >= maxY) {
+            state.y = Math.min(maxY, Math.max(minY, state.y));
+            state.vy *= -1;
+          }
+        });
+        states.forEach(state => {
+          state.x = Math.min(Math.max(state.padX, width - state.width - state.padX), Math.max(state.padX, state.x));
+          state.y = Math.min(Math.max(state.padY, height - state.height - state.padY), Math.max(state.padY, state.y));
+          state.piece.style.transform = `translate3d(${state.x}px, ${state.y}px, 0)`;
+        });
+        previousTime = time;
+        requestAnimationFrame(animate);
+      }
+      requestAnimationFrame(animate);
+    }
+
     /* ============================================================
        WIDGET CONFIG
     ============================================================ */
     function getWidgetConfig(params = new URLSearchParams(window.location.search)) {
 
       const allowedThemes = [
-        "aura", "sunset", "ocean", "forest", "cream", "graphite", "midnight"
+        "aura", "sunset", "ocean", "forest", "cream", "graphite", "midnight",
+        "prism", "sage-dawn", "electric-dusk", "stardust", "southern-lights"
       ];
 
       const allowedSources = [
@@ -1789,7 +2203,7 @@
       const allowedFonts = [
         "manrope", "dmsans", "outfit", "space", "caveat", "patrick", "inkfree", "goodkitty", "jinky", "marker", "serif", "sans", "mono"
       ];
-      const allowedMotion = ["bubbles", "petals", "stars", "rain", "gradient", "none"];
+      const allowedMotion = ["bubbles", "petals", "rain", "gradient", "none"];
 
       const theme = allowedThemes.includes(params.get("theme"))
         ? params.get("theme")
@@ -1866,7 +2280,9 @@
         url.hash = "";
 
         url.searchParams.set("theme", controls.theme.value);
-        url.searchParams.set("motion", controls.motion.value);
+        if (!getThemeMotion(controls.theme.value)) {
+          url.searchParams.set("motion", controls.motion.value);
+        }
         url.searchParams.set("font", controls.font.value);
         url.searchParams.set("radius", controls.radius.value);
         url.searchParams.set("gloss", controls.gloss.value);
@@ -1892,6 +2308,11 @@
       }
 
       function updatePreview() {
+        const themeOwnsMotion = Boolean(getThemeMotion(controls.theme.value));
+        controls.motion.disabled = themeOwnsMotion;
+        controls.motion.title = themeOwnsMotion
+          ? "This theme includes its own ambient animation."
+          : "Choose a background animation.";
         radiusValue.textContent = `${controls.radius.value}px`;
         glossValue.textContent = `${controls.gloss.value}%`;
         maxLengthValue.textContent = controls.maxLength.value;
@@ -1958,6 +2379,7 @@
 
       applyAppearance();
       startBouncingBubbles();
+      startAmbientBoundaryMotion();
       const fitQuote = startQuoteSizing();
       const updateClock = startClock(config);
       const reloadQuote = startQuotes(config);
