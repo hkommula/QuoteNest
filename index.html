@@ -157,13 +157,41 @@
       opacity: 0.9;
     }
 
+    body[data-motion="gradient"] .aura { opacity: 0; }
+    body[data-motion="stars"] {
+      --bg: #05090d;
+      --text: #eef3fa;
+      --muted: rgba(238, 243, 250, 0.62);
+      --soft: rgba(255, 255, 255, 0.025);
+      --soft-strong: rgba(255, 255, 255, 0.055);
+      --border: rgba(255, 255, 255, 0.06);
+      --shadow: 0 18px 55px rgba(0, 0, 0, 0.2);
+    }
+    body[data-motion="stars"] .aura { opacity: 0.12; }
+
+    @property --ambient-angle {
+      syntax: "<angle>";
+      initial-value: 135deg;
+      inherits: false;
+    }
+    .gradient-motion {
+      display: none;
+      position: absolute;
+      inset: 0;
+      pointer-events: none;
+      background: linear-gradient(var(--ambient-angle), var(--aura-1), transparent 48%, var(--aura-2), var(--aura-3));
+      opacity: 0.8;
+      animation: gradient-angle 48s linear infinite;
+    }
+    body[data-motion="gradient"] .gradient-motion { display: block; }
+    @keyframes gradient-angle { from { --ambient-angle: 135deg; } to { --ambient-angle: 495deg; } }
+
     .aura.a1 {
       width: 470px;
       height: 470px;
       top: -260px;
       left: -130px;
       background: var(--aura-1);
-      animation: drift1 18s ease-in-out infinite alternate;
     }
 
     .aura.a2 {
@@ -172,7 +200,6 @@
       right: -220px;
       bottom: -260px;
       background: var(--aura-2);
-      animation: drift2 22s ease-in-out infinite alternate;
     }
 
     .aura.a3 {
@@ -181,22 +208,10 @@
       left: 44%;
       bottom: -250px;
       background: var(--aura-3);
-      animation: drift3 25s ease-in-out infinite alternate;
-    }
-
-    @keyframes drift1 {
-      to { transform: translate(100px, 70px) scale(1.15); }
-    }
-
-    @keyframes drift2 {
-      to { transform: translate(-90px, -55px) scale(1.18); }
-    }
-
-    @keyframes drift3 {
-      to { transform: translate(-60px, -80px) scale(1.22); }
     }
 
     .background-bubbles {
+      display: none;
       position: absolute;
       inset: 0;
       z-index: 0;
@@ -204,10 +219,136 @@
       pointer-events: none;
       user-select: none;
     }
+    body[data-motion="bubbles"] .background-bubbles { display: block; }
+
+    .ambient-objects {
+      position: absolute;
+      inset: 0;
+      z-index: 0;
+      overflow: hidden;
+      pointer-events: none;
+      user-select: none;
+      color: var(--text);
+      display: none;
+    }
+    body:is([data-motion="petals"], [data-motion="stars"], [data-motion="rain"]) .ambient-objects { display: block; }
+    .ambient-piece {
+      position: absolute;
+      left: var(--x);
+      top: var(--y);
+      width: var(--size);
+      height: var(--size);
+      animation-duration: var(--duration);
+      animation-delay: var(--delay);
+      animation-iteration-count: infinite;
+      pointer-events: none;
+    }
+    .ambient-piece.petals {
+      top: -30px;
+      height: calc(var(--size) * 0.65);
+      border-radius: 80% 20% 70% 25%;
+      background: color-mix(in srgb, var(--aura-3) 75%, var(--text));
+      opacity: 0;
+      animation-name: petal-fall;
+      animation-timing-function: linear;
+    }
+    body:is([data-theme="forest"], [data-theme="cream"]) .ambient-piece.petals {
+      border-radius: 85% 0 85% 0;
+      background: color-mix(in srgb, var(--aura-1) 65%, var(--text));
+    }
+    body:is([data-theme="forest"], [data-theme="cream"]) .ambient-piece.petals::after {
+      content: "";
+      position: absolute;
+      width: 70%;
+      left: 15%;
+      top: 50%;
+      border-top: 1px solid currentColor;
+      opacity: 0.2;
+      transform: rotate(-25deg);
+    }
+    @keyframes petal-fall {
+      0% { top: -30px; transform: translateX(0) rotate(-20deg); opacity: 0; }
+      12%, 80% { opacity: 0.18; }
+      50% { transform: translateX(var(--wind)) rotate(45deg); }
+      100% { top: calc(100% + 25px); transform: translateX(12px) rotate(120deg); opacity: 0; }
+    }
+    .ambient-piece.rain {
+      top: -28px;
+      width: 1.2px;
+      height: var(--size);
+      border-radius: 999px;
+      color: color-mix(in srgb, var(--text) 75%, var(--aura-2));
+      background: linear-gradient(to bottom, transparent 3%, currentColor 88%);
+      box-shadow: 0 0 1px color-mix(in srgb, currentColor 45%, transparent);
+      opacity: 0;
+      animation-name: rain-fall;
+      animation-timing-function: linear;
+    }
+    .ambient-piece.rain::after {
+      content: "";
+      position: absolute;
+      left: 50%;
+      top: calc(100% - 1px);
+      width: var(--splash-width);
+      height: 3px;
+      border-top: 1px solid currentColor;
+      border-radius: 50%;
+      opacity: 0;
+      transform: translateX(-50%) scaleX(0.25);
+      animation: rain-splash var(--duration) linear var(--delay) infinite;
+    }
+    @keyframes rain-fall {
+      0% { top: -28px; transform: translateX(0); opacity: 0; }
+      8% { opacity: var(--rain-opacity); }
+      86% { opacity: var(--rain-opacity); }
+      93% { top: calc(100% + 4px); transform: translateX(var(--rain-drift)); opacity: var(--rain-opacity); }
+      100% { top: calc(100% + 12px); transform: translateX(var(--rain-drift)); opacity: 0; }
+    }
+    @keyframes rain-splash {
+      0%, 87% { opacity: 0; transform: translateX(-50%) scaleX(0.25) translateY(0); }
+      91% { opacity: 0.3; transform: translateX(-50%) scaleX(0.6) translateY(0); }
+      97%, 100% { opacity: 0; transform: translateX(-50%) scaleX(1.15) translateY(-2px); }
+    }
+    .ambient-piece.stars {
+      border-radius: 50%;
+      color: var(--star-color);
+      background: currentColor;
+      opacity: var(--brightness);
+      animation-name: star-twinkle, star-drift;
+      animation-duration: var(--duration), var(--drift-duration);
+      animation-delay: var(--delay), var(--drift-delay);
+      animation-timing-function: ease-in-out, ease-in-out;
+      animation-direction: normal, alternate;
+    }
+    .ambient-piece.stars.star-glow { box-shadow: 0 0 4px currentColor, 0 0 9px color-mix(in srgb, currentColor 35%, transparent); }
+    .ambient-piece.stars.star-flare::before,
+    .ambient-piece.stars.star-flare::after {
+      content: "";
+      position: absolute;
+      left: 50%; top: 50%;
+      transform: translate(-50%, -50%);
+      border-radius: 50%;
+    }
+    .ambient-piece.stars.star-flare::before {
+      width: 26px; height: 1px;
+      background: linear-gradient(90deg, transparent, currentColor, transparent);
+    }
+    .ambient-piece.stars.star-flare::after {
+      width: 1px; height: 34px;
+      background: linear-gradient(transparent, currentColor, transparent);
+    }
+    @keyframes star-twinkle {
+      0%, 100% { opacity: calc(var(--brightness) * 0.45); }
+      50% { opacity: var(--brightness); }
+    }
+    @keyframes star-drift {
+      from { transform: translate3d(-12px, 14px, 0); }
+      to { transform: translate3d(var(--drift-x), var(--drift-y), 0); }
+    }
     .bubble {
       position: absolute;
-      top: 100%;
-      left: 12%;
+      top: 0;
+      left: 0;
       width: 72px;
       aspect-ratio: 1;
       border-radius: 50%;
@@ -215,38 +356,18 @@
       background: radial-gradient(circle at 28% 24%, rgba(255, 255, 255, 0.55), transparent 40%),
         radial-gradient(circle at 70% 80%, var(--aura-2), transparent 65%);
       box-shadow: inset 2px 2px 5px rgba(255, 255, 255, 0.2);
-      opacity: 0;
-      animation: bubble-rise 48s linear infinite;
-      animation-delay: -14s;
+      opacity: 0.18;
+      will-change: transform;
     }
-    .bubble:nth-child(2) {
-      left: 34%; width: 33px;
-      animation-duration: 57s; animation-delay: -42s;
-    }
-    .bubble:nth-child(3) {
-      left: 57%; width: 102px;
-      animation-duration: 65s; animation-delay: -30s;
-    }
-    .bubble:nth-child(4) {
-      left: 76%; width: 48px;
-      animation-duration: 52s; animation-delay: -38s;
-    }
-    .bubble:nth-child(5) {
-      left: 90%; width: 27px;
-      animation-duration: 44s; animation-delay: -7s;
-    }
-    .bubble:nth-child(6) { left: 5%; width: 30px; animation-duration: 61s; animation-delay: -38s; }
-    .bubble:nth-child(7) { left: 24%; width: 57px; animation-duration: 72s; animation-delay: -13s; }
-    .bubble:nth-child(8) { left: 45%; width: 24px; animation-duration: 47s; animation-delay: -35s; }
-    .bubble:nth-child(9) { left: 66%; width: 39px; animation-duration: 59s; animation-delay: -8s; }
-    .bubble:nth-child(10) { left: 84%; width: 66px; animation-duration: 68s; animation-delay: -46s; }
-    @keyframes bubble-rise {
-      0% { top: 100%; transform: translateX(0); opacity: 0; }
-      12% { opacity: 0.22; }
-      48% { transform: translateX(18px); }
-      85% { opacity: 0.18; }
-      100% { top: -120px; transform: translateX(-12px); opacity: 0; }
-    }
+    .bubble:nth-child(2) { width: 33px; }
+    .bubble:nth-child(3) { width: 102px; }
+    .bubble:nth-child(4) { width: 48px; }
+    .bubble:nth-child(5) { width: 27px; }
+    .bubble:nth-child(6) { width: 30px; }
+    .bubble:nth-child(7) { width: 57px; }
+    .bubble:nth-child(8) { width: 24px; }
+    .bubble:nth-child(9) { width: 39px; }
+    .bubble:nth-child(10) { width: 66px; }
 
     .widget-shell {
       position: relative;
@@ -362,20 +483,53 @@
 
     .credits-popup {
       position: absolute;
-      bottom: calc(100% + 8px);
-      right: 0;
-      width: min(245px, calc(100vw - 90px));
-      padding: 14px 16px;
+      bottom: 0;
+      right: calc(100% + 8px);
+      width: min(320px, calc(100vw - 105px));
+      padding: 11px 13px;
       border: 1px solid var(--border);
       border-radius: 14px;
       background: var(--bg);
       box-shadow: var(--shadow);
       color: var(--muted);
-      font-size: 0.78rem;
-      line-height: 1.6;
+      font-size: 0.52rem;
+      line-height: 1.45;
     }
 
-    .credits-popup strong { display: block; color: var(--text); margin-bottom: 5px; font-weight: 400; }
+    .credits-popup strong { display: block; color: var(--text); margin-bottom: 5px; font-size: 0.58rem; font-weight: 400; }
+    .credits-list {
+      display: grid;
+      gap: 2px;
+      margin: 0;
+      padding-left: 14px;
+    }
+    .credits-list li { white-space: nowrap; }
+    .popup-countdown {
+      position: absolute;
+      top: 4px;
+      left: 14px;
+      right: 14px;
+      height: 1px;
+      border-radius: 2px;
+      overflow: hidden;
+      background: color-mix(in srgb, var(--muted) 6%, transparent);
+      pointer-events: none;
+    }
+    .popup-countdown-fill {
+      display: block;
+      height: 100%;
+      background: var(--muted);
+      opacity: 0.22;
+      transform-origin: left;
+    }
+    .popup-fragments {
+      position: fixed;
+      inset: 0;
+      z-index: 1000;
+      overflow: hidden;
+      pointer-events: none;
+    }
+    .popup-fragment { position: absolute; pointer-events: none; }
     .credits-popup a {
       color: inherit;
       text-underline-offset: 3px;
@@ -556,7 +710,7 @@
     }
 
     .location-picker summary::-webkit-details-marker { display: none; }
-    .location-picker summary::after { content: " ⌄"; opacity: 0.6; }
+    .location-picker summary:hover { color: var(--text); }
 
     .location-form {
       position: absolute;
@@ -885,8 +1039,9 @@
       .aura { animation: none !important; }
       .quote-content { transition: none; }
       .weather-visual * { animation: none !important; }
-      .background-bubbles { display: none; }
+      body .background-bubbles, body .ambient-objects { display: none !important; }
       .bubble { animation: none !important; }
+      .ambient-piece, .ambient-piece::after, .gradient-motion { animation: none !important; }
     }
   </style>
 </head>
@@ -900,6 +1055,7 @@
     <div class="aura a1" aria-hidden="true"></div>
     <div class="aura a2" aria-hidden="true"></div>
     <div class="aura a3" aria-hidden="true"></div>
+    <div class="gradient-motion" aria-hidden="true"></div>
 
     <div class="widget-shell">
       <div class="background-bubbles" aria-hidden="true">
@@ -908,6 +1064,7 @@
         <span class="bubble"></span><span class="bubble"></span><span class="bubble"></span>
         <span class="bubble"></span><span class="bubble"></span>
       </div>
+      <div id="ambientObjects" class="ambient-objects" aria-hidden="true"></div>
 
       <section class="quote-panel">
         <div id="quoteContent" class="quote-content" aria-live="polite">
@@ -925,8 +1082,11 @@
           </summary>
           <div class="credits-popup">
             <strong>Sources &amp; credits</strong>
-            <div id="quoteAttribution" aria-live="polite">Loading quote source…</div>
-            <div>Weather by <a href="https://open-meteo.com/" target="_blank" rel="noopener noreferrer">Open-Meteo</a></div>
+            <ul class="credits-list">
+              <li id="quoteAttribution" aria-live="polite">Loading quote source…</li>
+              <li>Weather by <a href="https://open-meteo.com/" target="_blank" rel="noopener noreferrer">Open-Meteo</a></li>
+              <li><a href="?setup=1" target="_blank" rel="noopener noreferrer">Setup</a></li>
+            </ul>
           </div>
         </details>
         <button id="refreshButton" type="button" aria-label="Load another quote" title="Another quote">
@@ -1027,6 +1187,18 @@
               <option value="cream">Cream</option>
               <option value="graphite">Graphite</option>
               <option value="midnight">Midnight</option>
+            </select>
+          </div>
+
+          <div class="control-group">
+            <label for="motionControl">Background motion</label>
+            <select id="motionControl">
+              <option value="bubbles">Floating bubbles</option>
+              <option value="petals">Falling petals / leaves</option>
+              <option value="stars">Star dust</option>
+              <option value="rain">Rain effect</option>
+              <option value="gradient">Animated gradient angle</option>
+              <option value="none">Static background</option>
             </select>
           </div>
 
@@ -1163,6 +1335,7 @@
 
     const embedView = document.getElementById("embedView");
     const setupView = document.getElementById("setupView");
+    startPopupTimers();
 
     if (isSetup) {
       setupView.hidden = false;
@@ -1187,8 +1360,127 @@
       return params.get(key) !== "0";
     }
 
+    function closePopup(popup) {
+      if (popup.open) popup.dispatchEvent(new Event("popup-close"));
+    }
+
+    function startPopupTimers() {
+      document.querySelectorAll("details").forEach(popup => {
+        const panel = popup.querySelector(".credits-popup, .location-form");
+        if (!panel) return;
+        const countdown = document.createElement("div");
+        countdown.className = "popup-countdown";
+        countdown.setAttribute("aria-hidden", "true");
+        const fill = document.createElement("span");
+        fill.className = "popup-countdown-fill";
+        countdown.append(fill);
+        panel.prepend(countdown);
+        let closeTimer;
+        let inactivityTimer;
+        let progress;
+        let fragments;
+        const reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)");
+
+        function stopCountdown() {
+          clearTimeout(closeTimer);
+          progress?.cancel();
+          progress = null;
+          fill.style.transform = "scaleX(1)";
+        }
+
+        function startCountdown() {
+          stopCountdown();
+          if (!popup.open) return;
+          progress = fill.animate([{ transform: "scaleX(1)" }, { transform: "scaleX(0)" }], {
+            duration: 5000, easing: reducedMotion.matches ? "steps(5, end)" : "linear", fill: "forwards"
+          });
+          closeTimer = setTimeout(() => closePopup(popup), 5000);
+        }
+
+        popup.addEventListener("popup-close", () => {
+          clearTimeout(inactivityTimer);
+          stopCountdown();
+          fragments?.remove();
+          if (!reducedMotion.matches) {
+            const rect = panel.getBoundingClientRect();
+            // Freeze the current panel into noninteractive tiles before hiding the real controls.
+            const snapshot = panel.cloneNode(true);
+            const originals = [panel, ...panel.querySelectorAll("*")];
+            const copies = [snapshot, ...snapshot.querySelectorAll("*")];
+            copies.forEach((copy, index) => {
+              const style = getComputedStyle(originals[index]);
+              for (const property of ["font", "color", "background", "border", "border-radius", "padding", "margin", "display", "text-align", "line-height"]) {
+                copy.style.setProperty(property, style.getPropertyValue(property));
+              }
+              copy.removeAttribute("id");
+              copy.removeAttribute("for");
+            });
+            snapshot.querySelector(".popup-countdown")?.remove();
+            Object.assign(snapshot.style, {
+              position: "absolute", left: "0", top: "0", right: "auto", bottom: "auto",
+              width: `${rect.width}px`, height: `${rect.height}px`, maxHeight: "none",
+              margin: "0", overflow: "hidden", boxShadow: "none"
+            });
+            const layer = document.createElement("div");
+            layer.className = "popup-fragments";
+            layer.inert = true;
+            layer.setAttribute("aria-hidden", "true");
+            fragments = layer;
+            document.body.append(layer);
+            const animations = [];
+            for (let row = 0; row < 3; row++) {
+              for (let col = 0; col < 5; col++) {
+                const tile = document.createElement("div");
+                tile.className = "popup-fragment";
+                Object.assign(tile.style, {
+                  left: `${rect.left}px`, top: `${rect.top}px`,
+                  width: `${rect.width}px`, height: `${rect.height}px`,
+                  clipPath: `inset(${row * 100 / 3}% ${100 - (col + 1) * 20}% ${100 - (row + 1) * 100 / 3}% ${col * 20}%)`
+                });
+                const content = snapshot.cloneNode(true);
+                tile.append(content);
+                layer.append(tile);
+                content.scrollTop = panel.scrollTop;
+                const dx = (col - 2) * 12;
+                const dy = (row - 1) * 10 + 14;
+                const animation = tile.animate([
+                  { transform: "translate(0, 0) scale(1)", opacity: 1 },
+                  { transform: `translate(${dx}px, ${dy}px) rotate(${(col - 2) * 3}deg) scale(0.9)`, opacity: 0 }
+                ], { duration: 650, delay: (col + row) * 20, easing: "cubic-bezier(.2,.65,.3,1)", fill: "forwards" });
+                animations.push(animation.finished);
+              }
+            }
+            Promise.allSettled(animations).then(() => layer.remove());
+          }
+          const hasFocus = panel.contains(document.activeElement);
+          popup.open = false;
+          if (hasFocus) popup.querySelector("summary").focus({ preventScroll: true });
+        });
+        popup.querySelector("summary").addEventListener("click", event => {
+          if (!popup.open) return;
+          event.preventDefault();
+          closePopup(popup);
+        });
+        popup.addEventListener("toggle", () => {
+          clearTimeout(inactivityTimer);
+          stopCountdown();
+          if (!popup.open) return;
+          fragments?.remove();
+          startCountdown();
+        });
+        if (panel.classList.contains("location-form")) {
+          panel.addEventListener("input", () => {
+            clearTimeout(inactivityTimer);
+            stopCountdown();
+            inactivityTimer = setTimeout(startCountdown, 2500);
+          });
+        }
+      });
+    }
+
     function applyThemeAndFont(config) {
       document.body.dataset.theme = config.theme;
+      applyBackgroundMotion(config.motion);
 
       const fontMap = {
         manrope: '"Manrope", "Segoe UI", sans-serif',
@@ -1211,6 +1503,105 @@
       );
     }
 
+    function applyBackgroundMotion(motion) {
+      if (document.body.dataset.motion === motion) return;
+      document.body.dataset.motion = motion;
+      const objects = document.getElementById("ambientObjects");
+      objects.replaceChildren();
+      const count = { petals: 12, stars: 320, rain: 28 }[motion] || 0;
+      const pieces = document.createDocumentFragment();
+      // A seeded scatter avoids repeating rows and keeps the sky stable across settings changes.
+      let seed = 4917;
+      const random = () => {
+        seed = (Math.imul(seed, 1664525) + 1013904223) >>> 0;
+        return seed / 4294967296;
+      };
+      for (let i = 0; i < count; i++) {
+        const piece = document.createElement("span");
+        piece.className = `ambient-piece ${motion}`;
+        piece.style.setProperty("--x", `${1 + random() * 98}%`);
+        piece.style.setProperty("--y", `${2 + random() * 96}%`);
+        const prominent = motion === "stars" && i % 19 === 0;
+        const size = motion === "petals" ? 7 + random() * 23 : motion === "rain" ? 12 + random() * 13 : prominent ? 2.2 + random() * 1.2 : 0.65 + random() * 1.15;
+        const duration = motion === "stars" ? 6 + random() * 9 : motion === "rain" ? 6.5 + random() * 4 : 38 + random() * 32;
+        if (motion === "stars") {
+          const tint = random();
+          piece.style.setProperty("--star-color", tint < 0.1 ? "#e6ac72" : tint < 0.55 ? "#94cce8" : "#f1f6ff");
+          piece.style.setProperty("--brightness", prominent ? "0.9" : `${0.25 + random() * 0.5}`);
+          piece.classList.toggle("star-glow", prominent);
+          piece.classList.toggle("star-flare", i % 137 === 0);
+          piece.style.setProperty("--drift-x", `${24 + random() * 42}px`);
+          piece.style.setProperty("--drift-y", `${-22 - random() * 30}px`);
+          piece.style.setProperty("--drift-duration", `${24 + random() * 28}s`);
+          piece.style.setProperty("--drift-delay", `${-random() * 48}s`);
+        }
+        if (motion === "rain") {
+          piece.style.setProperty("--rain-drift", `${-7 + random() * 14}px`);
+          piece.style.setProperty("--rain-opacity", `${0.16 + random() * 0.1}`);
+          piece.style.setProperty("--splash-width", `${5 + random() * 5}px`);
+        }
+        piece.style.setProperty("--size", `${size}px`);
+        piece.style.setProperty("--duration", `${duration}s`);
+        piece.style.setProperty("--delay", `${-(i * 13 + 9) % duration}s`);
+        piece.style.setProperty("--wind", `${i % 2 ? -25 - i % 25 : 20 + i % 30}px`);
+        pieces.append(piece);
+      }
+      objects.append(pieces);
+    }
+
+    function startBouncingBubbles() {
+      const layer = document.querySelector(".background-bubbles");
+      const bubbles = [...layer.querySelectorAll(".bubble")];
+      const reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)");
+      const states = bubbles.map((bubble, index) => ({
+        bubble,
+        xRatio: ((index * 37 + 11) % 91) / 100,
+        yRatio: ((index * 53 + 17) % 87) / 100,
+        x: 0,
+        y: 0,
+        vx: (index % 2 ? -1 : 1) * (7 + index % 4 * 2.2),
+        vy: (index % 3 ? 1 : -1) * (6 + index % 5 * 1.7),
+        ready: false
+      }));
+      let previousTime;
+
+      function animate(time) {
+        const width = layer.clientWidth;
+        const height = layer.clientHeight;
+        const active = document.body.dataset.motion === "bubbles" && !reducedMotion.matches && width && height;
+        if (active) {
+          const elapsed = previousTime ? Math.min(0.05, (time - previousTime) / 1000) : 0;
+          states.forEach(state => {
+            const size = state.bubble.offsetWidth;
+            const maxX = Math.max(0, width - size);
+            const maxY = Math.max(0, height - size);
+            if (!state.ready) {
+              state.x = maxX * state.xRatio;
+              state.y = maxY * state.yRatio;
+              state.ready = true;
+            } else {
+              state.x += state.vx * elapsed;
+              state.y += state.vy * elapsed;
+              if (state.x <= 0 || state.x >= maxX) {
+                state.x = Math.min(maxX, Math.max(0, state.x));
+                state.vx *= -1;
+              }
+              if (state.y <= 0 || state.y >= maxY) {
+                state.y = Math.min(maxY, Math.max(0, state.y));
+                state.vy *= -1;
+              }
+            }
+            state.bubble.style.transform = `translate3d(${state.x}px, ${state.y}px, 0)`;
+          });
+          previousTime = time;
+        } else {
+          previousTime = undefined;
+        }
+        requestAnimationFrame(animate);
+      }
+      requestAnimationFrame(animate);
+    }
+
     /* ============================================================
        WIDGET CONFIG
     ============================================================ */
@@ -1227,6 +1618,7 @@
       const allowedFonts = [
         "manrope", "dmsans", "outfit", "space", "serif", "sans", "mono"
       ];
+      const allowedMotion = ["bubbles", "petals", "stars", "rain", "gradient", "none"];
 
       const theme = allowedThemes.includes(params.get("theme"))
         ? params.get("theme")
@@ -1244,6 +1636,7 @@
         theme,
         source,
         font,
+        motion: allowedMotion.includes(params.get("motion")) ? params.get("motion") : "bubbles",
         category: (params.get("category") || "").trim().toLowerCase(),
         maxLength: clampNumber(params.get("max"), 70, 500, 240),
         timeFormat: params.get("time") === "24" ? "24" : "12",
@@ -1262,6 +1655,7 @@
     function startCustomizer() {
       const controls = {
         theme: document.getElementById("themeControl"),
+        motion: document.getElementById("motionControl"),
         font: document.getElementById("fontControl"),
         radius: document.getElementById("radiusControl"),
         source: document.getElementById("sourceControl"),
@@ -1298,6 +1692,7 @@
         url.hash = "";
 
         url.searchParams.set("theme", controls.theme.value);
+        url.searchParams.set("motion", controls.motion.value);
         url.searchParams.set("font", controls.font.value);
         url.searchParams.set("radius", controls.radius.value);
         url.searchParams.set("source", controls.source.value);
@@ -1366,7 +1761,7 @@
 
         window.setTimeout(() => {
           copyStatus.textContent = "";
-        }, 2500);
+        }, 5000);
       });
 
       updatePreview();
@@ -1386,6 +1781,7 @@
       }
 
       applyAppearance();
+      startBouncingBubbles();
       const fitQuote = startQuoteSizing();
       const updateClock = startClock(config);
       const reloadQuote = startQuotes(config);
@@ -1409,11 +1805,11 @@
       });
       const credits = document.getElementById("sourceCredits");
       document.addEventListener("click", event => {
-        if (!credits.contains(event.target)) credits.open = false;
+        if (!credits.contains(event.target)) closePopup(credits);
       });
       document.addEventListener("keydown", event => {
         if (event.key === "Escape" && credits.open) {
-          credits.open = false;
+          closePopup(credits);
           credits.querySelector("summary").focus();
         }
       });
@@ -1870,7 +2266,7 @@
                 latitude: place.latitude, longitude: place.longitude
               };
               writeStored("localStorage", "quote-widget-location", selected);
-              picker.open = false;
+              closePopup(picker);
               showWeather(selected);
             });
             resultsEl.append(button);
@@ -1883,7 +2279,7 @@
       document.getElementById("automaticLocation").addEventListener("click", () => {
         writeStored("localStorage", "quote-widget-location", null);
         writeStored("sessionStorage", "quote-widget-auto-location", null);
-        picker.open = false;
+        closePopup(picker);
         detectLocation();
       });
       document.getElementById("weatherRetry").addEventListener("click", () => {
@@ -1897,11 +2293,11 @@
         if (activePlace && !document.hidden) showWeather(activePlace);
       }, 15 * 60 * 1000);
       document.addEventListener("click", event => {
-        if (!picker.contains(event.target)) picker.open = false;
+        if (!picker.contains(event.target)) closePopup(picker);
       });
       document.addEventListener("keydown", event => {
         if (event.key === "Escape" && picker.open) {
-          picker.open = false;
+          closePopup(picker);
           locationEl.focus();
         }
       });
@@ -2004,6 +2400,14 @@
           link.target = "_blank";
           link.rel = "noopener noreferrer";
           attribution.append("Quotes via ", link);
+          if (quote.source === "notion") {
+            const forkLink = document.createElement("a");
+            forkLink.textContent = "QuoteSlate";
+            forkLink.href = "https://quoteslate.vercel.app/";
+            forkLink.target = "_blank";
+            forkLink.rel = "noopener noreferrer";
+            attribution.append(", forked from ", forkLink);
+          }
         } else attribution.textContent = "Quotes from the built-in collection";
       }
 
