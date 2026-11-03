@@ -534,7 +534,7 @@
       position: relative;
       z-index: 2;
       width: 100%;
-      min-height: max(182px, 100vh);
+      min-height: max(128px, 100dvh);
       display: grid;
       grid-template-columns: minmax(0, var(--quote-fraction, 3fr)) minmax(200px, var(--clock-fraction, 1fr));
       gap: clamp(10px, 1.6vw, 22px);
@@ -593,12 +593,7 @@
       position: relative;
       z-index: 1;
       width: 100%;
-      transition: opacity 180ms ease, transform 180ms ease;
-    }
-
-    .quote-content.is-changing {
-      opacity: 0;
-      transform: translateY(5px);
+      transform-origin: center;
     }
 
     .quote-mark {
@@ -680,7 +675,7 @@
       margin: 0;
       padding-left: 14px;
     }
-    .credits-list li { white-space: nowrap; }
+    .credits-list li { overflow-wrap: anywhere; }
     .popup-countdown {
       position: absolute;
       top: 4px;
@@ -981,7 +976,7 @@
 
     @media (max-width: 680px) {
       .widget-shell {
-        grid-template-columns: 1fr;
+        grid-template-columns: minmax(0, 1fr);
         grid-template-rows: auto auto;
         gap: 8px;
         padding: 8px;
@@ -989,7 +984,7 @@
       }
 
       .quote-panel {
-        min-height: clamp(145px, 28vh, 220px);
+        min-height: clamp(104px, 22vh, 180px);
         padding: 12px 24px 40px;
       }
 
@@ -1023,7 +1018,7 @@
     @media (max-height: 260px) and (min-width: 681px) {
       .widget-shell {
         height: 100vh;
-        min-height: 182px;
+        min-height: 128px;
         gap: 10px;
         padding: 5px 8px;
       }
@@ -1417,12 +1412,12 @@
     }
 
     @media (max-width: 360px) {
-      #previewFrame { height: 460px; }
+      #previewFrame { height: 420px; }
+      .action-row { grid-template-columns: 1fr; }
     }
 
     @media (prefers-reduced-motion: reduce) {
       .aura { animation: none !important; }
-      .quote-content { transition: none; }
       .weather-visual *, .forecast-symbol, .forecast-symbol *, .sun-event svg { animation: none !important; }
       body .background-bubbles, body .ambient-objects { display: none !important; }
       .bubble { animation: none !important; }
@@ -1636,9 +1631,8 @@
           <div class="control-group">
             <label for="sourceControl">Source</label>
             <select id="sourceControl">
-              <option value="auto">Auto — Notion Quotes → ZenQuotes</option>
-              <option value="notion">Notion Quotes first</option>
-              <option value="zenquotes">ZenQuotes first</option>
+              <option value="auto">Auto — Notion Quotes → built-in</option>
+              <option value="notion">Notion Quotes</option>
               <option value="local">Built-in quotes only</option>
             </select>
           </div>
@@ -1816,7 +1810,7 @@
           fragments?.remove();
           if (!reducedMotion.matches) {
             const rect = panel.getBoundingClientRect();
-            // Freeze the current panel into noninteractive tiles before hiding the real controls.
+            // Freeze the current panel into noninteractive fragments before hiding the real controls.
             const snapshot = panel.cloneNode(true);
             const originals = [panel, ...panel.querySelectorAll("*")];
             const copies = [snapshot, ...snapshot.querySelectorAll("*")];
@@ -1841,31 +1835,62 @@
             fragments = layer;
             document.body.append(layer);
             const animations = [];
-            for (let row = 0; row < 4; row++) {
-              for (let col = 0; col < 6; col++) {
+            const columns = 4 + Math.floor(Math.random() * 3);
+            const rows = 3 + Math.floor(Math.random() * 3);
+            const mode = ["burst", "diagonal", "collapse"][Math.floor(Math.random() * 3)];
+            const diagonalDirection = Math.random() < 0.5 ? -1 : 1;
+            const randomBoundaries = count => {
+              const weights = Array.from({ length: count }, () => 0.55 + Math.random() * 0.9);
+              const total = weights.reduce((sum, weight) => sum + weight, 0);
+              const boundaries = [0];
+              weights.forEach(weight => boundaries.push(boundaries.at(-1) + weight / total * 100));
+              boundaries[boundaries.length - 1] = 100;
+              return boundaries;
+            };
+            const xs = randomBoundaries(columns);
+            const ys = randomBoundaries(rows);
+            for (let row = 0; row < rows; row++) {
+              for (let col = 0; col < columns; col++) {
                 const tile = document.createElement("div");
                 tile.className = "popup-fragment";
                 Object.assign(tile.style, {
                   left: `${rect.left}px`, top: `${rect.top}px`,
                   width: `${rect.width}px`, height: `${rect.height}px`,
-                  clipPath: `inset(${row * 25}% ${100 - (col + 1) * 100 / 6}% ${100 - (row + 1) * 25}% ${col * 100 / 6}%)`
+                  clipPath: `inset(${ys[row]}% ${100 - xs[col + 1]}% ${100 - ys[row + 1]}% ${xs[col]}%)`
                 });
                 const content = snapshot.cloneNode(true);
                 tile.append(content);
                 layer.append(tile);
                 content.scrollTop = panel.scrollTop;
-                const dx = (col - 2.5) * 16 + (row % 2 ? 4 : -4);
-                const dy = (row - 1.5) * 14 + 22;
-                const rotation = (col - 2.5) * 4.2 + (row % 2 ? 2 : -2);
+                const centerX = (xs[col] + xs[col + 1]) / 2 / 100 - 0.5;
+                const centerY = (ys[row] + ys[row + 1]) / 2 / 100 - 0.5;
+                const angle = Math.atan2(centerY, centerX) + (Math.random() - 0.5) * 0.75;
+                const distance = 42 + Math.random() * 72;
+                let dx = Math.cos(angle) * distance;
+                let dy = Math.sin(angle) * distance + 14 + Math.random() * 24;
+                if (mode === "diagonal") {
+                  dx = diagonalDirection * (45 + Math.random() * 75) + centerX * 28;
+                  dy = -18 + Math.random() * 92 + centerY * 32;
+                }
+                const rotation = (Math.random() - 0.5) * (mode === "burst" ? 44 : 30);
+                const endScale = 0.58 + Math.random() * 0.25;
+                const delay = Math.random() * 105 + (mode === "diagonal" ? (diagonalDirection > 0 ? col : columns - col) * 12 : 0);
+                const duration = 700 + Math.random() * 390;
+                const middleTransform = mode === "collapse"
+                  ? `translate(${-centerX * 25}px, ${-centerY * 22}px) rotate(${rotation * -0.08}deg) scale(0.96)`
+                  : `translate(${dx * 0.12}px, ${dy * 0.1}px) rotate(${rotation * 0.1}deg) scale(${0.98 + Math.random() * 0.025})`;
                 const animation = tile.animate([
                   { transform: "translate(0, 0) rotate(0) scale(1)", opacity: 1, filter: "blur(0)" },
-                  { offset: 0.38, transform: `translate(${dx * 0.16}px, ${dy * 0.12}px) rotate(${rotation * 0.12}deg) scale(0.985)`, opacity: 0.94, filter: "blur(0)" },
-                  { transform: `translate(${dx}px, ${dy}px) rotate(${rotation}deg) scale(0.82)`, opacity: 0, filter: "blur(1.7px)" }
-                ], { duration: 920, delay: (col + row) * 24, easing: "cubic-bezier(.18,.7,.22,1)", fill: "forwards" });
+                  { offset: mode === "collapse" ? 0.3 : 0.24, transform: middleTransform, opacity: 0.96, filter: "blur(0)" },
+                  { transform: `translate(${dx}px, ${dy}px) rotate(${rotation}deg) scale(${endScale})`, opacity: 0, filter: `blur(${1.2 + Math.random() * 1.5}px)` }
+                ], { duration, delay, easing: "cubic-bezier(.16,.72,.22,1)", fill: "forwards" });
                 animations.push(animation.finished);
               }
             }
-            Promise.allSettled(animations).then(() => layer.remove());
+            Promise.allSettled(animations).then(() => {
+              layer.remove();
+              if (fragments === layer) fragments = null;
+            });
           }
           const hasFocus = panel.contains(document.activeElement);
           popup.open = false;
@@ -2185,7 +2210,7 @@
       ];
 
       const allowedSources = [
-        "auto", "notion", "zenquotes", "local"
+        "auto", "notion", "local"
       ];
 
       const allowedFonts = [
@@ -3006,6 +3031,7 @@
     }
 
     function startQuotes(config) {
+      const quotePanel = document.querySelector(".quote-panel");
       const quoteContent = document.getElementById("quoteContent");
       const quoteText = document.getElementById("quoteText");
       const quoteAuthor = document.getElementById("quoteAuthor");
@@ -3015,7 +3041,8 @@
       let requestVersion = 0;
       let requestController;
       let requestTimer;
-      let queues = { notion: [], zenquotes: [], local: [] };
+      let queues = { notion: [], local: [] };
+      const reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)");
 
       const LOCAL_QUOTES = [
         { text: "Make room for curiosity.", author: "" },
@@ -3052,8 +3079,7 @@
       }
 
       async function nextQuote(settings, activeQueues, signal) {
-        const providers = settings.source === "local" ? ["local"] : settings.source === "zenquotes"
-          ? ["zenquotes", "notion", "local"] : ["notion", "zenquotes", "local"];
+        const providers = settings.source === "local" ? ["local"] : ["notion", "local"];
         for (const provider of providers) {
           if (signal.aborted) throw new DOMException("Aborted", "AbortError");
           try {
@@ -3064,8 +3090,6 @@
                   if (signal.aborted || !settings.category) throw error;
                   activeQueues.notion = await fetchNotion(settings, signal, false);
                 }
-              } else if (provider === "zenquotes") {
-                activeQueues.zenquotes = normalize(await fetchJson("https://zenquotes.io/api/random", 8000, signal), settings);
               } else {
                 activeQueues.local = LOCAL_QUOTES.filter(quote => quote.text !== previousQuote && quote.text.length <= settings.maxLength);
                 for (let i = activeQueues.local.length - 1; i > 0; i--) {
@@ -3091,8 +3115,7 @@
         quoteAuthor.textContent = quote.author ? `— ${quote.author}` : "";
         quoteAuthor.style.display = quote.author ? "" : "none";
         const sources = {
-          notion: ["Notion Quotes", "https://notion-quotes-generator.vercel.app/"],
-          zenquotes: ["ZenQuotes", "https://zenquotes.io/"]
+          notion: ["Notion Quotes", "https://notion-quotes-generator.vercel.app/"]
         };
         attribution.replaceChildren();
         if (sources[quote.source]) {
@@ -3112,6 +3135,32 @@
         } else attribution.textContent = "Quotes from the built-in collection";
       }
 
+      async function transitionToQuote(quote, version) {
+        if (reducedMotion.matches) {
+          showQuote(quote);
+          return;
+        }
+
+        // Hold the card's current footprint while both quote and author transition.
+        quotePanel.style.minHeight = `${quotePanel.getBoundingClientRect().height}px`;
+        const exitAnimation = quoteContent.animate([
+          { opacity: 1, transform: "translateY(0) scale(1)", filter: "blur(0)" },
+          { opacity: 0, transform: "translateY(-4px) scale(.992)", filter: "blur(2px)" }
+        ], { duration: 180, easing: "cubic-bezier(.4,0,1,1)", fill: "forwards" });
+        await exitAnimation.finished;
+        exitAnimation.cancel();
+        if (version !== requestVersion) return;
+
+        showQuote(quote);
+        const enterAnimation = quoteContent.animate([
+          { opacity: 0, transform: "translateY(6px) scale(.992)", filter: "blur(2px)" },
+          { opacity: 1, transform: "translateY(0) scale(1)", filter: "blur(0)" }
+        ], { duration: 230, easing: "cubic-bezier(.16,.78,.25,1)" });
+        await enterAnimation.finished;
+        if (version !== requestVersion) return;
+        if (version === requestVersion) quotePanel.style.removeProperty("min-height");
+      }
+
       function requestQuote(delay = 0) {
         clearTimeout(requestTimer);
         requestController?.abort();
@@ -3120,7 +3169,7 @@
         requestController = controller;
         const settings = { ...config };
         const activeQueues = queues;
-        quoteContent.classList.remove("is-changing");
+        quotePanel.style.removeProperty("min-height");
         quoteContent.setAttribute("aria-busy", "true");
         refreshButton.classList.add("loading");
         refreshButton.disabled = true;
@@ -3128,16 +3177,14 @@
           try {
             const quote = await nextQuote(settings, activeQueues, controller.signal);
             if (version !== requestVersion) return;
-            quoteContent.classList.add("is-changing");
-            await new Promise(resolve => setTimeout(resolve, 120));
-            if (version === requestVersion) showQuote(quote);
+            await transitionToQuote(quote, version);
           } catch (error) {
             if (version === requestVersion && !controller.signal.aborted) {
-              showQuote({ ...LOCAL_QUOTES.find(quote => quote.text !== previousQuote), source: "local" });
+              await transitionToQuote({ ...LOCAL_QUOTES.find(quote => quote.text !== previousQuote), source: "local" }, version);
             }
           } finally {
             if (version === requestVersion) {
-              quoteContent.classList.remove("is-changing");
+              quotePanel.style.removeProperty("min-height");
               quoteContent.setAttribute("aria-busy", "false");
               refreshButton.classList.remove("loading");
               refreshButton.disabled = false;
@@ -3149,7 +3196,7 @@
       refreshButton.addEventListener("click", () => requestQuote());
       requestQuote();
       return () => {
-        queues = { notion: [], zenquotes: [], local: [] };
+        queues = { notion: [], local: [] };
         requestQuote(240);
       };
     }
