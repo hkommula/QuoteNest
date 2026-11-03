@@ -694,14 +694,19 @@
       opacity: 0.22;
       transform-origin: left;
     }
-    .popup-fragments {
+    .popup-collapse-layer {
       position: fixed;
       inset: 0;
       z-index: 1000;
       overflow: hidden;
       pointer-events: none;
     }
-    .popup-fragment { position: absolute; pointer-events: none; }
+    .popup-collapse-ghost {
+      position: absolute;
+      pointer-events: none;
+      transform-origin: center;
+      will-change: transform, opacity, filter, clip-path;
+    }
     .credits-popup a {
       color: inherit;
       text-underline-offset: 3px;
@@ -887,7 +892,8 @@
     #locationResults button:focus, #locationResults button:hover { background: var(--soft-strong); border-color: color-mix(in srgb, var(--border) 75%, transparent); }
     #locationSearchStatus { margin: 6px 0; color: var(--muted); }
     #weatherSummary { display: flex; align-items: baseline; flex-wrap: wrap; gap: 4px 7px; margin-top: 6px; }
-    .weather-temperature { font-size: 0.98rem; font-weight: 500; color: var(--text); white-space: nowrap; }
+    .weather-temperature { display: inline-flex; align-items: baseline; gap: 5px; font-size: 0.98rem; font-weight: 500; color: var(--text); white-space: nowrap; }
+    .weather-feels { color: var(--muted); font-size: 0.72em; font-weight: 400; }
     .weather-condition { font-size: 0.7rem; color: var(--muted); }
     #weatherRetry { position: absolute; top: -3px; right: -3px; width: 22px; height: 22px; border: 0; padding: 3px; background: none; color: var(--muted); cursor: pointer; opacity: 0.65; border-radius: 50%; }
     #weatherRetry:hover { opacity: 1; background: var(--soft); }
@@ -960,6 +966,18 @@
     #uvItem { justify-self: end; }
     .uv-label { font-size: 0.61rem; letter-spacing: 0.01em; }
     #uvIndex { color: var(--text); font-weight: 500; }
+    .uv-range { display: inline-flex; align-items: center; gap: 2px; white-space: nowrap; }
+    .uv-bound {
+      min-width: 23px;
+      padding: 1px 4px;
+      border-radius: 999px;
+      background: color-mix(in srgb, var(--soft-strong) 72%, transparent);
+      font-size: 0.52rem;
+      line-height: 1.35;
+      text-align: center;
+    }
+    .uv-high { color: color-mix(in srgb, #b4762d 78%, var(--text)); }
+    .uv-low { color: var(--muted); }
     .sun-event:focus-visible { outline: 1px solid var(--muted); outline-offset: 3px; border-radius: 4px; }
     button:focus-visible, .location-picker summary:focus-visible { outline: 2px solid var(--muted); outline-offset: 2px; }
 
@@ -1509,7 +1527,7 @@
               <div id="weatherSummary" role="status">Loading weather…</div>
               <button id="weatherRetry" type="button" aria-label="Refresh weather" title="Refresh weather">↻</button>
             </div>
-            <div id="sunTimes" class="sun-times" aria-label="Today's sunrise, sunset and maximum UV index in the weather location" hidden>
+            <div id="sunTimes" class="sun-times" aria-label="Today's sunrise, sunset and UV index in the weather location" hidden>
               <span id="sunriseItem" class="sun-event" tabindex="0">
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 18h18M6 15a6 6 0 0 1 12 0M12 2v6m-3-3 3-3 3 3M3 12l2 1m14 0 2-1" /></svg>
                 <span id="sunriseTime">—</span>
@@ -1520,7 +1538,8 @@
               </span>
               <span id="uvItem" class="sun-event" tabindex="0">
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M2 12h2M20 12h2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></svg>
-                <span class="uv-label">UV max</span><span id="uvIndex">—</span>
+                <span class="uv-label">UV</span><span id="uvIndex">—</span>
+                <span id="uvRange" class="uv-range"><span id="uvHigh" class="uv-bound uv-high">↑ —</span><span id="uvLow" class="uv-bound uv-low">↓ —</span></span>
               </span>
             </div>
             <div id="weatherForecast" class="weather-forecast" aria-label="Forecast for the next three days" hidden></div>
@@ -1785,7 +1804,7 @@
         let closeTimer;
         let inactivityTimer;
         let progress;
-        let fragments;
+        let closingLayer;
         const reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)");
 
         function stopCountdown() {
@@ -1807,10 +1826,11 @@
         popup.addEventListener("popup-close", () => {
           clearTimeout(inactivityTimer);
           stopCountdown();
-          fragments?.remove();
+          closingLayer?.remove();
           if (!reducedMotion.matches) {
             const rect = panel.getBoundingClientRect();
-            // Freeze the current panel into noninteractive fragments before hiding the real controls.
+            const triggerRect = popup.querySelector("summary").getBoundingClientRect();
+            // Freeze the popup so it can fold back into its trigger like fabric returning to a pocket.
             const snapshot = panel.cloneNode(true);
             const originals = [panel, ...panel.querySelectorAll("*")];
             const copies = [snapshot, ...snapshot.querySelectorAll("*")];
@@ -1824,72 +1844,53 @@
             });
             snapshot.querySelector(".popup-countdown")?.remove();
             Object.assign(snapshot.style, {
-              position: "absolute", left: "0", top: "0", right: "auto", bottom: "auto",
+              position: "absolute", left: `${rect.left}px`, top: `${rect.top}px`, right: "auto", bottom: "auto",
               width: `${rect.width}px`, height: `${rect.height}px`, maxHeight: "none",
-              margin: "0", overflow: "hidden", boxShadow: "none"
+              margin: "0", overflow: "hidden", boxShadow: getComputedStyle(panel).boxShadow
             });
+            snapshot.classList.add("popup-collapse-ghost");
+            snapshot.scrollTop = panel.scrollTop;
             const layer = document.createElement("div");
-            layer.className = "popup-fragments";
+            layer.className = "popup-collapse-layer";
             layer.inert = true;
             layer.setAttribute("aria-hidden", "true");
-            fragments = layer;
+            layer.append(snapshot);
+            closingLayer = layer;
             document.body.append(layer);
-            const animations = [];
-            const columns = 4 + Math.floor(Math.random() * 3);
-            const rows = 3 + Math.floor(Math.random() * 3);
-            const mode = ["burst", "diagonal", "collapse"][Math.floor(Math.random() * 3)];
-            const diagonalDirection = Math.random() < 0.5 ? -1 : 1;
-            const randomBoundaries = count => {
-              const weights = Array.from({ length: count }, () => 0.55 + Math.random() * 0.9);
-              const total = weights.reduce((sum, weight) => sum + weight, 0);
-              const boundaries = [0];
-              weights.forEach(weight => boundaries.push(boundaries.at(-1) + weight / total * 100));
-              boundaries[boundaries.length - 1] = 100;
-              return boundaries;
-            };
-            const xs = randomBoundaries(columns);
-            const ys = randomBoundaries(rows);
-            for (let row = 0; row < rows; row++) {
-              for (let col = 0; col < columns; col++) {
-                const tile = document.createElement("div");
-                tile.className = "popup-fragment";
-                Object.assign(tile.style, {
-                  left: `${rect.left}px`, top: `${rect.top}px`,
-                  width: `${rect.width}px`, height: `${rect.height}px`,
-                  clipPath: `inset(${ys[row]}% ${100 - xs[col + 1]}% ${100 - ys[row + 1]}% ${xs[col]}%)`
-                });
-                const content = snapshot.cloneNode(true);
-                tile.append(content);
-                layer.append(tile);
-                content.scrollTop = panel.scrollTop;
-                const centerX = (xs[col] + xs[col + 1]) / 2 / 100 - 0.5;
-                const centerY = (ys[row] + ys[row + 1]) / 2 / 100 - 0.5;
-                const angle = Math.atan2(centerY, centerX) + (Math.random() - 0.5) * 0.75;
-                const distance = 42 + Math.random() * 72;
-                let dx = Math.cos(angle) * distance;
-                let dy = Math.sin(angle) * distance + 14 + Math.random() * 24;
-                if (mode === "diagonal") {
-                  dx = diagonalDirection * (45 + Math.random() * 75) + centerX * 28;
-                  dy = -18 + Math.random() * 92 + centerY * 32;
-                }
-                const rotation = (Math.random() - 0.5) * (mode === "burst" ? 44 : 30);
-                const endScale = 0.58 + Math.random() * 0.25;
-                const delay = Math.random() * 105 + (mode === "diagonal" ? (diagonalDirection > 0 ? col : columns - col) * 12 : 0);
-                const duration = 700 + Math.random() * 390;
-                const middleTransform = mode === "collapse"
-                  ? `translate(${-centerX * 25}px, ${-centerY * 22}px) rotate(${rotation * -0.08}deg) scale(0.96)`
-                  : `translate(${dx * 0.12}px, ${dy * 0.1}px) rotate(${rotation * 0.1}deg) scale(${0.98 + Math.random() * 0.025})`;
-                const animation = tile.animate([
-                  { transform: "translate(0, 0) rotate(0) scale(1)", opacity: 1, filter: "blur(0)" },
-                  { offset: mode === "collapse" ? 0.3 : 0.24, transform: middleTransform, opacity: 0.96, filter: "blur(0)" },
-                  { transform: `translate(${dx}px, ${dy}px) rotate(${rotation}deg) scale(${endScale})`, opacity: 0, filter: `blur(${1.2 + Math.random() * 1.5}px)` }
-                ], { duration, delay, easing: "cubic-bezier(.16,.72,.22,1)", fill: "forwards" });
-                animations.push(animation.finished);
+            const dx = triggerRect.left + triggerRect.width / 2 - (rect.left + rect.width / 2);
+            const dy = triggerRect.top + triggerRect.height / 2 - (rect.top + rect.height / 2);
+            const fold = dx >= 0 ? 1 : -1;
+            const animation = snapshot.animate([
+              {
+                transform: "translate(0, 0) rotate(0) skew(0) scale(1)", opacity: 1, filter: "blur(0)",
+                clipPath: "polygon(0 0,50% 0,100% 0,100% 50%,100% 100%,50% 100%,0 100%,0 50%)"
+              },
+              {
+                offset: 0.2,
+                transform: `translate(${dx * -0.025}px, ${dy * -0.018}px) rotate(${fold * -0.7}deg) skewY(${fold * 0.8}deg) scale(1.012,.975)`,
+                opacity: 0.98, filter: "blur(0)",
+                clipPath: "polygon(3% 2%,50% 0,97% 4%,100% 46%,96% 96%,54% 100%,4% 94%,0 50%)"
+              },
+              {
+                offset: 0.52,
+                transform: `translate(${dx * 0.26}px, ${dy * 0.22}px) rotate(${fold * 2.2}deg) skewY(${fold * -2.5}deg) scale(.86,.68)`,
+                opacity: 0.92, filter: "blur(.15px)",
+                clipPath: "polygon(12% 8%,51% 1%,91% 12%,100% 46%,87% 86%,56% 100%,13% 88%,0 49%)"
+              },
+              {
+                offset: 0.8,
+                transform: `translate(${dx * 0.7}px, ${dy * 0.67}px) rotate(${fold * -1.4}deg) skewY(${fold * 3}deg) scale(.36,.22)`,
+                opacity: 0.66, filter: "blur(.55px)",
+                clipPath: "polygon(31% 29%,52% 20%,75% 30%,83% 48%,71% 69%,54% 80%,33% 69%,23% 48%)"
+              },
+              {
+                transform: `translate(${dx}px, ${dy}px) rotate(0) skew(0) scale(.035,.025)`, opacity: 0, filter: "blur(1.5px)",
+                clipPath: "polygon(48% 48%,50% 48%,52% 48%,52% 50%,52% 52%,50% 52%,48% 52%,48% 50%)"
               }
-            }
-            Promise.allSettled(animations).then(() => {
+            ], { duration: 920, easing: "cubic-bezier(.3,.02,.18,1)", fill: "forwards" });
+            animation.finished.catch(() => {}).then(() => {
               layer.remove();
-              if (fragments === layer) fragments = null;
+              if (closingLayer === layer) closingLayer = null;
             });
           }
           const hasFocus = panel.contains(document.activeElement);
@@ -1905,7 +1906,7 @@
           clearTimeout(inactivityTimer);
           stopCountdown();
           if (!popup.open) return;
-          fragments?.remove();
+          closingLayer?.remove();
           startCountdown();
         });
         if (panel.classList.contains("location-form")) {
@@ -2627,6 +2628,8 @@
       const forecastEl = document.getElementById("weatherForecast");
       const sunTimes = document.getElementById("sunTimes");
       let displayedDaily = null;
+      let displayedHourly = null;
+      let displayedCurrent = null;
       let displayedDay = "";
       const picker = document.getElementById("locationPicker");
       const locationInput = document.getElementById("locationInput");
@@ -2792,12 +2795,27 @@
         const index = displayedDaily?.time?.indexOf(displayedDay) ?? -1;
         sunTimes.hidden = index < 0;
         if (index < 0) return;
-        const uv = displayedDaily.uv_index_max?.[index];
-        const uvAvailable = Number.isFinite(uv) && uv >= 0;
-        const uvText = uvAvailable ? String(Math.round(uv * 10) / 10) : "—";
-        document.getElementById("uvIndex").textContent = uvText;
+        const formatUv = value => Number.isFinite(value) && value >= 0 ? String(Math.round(value * 10) / 10) : "—";
+        const currentUv = displayedCurrent?.uv_index;
+        const dailyMaxUv = displayedDaily.uv_index_max?.[index];
+        const hourlyUv = Array.isArray(displayedHourly?.time) && Array.isArray(displayedHourly?.uv_index)
+          ? displayedHourly.time.reduce((values, time, hourlyIndex) => {
+            const value = displayedHourly.uv_index[hourlyIndex];
+            if (typeof time === "string" && time.startsWith(displayedDay) && Number.isFinite(value) && value >= 0) values.push(value);
+            return values;
+          }, [])
+          : [];
+        const todayUv = [currentUv, dailyMaxUv, ...hourlyUv].filter(value => Number.isFinite(value) && value >= 0);
+        const maxUv = todayUv.length ? Math.max(...todayUv) : NaN;
+        const minUv = todayUv.length ? Math.min(...todayUv) : NaN;
+        const currentUvText = formatUv(currentUv);
+        const maxUvText = formatUv(maxUv);
+        const minUvText = formatUv(minUv);
+        document.getElementById("uvIndex").textContent = currentUvText;
+        document.getElementById("uvHigh").textContent = `↑ ${maxUvText}`;
+        document.getElementById("uvLow").textContent = `↓ ${minUvText}`;
         const uvItem = document.getElementById("uvItem");
-        uvItem.title = uvAvailable ? `Today's maximum UV index: ${uvText} · ${locationEl.textContent}` : "Today's maximum UV index unavailable";
+        uvItem.title = `UV index now ${currentUvText}; today's maximum ${maxUvText}, minimum ${minUvText} · ${locationEl.textContent}`;
         uvItem.setAttribute("aria-label", uvItem.title);
         for (const kind of ["sunrise", "sunset"]) {
           const value = displayedDaily[kind]?.[index];
@@ -2827,27 +2845,32 @@
         forecastEl.hidden = true;
         sunTimes.hidden = true;
         displayedDaily = null;
+        displayedHourly = null;
+        displayedCurrent = null;
         summaryEl.removeAttribute("title");
-        const cacheKey = `quote-widget-weather-v3:${place.latitude}:${place.longitude}`;
+        const cacheKey = `quote-widget-weather-v4:${place.latitude}:${place.longitude}`;
         try {
           const cached = readStored("sessionStorage", cacheKey);
           let current = cached?.current;
           let daily = cached?.daily;
+          let hourly = cached?.hourly;
           let timeZone = cached?.timeZone;
-          if (force || !cached || !daily || daily.time?.[0] !== locationDate(timeZone) || Date.now() - cached.savedAt > 15 * 60 * 1000) {
+          if (force || !cached || !daily || !hourly || daily.time?.[0] !== locationDate(timeZone) || Date.now() - cached.savedAt > 15 * 60 * 1000) {
             const url = new URL("https://api.open-meteo.com/v1/forecast");
             url.search = new URLSearchParams({
               latitude: place.latitude, longitude: place.longitude,
-              current: "temperature_2m,weather_code,is_day",
+              current: "temperature_2m,apparent_temperature,uv_index,weather_code,is_day",
+              hourly: "uv_index",
               daily: "weather_code,temperature_2m_max,temperature_2m_min,sunrise,sunset,uv_index_max", forecast_days: 4,
               temperature_unit: "celsius", timezone: "auto"
             });
             const data = await fetchJson(url.toString(), 10000);
             current = data.current;
             daily = data.daily;
+            hourly = data.hourly;
             timeZone = data.timezone;
             if (!Number.isFinite(current?.temperature_2m)) throw new Error("Weather unavailable");
-            writeStored("sessionStorage", cacheKey, { current, daily, timeZone, savedAt: Date.now() });
+            writeStored("sessionStorage", cacheKey, { current, daily, hourly, timeZone, savedAt: Date.now() });
           }
           if (version !== requestVersion) return;
           if (!Number.isFinite(current?.temperature_2m)) throw new Error("Weather unavailable");
@@ -2855,11 +2878,20 @@
           animateWeather(current.weather_code, current.is_day);
           displayedDay = locationDate(timeZone) || current.time?.slice(0, 10) || "";
           displayedDaily = daily;
+          displayedHourly = hourly;
+          displayedCurrent = current;
           renderForecast(daily, displayedDay);
           renderSunTimes();
           const temperature = document.createElement("span");
           temperature.className = "weather-temperature";
-          temperature.textContent = `${Math.round(current.temperature_2m)}°C`;
+          const feelsLike = Number.isFinite(current.apparent_temperature) ? `${Math.round(current.apparent_temperature)}°` : "—";
+          const currentTemperature = `${Math.round(current.temperature_2m)}°`;
+          const feels = document.createElement("span");
+          feels.className = "weather-feels";
+          feels.textContent = `≈ ${feelsLike}`;
+          feels.title = `Feels like ${feelsLike}`;
+          temperature.setAttribute("aria-label", `${currentTemperature}; feels like ${feelsLike}`);
+          temperature.append(currentTemperature, feels);
           const condition = document.createElement("span");
           condition.className = "weather-condition";
           condition.textContent = description;
@@ -2871,6 +2903,8 @@
             weatherCard.dataset.condition = "unavailable";
             forecastEl.hidden = true;
             sunTimes.hidden = true;
+            displayedHourly = null;
+            displayedCurrent = null;
           }
         }
       }
@@ -2884,6 +2918,8 @@
         forecastEl.hidden = true;
         sunTimes.hidden = true;
         displayedDaily = null;
+        displayedHourly = null;
+        displayedCurrent = null;
         try {
           const cached = readStored("sessionStorage", "quote-widget-auto-location");
           let place = cached?.place;
