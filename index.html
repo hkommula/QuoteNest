@@ -486,18 +486,35 @@
     .widget-shell {
       position: relative;
       z-index: 2;
+      isolation: isolate;
+      overflow: hidden;
       width: 100%;
       min-height: max(128px, 100dvh);
       display: grid;
-      grid-template-columns: minmax(0, var(--quote-fraction, 3fr)) minmax(285px, var(--clock-fraction, 1fr));
+      grid-template-columns: minmax(0, var(--quote-fraction, 3fr)) minmax(300px, var(--clock-fraction, 1fr));
       gap: clamp(6px, 1vw, 14px);
       align-items: stretch;
       padding: 10px clamp(10px, 1.4vw, 18px);
+      border-radius: calc(var(--radius) + 10px);
     }
+
+    .widget-motion-layer {
+      position: absolute;
+      inset: 0;
+      z-index: 0;
+      overflow: hidden;
+      border-radius: inherit;
+      pointer-events: none;
+      contain: strict;
+      opacity: 1;
+      transition: opacity 180ms ease;
+    }
+    .widget-motion-layer.is-changing { opacity: 0; }
 
     .quote-panel,
     .clock-panel {
       position: relative;
+      z-index: 1;
       min-width: 0;
       overflow: hidden;
       isolation: isolate;
@@ -516,25 +533,9 @@
       border-radius: inherit;
       pointer-events: none;
       background:
-        linear-gradient(145deg, color-mix(in srgb, var(--soft-strong) 16%, transparent), transparent 48%),
-        color-mix(in srgb, var(--soft) 68%, transparent);
+        linear-gradient(145deg, color-mix(in srgb, var(--soft-strong) 12%, transparent), transparent 48%),
+        color-mix(in srgb, var(--soft) 52%, transparent);
     }
-
-    .panel-motion-layer {
-      --motion-warm: color-mix(in srgb, var(--aura-1) 72%, #e5b36f);
-      --motion-cool: color-mix(in srgb, var(--aura-2) 72%, #78c7c5);
-      --motion-soft: color-mix(in srgb, var(--aura-3) 68%, #b9a5cf);
-      position: absolute;
-      inset: 1px;
-      z-index: 1;
-      overflow: hidden;
-      border-radius: inherit;
-      pointer-events: none;
-      contain: strict;
-      opacity: 1;
-      transition: opacity 180ms ease;
-    }
-    .panel-motion-layer.is-changing { opacity: 0; }
 
     .quote-panel::after,
     .clock-panel::after {
@@ -544,7 +545,7 @@
       z-index: 2;
       border-radius: inherit;
       pointer-events: none;
-      opacity: max(.2, var(--gloss-strength));
+      opacity: max(.16, var(--gloss-strength));
       background:
         linear-gradient(90deg, color-mix(in srgb, var(--soft) 28%, transparent), transparent 44%, color-mix(in srgb, var(--soft) 18%, transparent)),
         linear-gradient(145deg, rgba(255, 255, 255, 0.38) 0%, rgba(255, 255, 255, 0.10) 18%, transparent 42%),
@@ -589,8 +590,10 @@
       display: flex;
       align-items: center;
       justify-content: center;
+      min-height: 0;
+      padding: clamp(10px, 2vh, 18px) clamp(16px, 3vw, 42px);
       transform: rotateY(180deg);
-      overflow: auto;
+      overflow: hidden;
       background:
         linear-gradient(145deg, color-mix(in srgb, var(--soft-strong) 48%, transparent), transparent 62%),
         color-mix(in srgb, var(--bg) 70%, transparent);
@@ -684,6 +687,7 @@
     .credits-popup {
       position: relative;
       width: min(500px, 100%);
+      max-height: none;
       padding: 10px 8px;
       border: 0;
       border-radius: 0;
@@ -693,6 +697,9 @@
       font-family: var(--clock-font);
       font-size: clamp(0.65rem, 0.86vw, 0.78rem);
       line-height: 1.52;
+      transform: scale(var(--credits-fit-scale, 1));
+      transform-origin: center;
+      will-change: transform;
     }
 
     .credits-nav {
@@ -721,8 +728,8 @@
     .credits-back:focus-visible { outline: 1px solid var(--muted); outline-offset: 1px; }
     .credits-back svg { width: 17px; height: 17px; }
 
-    .credits-heading { margin: 0 0 4px; color: var(--text); font-family: var(--quote-font); font-size: clamp(1rem, 1.4vw, 1.2rem); font-weight: 500; letter-spacing: -0.028em; }
-    .credits-fact { max-width: 44ch; margin: 0 0 15px; color: color-mix(in srgb, var(--muted) 86%, transparent); font-size: clamp(0.58rem, 0.72vw, 0.67rem); line-height: 1.45; }
+    .credits-heading { margin: 0 0 4px; padding-right: 54px; color: var(--text); font-family: var(--quote-font); font-size: clamp(1rem, 1.4vw, 1.2rem); font-weight: 500; letter-spacing: -0.028em; }
+    .credits-fact { max-width: 44ch; margin: 0 0 12px; padding-right: 46px; color: color-mix(in srgb, var(--muted) 86%, transparent); font-size: clamp(0.58rem, 0.72vw, 0.67rem); line-height: 1.4; }
     .credit-sections { display: grid; gap: 1px; }
     .credit-section { border: 0; }
     .credit-section + .credit-section { border-top: 1px solid color-mix(in srgb, var(--border) 52%, transparent); }
@@ -1247,6 +1254,28 @@
         min-height: clamp(104px, 22vh, 180px);
       }
       .quote-card-face { padding: 12px 24px 40px; }
+      .quote-card-back { padding: 8px 14px; }
+      .credits-popup {
+        display: grid;
+        grid-template-columns: minmax(96px, 0.78fr) minmax(150px, 1.22fr);
+        grid-template-areas: "heading sections" "fact sections";
+        grid-template-rows: auto auto;
+        align-items: start;
+        gap: 3px 12px;
+        padding: 4px 6px;
+        font-size: 0.58rem;
+        line-height: 1.35;
+      }
+      .credits-nav { top: 6px; right: 7px; gap: 3px; }
+      .credits-back { width: 25px; height: 25px; }
+      .credits-back svg { width: 14px; height: 14px; }
+      .credits-heading { grid-area: heading; margin-bottom: 2px; padding-right: 0; font-size: 0.88rem; }
+      .credits-fact { grid-area: fact; margin-bottom: 0; padding-right: 0; font-size: 0.52rem; line-height: 1.3; }
+      .credit-sections { grid-area: sections; min-width: 0; padding-top: 27px; }
+      .credit-section > summary { grid-template-columns: 17px minmax(0, 1fr) 10px; gap: 5px; padding: 5px 0; font-size: 0.58rem; }
+      .credit-icon { width: 17px; height: 17px; }
+      .credit-icon svg { width: 13px; height: 13px; }
+      .credit-section-body { padding: 0 0 5px 22px; }
 
       .clock-panel {
         padding: 18px clamp(16px, 5vw, 28px);
@@ -1345,10 +1374,13 @@
     #setupView {
       --studio-accent: #a65f43;
       --studio-accent-soft: rgba(166, 95, 67, 0.09);
-      --studio-control-height: 42px;
-      --studio-control-radius: 10px 6px 9px 5px;
+      --studio-control-height: 34px;
+      --studio-control-radius: 7px;
+      --studio-card-radius: 8px;
+      --studio-card-transition: border-color 160ms ease, background-color 160ms ease, color 160ms ease, box-shadow 160ms ease, transform 160ms ease;
       --studio-label-size: 0.7rem;
       --studio-note-size: 0.6rem;
+      --studio-control-font: "DM Sans", "Manrope", "Segoe UI", sans-serif;
       --studio-control-border: color-mix(in srgb, var(--studio-accent) 18%, rgba(58, 52, 44, 0.15));
       height: 100dvh;
       min-height: 520px;
@@ -1453,6 +1485,7 @@
       max-height: none;
       align-self: stretch;
       overflow: auto;
+      overflow-anchor: none;
       overscroll-behavior: contain;
       scrollbar-width: thin;
       scrollbar-color: color-mix(in srgb, var(--studio-accent) 25%, transparent) transparent;
@@ -1481,8 +1514,8 @@
     .settings-header h2 { font-size: 1.32rem; }
     .settings-title-line { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
     .history-controls { display: inline-flex; align-items: center; gap: 4px; }
-    .history-controls button { min-width: 30px; height: 30px; display: inline-flex; align-items: center; justify-content: center; gap: 5px; padding: 0 7px; border: 1px solid var(--studio-control-border); border-radius: 9px 5px 8px 5px; background: rgba(255, 254, 251, 0.68); color: #514b43; font-size: 0.63rem; font-weight: 650; cursor: pointer; transition: color 140ms ease, border-color 140ms ease, background 140ms ease, transform 140ms ease; }
-    .history-controls button:hover:not(:disabled) { color: var(--studio-accent); border-color: color-mix(in srgb, var(--studio-accent) 50%, transparent); transform: translateY(-1px); }
+    .history-controls button { min-width: 28px; height: 28px; display: inline-flex; align-items: center; justify-content: center; gap: 4px; padding: 0 7px; border: 1px solid var(--studio-control-border); border-radius: var(--studio-control-radius); background: rgba(255, 254, 251, 0.68); color: #514b43; font-size: 0.61rem; font-weight: 650; cursor: pointer; transition: var(--studio-card-transition); }
+    .history-controls button:hover:not(:disabled) { color: var(--studio-accent); border-color: color-mix(in srgb, var(--studio-accent) 50%, transparent); background: #fffefb; box-shadow: 0 3px 9px rgba(48, 41, 32, 0.07); transform: translateY(-1px); }
     .history-controls button:focus-visible { outline: 2px solid var(--studio-accent-soft); outline-offset: 2px; }
     .history-controls button:disabled { opacity: 0.35; cursor: default; }
     .history-controls svg { width: 14px; height: 14px; }
@@ -1499,17 +1532,17 @@
       align-items: center;
       justify-content: center;
       gap: 7px;
-      min-height: 36px;
-      padding: 8px 12px;
+      min-height: 34px;
+      padding: 7px 11px;
       border: 1px solid color-mix(in srgb, var(--studio-accent) 48%, #332d28);
-      border-radius: 11px 6px 10px 5px;
+      border-radius: var(--studio-card-radius);
       background: color-mix(in srgb, var(--studio-accent) 82%, #27231f);
       color: white;
-      font-size: 0.76rem;
+      font-size: 0.72rem;
       font-weight: 650;
       cursor: pointer;
       white-space: nowrap;
-      transition: transform 150ms ease, box-shadow 150ms ease, background 150ms ease;
+      transition: var(--studio-card-transition);
     }
     .embed-copy-button:hover { transform: translateY(-1px); box-shadow: 0 7px 18px color-mix(in srgb, var(--studio-accent) 16%, transparent); }
     .embed-copy-button.copied { background: color-mix(in srgb, var(--studio-accent) 62%, #52674f); }
@@ -1518,11 +1551,15 @@
     .settings-columns {
       display: grid;
       grid-template-columns: minmax(300px, 0.95fr) minmax(320px, 1.05fr);
-      grid-template-rows: auto auto;
+      grid-template-rows: auto auto auto;
       gap: 18px 30px;
       align-items: start;
     }
-    .settings-section:first-child { grid-row: 1 / span 2; }
+    .appearance-section { grid-column: 1; grid-row: 1; }
+    .typography-section { grid-column: 2; grid-row: 1; }
+    .fine-tune-section { grid-column: 1; grid-row: 2 / span 2; }
+    .quote-section { grid-column: 2; grid-row: 2; }
+    .clock-section { grid-column: 2; grid-row: 3; }
 
     .settings-section {
       min-width: 0;
@@ -1538,7 +1575,7 @@
     .settings-title { display: flex; align-items: center; gap: 8px; color: #34302a; }
     .settings-title svg { width: 18px; height: 18px; color: var(--studio-accent); }
 
-    .theme-picker { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 7px; }
+    .theme-picker { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 5px; }
     .theme-tile,
     .type-tile {
       min-width: 0;
@@ -1546,37 +1583,32 @@
       background: rgba(255, 254, 251, 0.62);
       color: #3e3933;
       cursor: pointer;
-      transition: border-color 150ms ease, background 150ms ease, transform 150ms ease, box-shadow 150ms ease;
+      border-radius: var(--studio-card-radius);
+      transition: var(--studio-card-transition);
     }
-    .theme-tile { display: grid; gap: 6px; padding: 8px; border-radius: 10px 5px 9px 5px; font-size: 0.66rem; line-height: 1.2; text-align: left; }
+    .theme-tile { display: grid; align-content: center; gap: 4px; min-height: 42px; padding: 6px 7px; font-size: 0.62rem; line-height: 1.15; text-align: left; }
     .theme-tile:hover,
-    .type-tile:hover { transform: translateY(-1px); border-color: color-mix(in srgb, var(--studio-accent) 42%, transparent); }
+    .type-tile:hover { transform: translateY(-1px); border-color: color-mix(in srgb, var(--studio-accent) 42%, transparent); background: #fffefb; box-shadow: 0 3px 9px rgba(48, 41, 32, 0.06); }
     .theme-tile[aria-pressed="true"],
     .type-tile[aria-pressed="true"] { border-color: var(--studio-accent); background: color-mix(in srgb, var(--studio-accent-soft) 70%, #fffefa); box-shadow: 0 0 0 2px color-mix(in srgb, var(--studio-accent) 8%, transparent); }
-    .theme-swatches { display: flex; height: 18px; overflow: hidden; border-radius: 7px 3px 7px 3px; }
+    .theme-swatches { display: flex; height: 14px; overflow: hidden; border-radius: 4px; }
     .theme-swatches i { flex: 1; background: var(--swatch); }
 
-    .type-picker { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 6px; }
-    .type-tile { display: grid; grid-template-columns: minmax(0, 1fr); grid-template-areas: "sample" "meta"; align-items: center; gap: 5px; width: 100%; padding: 8px 9px; border-radius: 10px 5px 9px 5px; text-align: left; }
-    .type-sample { grid-area: sample; overflow: hidden; font-size: 0.88rem; line-height: 1.15; text-overflow: ellipsis; white-space: nowrap; }
+    .type-picker { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 5px; }
+    .type-tile { display: grid; grid-template-columns: minmax(0, 1fr); grid-template-areas: "sample" "meta"; align-content: center; gap: 3px; width: 100%; min-height: 44px; padding: 6px 7px; text-align: left; }
+    .type-sample { grid-area: sample; overflow: hidden; font-size: 0.8rem; line-height: 1.1; text-overflow: ellipsis; white-space: nowrap; }
     .type-meta { grid-area: meta; display: flex; align-items: center; justify-content: space-between; gap: 4px; min-width: 0; }
-    .type-meta b { font-family: Inter, sans-serif; font-size: 0.55rem; font-weight: 600; }
-    .type-meta i { font-size: 0.62rem; font-style: normal; color: #7d766d; font-variant-numeric: tabular-nums; }
+    .type-meta b { overflow: hidden; font-family: Inter, sans-serif; font-size: 0.51rem; font-weight: 600; text-overflow: ellipsis; white-space: nowrap; }
+    .type-meta i { flex: 0 0 auto; font-size: 0.56rem; font-style: normal; color: #7d766d; font-variant-numeric: tabular-nums; }
     .type-editorial .type-sample { font-family: "Newsreader", Georgia, serif; }
     .type-editorial .type-meta i { font-family: "DM Sans", sans-serif; }
     .type-modern .type-sample, .type-modern .type-meta i { font-family: "Manrope", sans-serif; }
-    .type-literary .type-sample { font-family: "Libre Baskerville", Georgia, serif; font-size: 0.73rem; }
+    .type-literary .type-sample { font-family: "Libre Baskerville", Georgia, serif; font-size: 0.68rem; }
     .type-literary .type-meta i { font-family: Inter, sans-serif; }
-    .type-handwritten .type-sample { font-family: "Caveat", cursive; font-size: 1.08rem; }
+    .type-handwritten .type-sample { font-family: "Caveat", cursive; font-size: 0.98rem; }
     .type-handwritten .type-meta i { font-family: "Outfit", sans-serif; }
-    .type-display .type-sample { font-family: "Instrument Serif", Georgia, serif; font-size: 1rem; }
+    .type-display .type-sample { font-family: "Instrument Serif", Georgia, serif; font-size: 0.9rem; }
     .type-display .type-meta i { font-family: "Space Grotesk", sans-serif; }
-
-    .adaptive-theme-controls { display: grid; grid-template-columns: minmax(0, .8fr) minmax(0, 1.2fr); align-items: start; gap: 9px; margin-top: 11px; }
-    .adaptive-theme-controls:has(.theme-pairing[hidden]) .adaptive-mode-control { grid-column: 1 / -1; }
-    .theme-pairing { display: grid; grid-template-columns: 1fr 1fr; gap: 7px; }
-    .theme-pairing[hidden] { display: none; }
-    .theme-pairing .control-group { margin-bottom: 8px; }
 
     .fine-tune { margin-top: 12px; padding-top: 11px; border-top: 1px solid color-mix(in srgb, var(--studio-accent) 16%, transparent); }
     .fine-tune-heading { display: flex; align-items: baseline; justify-content: space-between; gap: 10px; padding-bottom: 10px; color: #403a34; }
@@ -1586,40 +1618,101 @@
     .fine-tune-body { padding: 3px 0 1px; }
 
     .visually-hidden-control { position: absolute !important; width: 1px !important; height: 1px !important; overflow: hidden !important; clip: rect(0 0 0 0) !important; white-space: nowrap !important; opacity: 0 !important; pointer-events: none !important; }
-    .motion-picker { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 6px; }
-    .motion-tile { min-width: 0; padding: 5px; border: 1px solid rgba(58, 52, 44, 0.14); border-radius: 9px 5px 8px 5px; background: rgba(255, 254, 251, 0.62); color: #4b453e; cursor: pointer; font-size: 0.56rem; text-align: left; transition: border-color 140ms ease, transform 140ms ease, background 140ms ease; }
-    .motion-tile:hover { transform: translateY(-1px); border-color: color-mix(in srgb, var(--studio-accent) 44%, transparent); }
+    .motion-picker { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); grid-auto-rows: 36px; gap: 4px 6px; }
+    .motion-tile { position: relative; display: grid; grid-template-columns: 16px minmax(0, 1fr) 12px; align-items: center; gap: 6px; min-width: 0; height: 36px; padding: 0 8px; border: 1px solid rgba(58, 52, 44, 0.14); border-radius: var(--studio-control-radius); background: rgba(255, 254, 251, 0.62); color: #4b453e; cursor: pointer; font-family: var(--studio-control-font); font-size: 0.7rem; font-weight: 450; line-height: 1; text-align: left; white-space: nowrap; transition: border-color 140ms ease, color 140ms ease, background 140ms ease; }
+    .motion-tile::after { content: ""; grid-column: 3; width: 7px; height: 4px; border-left: 1.5px solid transparent; border-bottom: 1.5px solid transparent; transform: rotate(-45deg); }
+    .motion-tile:hover { border-color: color-mix(in srgb, var(--studio-accent) 44%, transparent); color: #332f2a; }
     .motion-tile:focus-visible { outline: 2px solid var(--studio-accent-soft); outline-offset: 2px; }
-    .motion-tile[aria-pressed="true"] { border-color: var(--studio-accent); background: color-mix(in srgb, var(--studio-accent-soft) 72%, #fffefa); }
-    .motion-thumb-stage { --motion-warm: color-mix(in srgb, var(--studio-accent) 62%, #e8bd76); --motion-cool: color-mix(in srgb, var(--studio-accent) 42%, #7dc9ca); --motion-soft: color-mix(in srgb, var(--studio-accent) 38%, #b6a6cf); position: relative; display: block; height: 38px; margin-bottom: 4px; overflow: hidden; border-radius: 6px 3px 6px 3px; background: color-mix(in srgb, var(--studio-accent-soft) 45%, #f4f1eb); color: #554e46; contain: strict; }
+    .motion-tile[aria-pressed="true"] { border-color: color-mix(in srgb, var(--studio-accent) 72%, transparent); background: color-mix(in srgb, var(--studio-accent-soft) 72%, #fffefa); color: var(--studio-accent); font-weight: 600; }
+    .motion-tile[aria-pressed="true"]::after { border-color: currentColor; }
+    .motion-thumb-stage { --motion-warm: color-mix(in srgb, var(--studio-accent) 62%, #e8bd76); --motion-cool: color-mix(in srgb, var(--studio-accent) 42%, #7dc9ca); --motion-soft: color-mix(in srgb, var(--studio-accent) 38%, #b6a6cf); position: relative; grid-column: 1; display: block; width: 16px; height: 16px; overflow: hidden; border-radius: 5px 3px 5px 3px; background: color-mix(in srgb, var(--studio-accent-soft) 48%, #f4f1eb); color: #554e46; contain: strict; }
+    .motion-tile > span:last-child { grid-column: 2; overflow: hidden; text-overflow: ellipsis; }
     .motion-thumb-stage .motion-canvas { opacity: 1; }
-    .fine-tune-sliders { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 10px; }
-    .motion-off-button { padding: 2px 7px; border: 1px solid var(--studio-control-border); border-radius: 999px; background: transparent; color: #787168; font-size: .58rem; cursor: pointer; }
-    .motion-off-button[aria-pressed="true"] { border-color: var(--studio-accent); background: var(--studio-accent-soft); color: var(--studio-accent); font-weight: 700; }
 
-    .quote-controls-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 10px; align-items: start; }
-    .length-picker { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 4px; }
-    .length-picker button { min-width: 0; min-height: 30px; padding: 5px 4px; border: 1px solid var(--studio-control-border); border-radius: 8px 4px 7px 4px; background: rgba(255,254,251,.62); color: #6f675e; font-size: .58rem; cursor: pointer; transition: border-color 140ms ease, background 140ms ease, color 140ms ease, transform 140ms ease; }
-    .length-picker button:hover { transform: translateY(-1px); border-color: color-mix(in srgb, var(--studio-accent) 42%, transparent); color: #3e3933; }
+    .adaptive-motion-row { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-bottom: 7px; }
+    .adaptive-motion-row > div { min-width: 0; }
+    .adaptive-motion-row label { display: block; margin: 0 0 2px; color: #49443d; font-size: var(--studio-label-size); font-weight: 650; }
+    .adaptive-motion-row small { display: block; overflow: hidden; color: #817970; font-size: var(--studio-note-size); text-overflow: ellipsis; white-space: nowrap; }
+    .adaptive-motion-toggle { display: inline-flex; align-items: center; gap: 6px; flex: 0 0 auto; min-height: 28px; padding: 3px 7px; border: 1px solid var(--studio-control-border); border-radius: var(--studio-control-radius); background: rgba(255,254,251,.68); color: #6c655c; font-family: var(--studio-control-font); font-size: 10px; cursor: pointer; transition: var(--studio-card-transition); }
+    .adaptive-motion-toggle:hover { border-color: color-mix(in srgb, var(--studio-accent) 42%, transparent); background: #fffefb; box-shadow: 0 3px 9px rgba(48,41,32,.06); transform: translateY(-1px); }
+    .adaptive-toggle-track { position: relative; width: 24px; height: 13px; border-radius: 999px; background: #d7d0c7; transition: background 140ms ease; }
+    .adaptive-toggle-track::after { content: ""; position: absolute; top: 2px; left: 2px; width: 9px; height: 9px; border-radius: 50%; background: #fffefa; box-shadow: 0 1px 3px rgba(47,40,34,.18); transition: transform 140ms ease; }
+    .adaptive-motion-toggle[aria-checked="true"] { border-color: color-mix(in srgb,var(--studio-accent) 54%,transparent); background: var(--studio-accent-soft); color: var(--studio-accent); font-weight: 600; }
+    .adaptive-motion-toggle[aria-checked="true"] .adaptive-toggle-track { background: var(--studio-accent); }
+    .adaptive-motion-toggle[aria-checked="true"] .adaptive-toggle-track::after { transform: translateX(11px); }
+    .adaptive-motion-toggle:focus-visible { outline: 2px solid var(--studio-accent-soft); outline-offset: 2px; }
+
+    .motion-picker { grid-template-columns: repeat(4, minmax(0, 1fr)); grid-auto-rows: 62px; gap: 5px; }
+    .motion-tile { display: grid; grid-template-columns: minmax(0, 1fr) 12px; grid-template-rows: 32px 14px; gap: 3px 4px; height: 62px; padding: 5px 6px; align-items: center; border-radius: var(--studio-card-radius); transition: var(--studio-card-transition); }
+    .motion-tile:hover { background: #fffefb; box-shadow: 0 3px 9px rgba(48,41,32,.06); transform: translateY(-1px); }
+    .motion-tile::after { grid-column: 2; grid-row: 2; align-self: center; justify-self: end; }
+    .motion-thumb-stage { grid-column: 1 / -1; grid-row: 1; width: 100%; height: 32px; border-radius: 5px; }
+    .motion-tile > span:last-child { grid-column: 1; grid-row: 2; font-size: 9px; line-height: 1; }
+    .motion-off-tile .motion-thumb-stage { display: grid; place-items: center; }
+    .motion-off-tile .motion-thumb-stage i { width: 20px; height: 1px; background: color-mix(in srgb,var(--studio-accent) 38%,#aaa198); transform: rotate(-18deg); }
+
+    .fine-tune-presets { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 9px; margin-top: 9px; }
+    .preset-column { min-width: 0; margin: 0; padding: 0; border: 0; }
+    .preset-column legend { display: grid; grid-template-columns: 16px minmax(0,1fr); align-items: center; gap: 6px; width: 100%; height: 24px; margin: 0 0 4px; padding: 0; color: #49443d; font-family: var(--studio-control-font); font-size: var(--studio-label-size); font-weight: 650; white-space: nowrap; }
+    .preset-column legend svg { width: 16px; height: 16px; color: var(--studio-accent); stroke-width: 1.5; }
+    .preset-list { display: grid; grid-template-rows: repeat(4, 34px); gap: 4px; }
+    .preset-list button { display: grid; grid-template-columns: minmax(0,1fr) auto 12px; align-items: center; gap: 5px; width: 100%; height: 34px; min-width: 0; padding: 0 7px; border: 1px solid var(--studio-control-border); border-radius: var(--studio-control-radius); background: rgba(255,254,251,.62); color: #5d574f; font-family: var(--studio-control-font); font-size: 11px; font-weight: 450; text-align: left; cursor: pointer; transition: var(--studio-card-transition); }
+    .preset-list button > span { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    .preset-list button small { color: #918980; font-size: 10px; font-variant-numeric: tabular-nums; }
+    .preset-list button i { width: 8px; height: 5px; justify-self: end; border-left: 1.5px solid transparent; border-bottom: 1.5px solid transparent; transform: rotate(-45deg); }
+    .preset-list button:hover { border-color: color-mix(in srgb,var(--studio-accent) 42%,transparent); background: #fffefb; color: #332f2a; box-shadow: 0 3px 9px rgba(48,41,32,.06); transform: translateY(-1px); }
+    .preset-list button:focus-visible { outline: 2px solid var(--studio-accent-soft); outline-offset: 1px; }
+    .preset-list button[aria-pressed="true"] { border-color: color-mix(in srgb,var(--studio-accent) 68%,transparent); background: var(--studio-accent-soft); color: var(--studio-accent); font-weight: 600; }
+    .preset-list button[aria-pressed="true"] small { color: currentColor; opacity: .78; }
+    .preset-list button[aria-pressed="true"] i { border-color: currentColor; }
+
+    .clock-settings-layout { display: grid; grid-template-columns: minmax(0,.9fr) minmax(0,.9fr) minmax(0,1.2fr); grid-template-areas: "format display timezone"; gap: 10px 12px; align-items: start; }
+    .time-format-group { grid-area: format; }
+    .display-options-group { grid-area: display; }
+    .timezone-control { grid-area: timezone; min-width: 0; margin-bottom: 5px; }
+    .clock-visual-group > label { display: block; min-height: 16px; margin: 0 0 5px; color: #49443d; font-size: var(--studio-label-size); font-weight: 650; line-height: 1.2; }
+    .time-format-cards, .display-options-row { display: grid; grid-template-columns: repeat(2,minmax(0,1fr)); gap: 5px; }
+    .time-format-cards button { display: grid; grid-template-columns: minmax(0,1fr) 12px; grid-template-rows: auto auto; align-items: center; min-width: 0; height: 42px; padding: 4px 7px; border: 1px solid var(--studio-control-border); border-radius: var(--studio-control-radius); background: rgba(255,254,251,.68); color: #5d574f; font-family: var(--studio-control-font); text-align: left; cursor: pointer; transition: var(--studio-card-transition); }
+    .time-format-cards button span { grid-column:1; font-size: 11px; font-weight: 600; }
+    .time-format-cards button small { grid-column:1; color:#918980; font-size:9px; font-variant-numeric:tabular-nums; }
+    .time-format-cards button i { grid-column:2; grid-row:1/3; width:8px; height:5px; border-left:1.5px solid transparent; border-bottom:1.5px solid transparent; transform:rotate(-45deg); }
+    .time-format-cards button:hover { border-color:color-mix(in srgb,var(--studio-accent) 42%,transparent); background:#fffefb; box-shadow:0 3px 9px rgba(48,41,32,.06); transform:translateY(-1px); }
+    .time-format-cards button:focus-visible { outline:2px solid var(--studio-accent-soft); outline-offset:1px; }
+    .time-format-cards button[aria-pressed="true"] { border-color:color-mix(in srgb,var(--studio-accent) 68%,transparent); background:var(--studio-accent-soft); color:var(--studio-accent); }
+    .time-format-cards button[aria-pressed="true"] i { border-color:currentColor; }
+    .studio-toggle { display:flex; align-items:center; justify-content:space-between; gap:5px; height:42px; min-width:0; padding:0 7px; border:1px solid var(--studio-control-border); border-radius:var(--studio-control-radius); background:rgba(255,254,251,.68); color:#5d574f; font-family:var(--studio-control-font); font-size:10px; cursor:pointer; transition:var(--studio-card-transition); }
+    .studio-toggle:hover { border-color:color-mix(in srgb,var(--studio-accent) 42%,transparent); background:#fffefb; box-shadow:0 3px 9px rgba(48,41,32,.06); transform:translateY(-1px); }
+    .studio-toggle input { position:absolute; width:1px; height:1px; opacity:0; pointer-events:none; }
+    .studio-toggle i { position:relative; flex:0 0 auto; width:25px; height:14px; border-radius:999px; background:#d7d0c7; transition:background 140ms ease; }
+    .studio-toggle i::after { content:""; position:absolute; top:2px; left:2px; width:10px; height:10px; border-radius:50%; background:#fffefa; box-shadow:0 1px 3px rgba(47,40,34,.18); transition:transform 140ms ease; }
+    .studio-toggle:has(input:checked) { border-color:color-mix(in srgb,var(--studio-accent) 50%,transparent); background:var(--studio-accent-soft); color:var(--studio-accent); }
+    .studio-toggle input:checked + i { background:var(--studio-accent); }
+    .studio-toggle input:checked + i::after { transform:translateX(11px); }
+    .studio-toggle:has(input:focus-visible) { outline:2px solid var(--studio-accent-soft); outline-offset:1px; }
+    .clock-width-control { margin-top:10px; }
+    .clock-width-presets { display:grid; grid-template-columns:repeat(5,minmax(0,1fr)); gap:5px; }
+    .clock-width-presets button { display:grid; place-items:center; align-content:center; gap:1px; min-width:0; height:38px; padding:3px; border:1px solid var(--studio-control-border); border-radius:var(--studio-control-radius); background:rgba(255,254,251,.66); color:#625b53; font-family:var(--studio-control-font); cursor:pointer; transition:var(--studio-card-transition); }
+    .clock-width-presets button span { max-width:100%; overflow:hidden; font-size:10px; text-overflow:ellipsis; white-space:nowrap; }
+    .clock-width-presets button small { color:#918980; font-size:9px; font-variant-numeric:tabular-nums; }
+    .clock-width-presets button:hover { border-color:color-mix(in srgb,var(--studio-accent) 42%,transparent); background:#fffefb; box-shadow:0 3px 9px rgba(48,41,32,.06); transform:translateY(-1px); }
+    .clock-width-presets button:focus-visible { outline:2px solid var(--studio-accent-soft); outline-offset:1px; }
+    .clock-width-presets button[aria-pressed="true"] { border-color:color-mix(in srgb,var(--studio-accent) 68%,transparent); background:var(--studio-accent-soft); color:var(--studio-accent); font-weight:600; }
+    .clock-width-presets button[aria-pressed="true"] small { color:currentColor; opacity:.78; }
+
+    .quote-controls-grid { display: grid; grid-template-columns: minmax(0,1fr) minmax(0,1fr) minmax(0,2fr); gap: 12px; align-items: start; }
+    .quote-controls-grid > .control-group { min-width: 0; margin-bottom: 0; }
+    .quote-controls-grid > .control-group > label:first-child { min-height: 16px; margin-bottom: 5px; line-height: 1.2; white-space: nowrap; }
+    .length-picker { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); grid-auto-rows: 34px; gap: 4px; }
+    .length-picker button { display: grid; place-items: center; align-content: center; gap: 1px; min-width: 0; height: 34px; padding: 2px 3px; overflow: hidden; border: 1px solid var(--studio-control-border); border-radius: var(--studio-control-radius); background: rgba(255,254,251,.72); color: #6f675e; font-family: var(--studio-control-font); font-size: 10px; font-weight: 450; line-height: 1; white-space: nowrap; cursor: pointer; transition: var(--studio-card-transition); }
+    .length-picker button span { max-width: 100%; overflow: hidden; text-overflow: ellipsis; }
+    .length-picker button small { color: #918980; font-size: 9px; font-variant-numeric: tabular-nums; }
+    .length-picker button:hover { border-color: color-mix(in srgb, var(--studio-accent) 42%, transparent); background:#fffefb; color: #3e3933; box-shadow:0 3px 9px rgba(48,41,32,.06); transform:translateY(-1px); }
     .length-picker button:focus-visible { outline: 2px solid var(--studio-accent-soft); outline-offset: 2px; }
     .length-picker button[aria-pressed="true"] { border-color: var(--studio-accent); background: var(--studio-accent-soft); color: var(--studio-accent); font-weight: 700; }
     .custom-length-wrap { display: grid !important; grid-template-columns: minmax(0, 1fr) auto; align-items: center; gap: 5px; margin-top: 5px; }
     .custom-length-wrap[hidden] { display: none !important; }
-    .custom-length-wrap input { min-height: 30px !important; padding: 4px 7px !important; }
+    .custom-length-wrap input { min-height: var(--studio-control-height) !important; padding: 6px 8px !important; }
     .custom-length-wrap small { color: #8a8279; font-size: .52rem; }
-    .clock-controls-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px 10px; align-items: start; }
-    .clock-controls-grid .toggle-row { min-height: 38px; margin: 0; padding: 7px 9px; border: 1px solid var(--studio-control-border); border-radius: var(--studio-control-radius); background: rgba(255,254,251,.58); }
-    .clock-width-model { position: relative; display: grid; grid-template-columns: minmax(0, 1fr) minmax(70px, var(--clock-model-width)); height: 58px; overflow: hidden; border: 1px solid var(--studio-control-border); border-radius: 12px 6px 11px 6px; background: rgba(255,254,251,.58); cursor: col-resize; }
-    .clock-width-model:focus-visible { outline: 2px solid var(--studio-accent-soft); outline-offset: 2px; border-color: var(--studio-accent); }
-    .clock-width-quote, .clock-width-clock { display: grid; align-content: center; min-width: 0; padding: 9px; }
-    .clock-width-quote { gap: 4px; border-right: 1px solid color-mix(in srgb, var(--studio-accent) 45%, transparent); }
-    .clock-width-quote i { display:block; width: min(72%, 150px); height: 3px; border-radius:999px; background: color-mix(in srgb, var(--studio-accent) 20%, #c9c2b9); }
-    .clock-width-quote i:nth-child(2) { width: 55%; }
-    .clock-width-quote i:nth-child(3) { width: 30%; }
-    .clock-width-clock { position:relative; justify-items:center; color:#47413a; font-size:.8rem; font-weight:650; font-variant-numeric:tabular-nums; }
-    .clock-width-clock::before { content:""; position:absolute; left:-2px; top:50%; width:4px; height:22px; border-radius:999px; background:var(--studio-accent); transform:translateY(-50%); box-shadow:0 0 0 3px color-mix(in srgb,var(--studio-accent) 10%,transparent); }
-    .clock-width-clock small { color:#8a8279; font-size:.48rem; font-weight:500; }
-    .clock-width-model input[type="range"] { position:absolute; inset:0; width:100%; height:100%; margin:0; padding:0; opacity:0; pointer-events:none; }
 
     .section-note {
       color: #7b756c;
@@ -1643,8 +1736,7 @@
 
     .control-group select,
     .control-group input[type="text"],
-    .control-group input[type="number"],
-    .control-group input[type="range"] {
+    .control-group input[type="number"] {
       width: 100%;
     }
 
@@ -1657,9 +1749,14 @@
       padding: 9px 11px;
       background: rgba(255, 254, 251, 0.78);
       color: #292722;
+      font-family: var(--studio-control-font);
+      font-size: 13px;
+      font-weight: 450;
+      line-height: 1.2;
       outline: none;
       transition: border-color 140ms ease, box-shadow 140ms ease, background 140ms ease;
     }
+    .control-group select option { font-family: var(--studio-control-font); font-size: 13px; font-weight: 450; }
 
     .control-group select:focus,
     .control-group input:focus {
@@ -1674,20 +1771,6 @@
       background: rgba(241, 243, 248, 0.72);
     }
 
-    .control-group input[type="range"] { appearance: none; height: 18px; padding: 7px 0; background: transparent; cursor: ew-resize; }
-    .control-group input[type="range"]::-webkit-slider-runnable-track { height: 3px; border-radius: 999px; background: color-mix(in srgb, var(--studio-accent) 22%, #d8d2ca); }
-    .control-group input[type="range"]::-webkit-slider-thumb { appearance: none; width: 13px; height: 13px; margin-top: -5px; border: 2px solid #fffdf9; border-radius: 50%; background: var(--studio-accent); box-shadow: 0 1px 5px rgba(43, 38, 32, 0.22); }
-    .control-group input[type="range"]::-moz-range-track { height: 3px; border: 0; border-radius: 999px; background: color-mix(in srgb, var(--studio-accent) 22%, #d8d2ca); }
-    .control-group input[type="range"]::-moz-range-thumb { width: 11px; height: 11px; border: 2px solid #fffdf9; border-radius: 50%; background: var(--studio-accent); box-shadow: 0 1px 5px rgba(43, 38, 32, 0.22); }
-    .control-group input[type="range"]:focus-visible { outline: 2px solid var(--studio-accent-soft); outline-offset: 2px; }
-
-    .range-row {
-      display: grid;
-      grid-template-columns: 1fr auto;
-      gap: 10px;
-      align-items: center;
-    }
-
     .range-value {
       min-width: 58px;
       text-align: right;
@@ -1697,31 +1780,7 @@
     }
     .control-label-line { display: flex; align-items: baseline; justify-content: space-between; gap: 12px; margin-bottom: 7px; }
     .control-label-line label { margin-bottom: 0; }
-    .range-scale { display: flex; justify-content: space-between; gap: 10px; margin: -2px 0 0; color: #918980; font-size: 0.56rem; }
     .control-note { display: block; margin-top: 5px; color: #787168; font-size: var(--studio-note-size); line-height: 1.35; }
-
-    .toggle-row {
-      display: flex;
-      gap: 9px;
-      align-items: center;
-      margin: 10px 0;
-      font-size: 0.82rem;
-    }
-
-    .toggle-row input {
-      appearance: none;
-      width: 16px;
-      height: 16px;
-      border: 1px solid color-mix(in srgb, var(--studio-accent) 55%, #736b62);
-      border-radius: 5px 2px 5px 2px;
-      background: #fffdf9;
-      display: grid;
-      place-items: center;
-    }
-    .toggle-row input::after { content: ""; width: 8px; height: 4px; border: solid white; border-width: 0 0 2px 2px; transform: rotate(-45deg) scale(0); transition: transform 130ms ease; }
-    .toggle-row input:checked { background: var(--studio-accent); }
-    .toggle-row input:checked::after { transform: rotate(-45deg) scale(1); }
-    .toggle-row input:focus-visible { outline: 2px solid var(--studio-accent-soft); outline-offset: 2px; }
 
     .divider {
       height: 1px;
@@ -1738,18 +1797,19 @@
     }
 
     .action-row button {
-      border-radius: 12px 6px 11px 5px;
+      min-height: 34px;
+      border-radius: var(--studio-card-radius);
       border: 1px solid color-mix(in srgb, var(--studio-accent) 23%, rgba(58, 52, 44, 0.18));
-      padding: 10px 12px;
+      padding: 7px 10px;
       cursor: pointer;
       background: #fffefb;
       color: #292722;
       font-weight: 650;
-      font-size: 0.82rem;
-      transition: transform 140ms ease, box-shadow 140ms ease, border-color 140ms ease;
+      font-size: 0.74rem;
+      transition: var(--studio-card-transition);
     }
 
-    .action-row button:hover { transform: translateY(-1px); box-shadow: 0 7px 18px rgba(48, 41, 32, 0.08); }
+    .action-row button:hover { border-color: color-mix(in srgb, var(--studio-accent) 44%, transparent); transform: translateY(-1px); box-shadow: 0 3px 9px rgba(48, 41, 32, 0.07); }
 
     .action-row button.primary {
       background: color-mix(in srgb, var(--studio-accent) 82%, #27231f);
@@ -1782,6 +1842,7 @@
 
     .preview-card {
       overflow: hidden;
+      overflow-anchor: none;
       position: sticky;
       top: 0;
       z-index: 20;
@@ -1801,8 +1862,9 @@
       align-items: center;
     }
 
-    .preview-device-switcher { display: inline-flex; align-items: center; gap: 2px; margin-left: auto; padding: 3px; border: 1px solid var(--studio-control-border); border-radius: 10px 6px 9px 5px; background: rgba(255, 254, 251, 0.58); }
-    .preview-device-switcher button { display: inline-flex; align-items: center; gap: 5px; min-height: 28px; padding: 4px 8px; border: 0; border-radius: 7px 4px 7px 4px; background: transparent; color: #7a736a; font-size: 0.6rem; cursor: pointer; }
+    .preview-device-switcher { display: inline-flex; align-items: center; gap: 2px; margin-left: auto; padding: 3px; border: 1px solid var(--studio-control-border); border-radius: var(--studio-card-radius); background: rgba(255, 254, 251, 0.58); }
+    .preview-device-switcher button { display: inline-flex; align-items: center; gap: 4px; min-height: 26px; padding: 3px 7px; border: 0; border-radius: 6px; background: transparent; color: #7a736a; font-size: 0.58rem; cursor: pointer; transition: var(--studio-card-transition); }
+    .preview-device-switcher button:hover { background: color-mix(in srgb, var(--studio-accent-soft) 62%, transparent); color:var(--studio-accent); }
     .preview-device-switcher button[aria-pressed="true"] { background: var(--studio-accent-soft); color: var(--studio-accent); font-weight: 700; }
     .preview-device-switcher button:focus-visible { outline: 2px solid var(--studio-accent-soft); outline-offset: 1px; }
     .preview-device-switcher svg { width: 13px; height: 13px; }
@@ -1855,7 +1917,7 @@
       border: 1px solid color-mix(in srgb, var(--studio-accent) 16%, rgba(42, 38, 33, 0.10));
       border-radius: 12px 6px 12px 6px;
       background: #f8f6f1;
-      transition: width 280ms cubic-bezier(.2,.75,.25,1), height 180ms ease;
+      transition: width 280ms cubic-bezier(.2,.75,.25,1);
     }
     .preview-frame-wrap[data-preview-device="tablet"] #previewFrame { width: min(768px, 100%); }
     .preview-frame-wrap[data-preview-device="mobile"] #previewFrame { width: min(390px, 100%); }
@@ -1870,7 +1932,7 @@
     .section-note { margin-bottom: 9px; font-size: 0.7rem; }
     .control-group { margin-bottom: 9px; }
     .control-group label { margin-bottom: 5px; }
-    .control-group select, .control-group input[type="text"], .control-group input[type="number"] { min-height: 38px; padding-block: 7px; }
+    .control-group select, .control-group input[type="text"], .control-group input[type="number"] { min-height: var(--studio-control-height); padding-block: 6px; }
     .theme-picker, .type-picker { gap: 5px; }
     .theme-tile { padding: 6px 7px; }
     .type-tile { padding: 6px 8px; }
@@ -1887,12 +1949,23 @@
         grid-template-columns: 1fr;
       }
       .settings-columns { grid-template-columns: 1fr; grid-template-rows: auto; gap: 18px; }
-      .settings-section:first-child { grid-row: auto; }
+      .appearance-section,
+      .typography-section,
+      .fine-tune-section,
+      .quote-section,
+      .clock-section {
+        grid-column: 1;
+        grid-row: auto;
+      }
       .theme-picker, .type-picker { grid-template-columns: repeat(3, minmax(0, 1fr)); }
 
       .preview-card { position: sticky; top: 0; }
 
       #previewFrame { height: 400px; }
+    }
+
+    @media (max-width: 720px) {
+      .fine-tune-presets { grid-template-columns: 1fr; gap: 9px; }
     }
 
     @media (max-width: 600px) {
@@ -1915,11 +1988,11 @@
       .section-note { margin-bottom: 14px; }
       .control-group { margin-bottom: 13px; }
       .theme-picker, .type-picker { grid-template-columns: repeat(2, minmax(0, 1fr)); }
-      .adaptive-theme-controls { grid-template-columns: 1fr; }
-      .adaptive-mode-control, .theme-pairing { grid-column: 1; }
       .motion-picker { grid-template-columns: repeat(2, minmax(0, 1fr)); }
       .quote-controls-grid { grid-template-columns: 1fr; gap: 4px; }
-      .clock-controls-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+      .clock-settings-layout { grid-template-columns: 1fr; grid-template-areas: "format" "display" "timezone"; gap: 9px; }
+      .clock-width-presets { grid-template-columns: repeat(2,minmax(0,1fr)); }
+      .clock-width-presets button:last-child { grid-column: 1 / -1; }
       .preview-top { display: grid; grid-template-columns: minmax(0, 1fr) auto auto; align-items: center; }
       .preview-device-switcher { grid-column: 1 / -1; grid-row: 2; width: 100%; margin-left: 0; justify-content: center; }
       .preview-status { margin-left: 0; }
@@ -1936,7 +2009,7 @@
       .aura { animation: none !important; }
       .weather-visual *, .forecast-symbol, .forecast-symbol *, .sun-event svg { animation: none !important; }
       body .background-bubbles, body .ambient-objects { display: none !important; }
-      body .motion-layer, body .panel-motion-layer { display: none !important; }
+      body .motion-layer, body .widget-motion-layer { display: none !important; }
       .motion-thumb-stage * { animation: none !important; transition: none !important; }
       .history-controls .surprise-settings:hover svg { animation: none !important; }
       .bubble { animation: none !important; }
@@ -1959,9 +2032,9 @@
     <div class="aura a2" aria-hidden="true"></div>
     <div class="aura a3" aria-hidden="true"></div>
     <div class="widget-shell">
+      <div class="widget-motion-layer" aria-hidden="true"></div>
 
       <section class="quote-panel">
-        <div class="panel-motion-layer" aria-hidden="true"></div>
         <div class="quote-flipper">
           <div id="quoteFront" class="quote-card-face quote-card-front">
             <div id="quoteContent" class="quote-content" aria-live="polite">
@@ -2024,7 +2097,6 @@
       </section>
 
       <aside class="clock-panel" aria-label="Clock">
-        <div class="panel-motion-layer" aria-hidden="true"></div>
         <div class="clock-inner">
           <div class="clock-header">
             <div class="clock-time-block">
@@ -2152,7 +2224,7 @@
           </div>
 
           <div class="settings-columns">
-          <section class="settings-section">
+          <section class="settings-section appearance-section">
           <h2 class="settings-title"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3a9 9 0 1 0 0 18h1.5a1.8 1.8 0 0 0 0-3.6h-.7a1.8 1.8 0 0 1 0-3.6H16a5 5 0 0 0 5-5C21 5.6 17 3 12 3Z"/><circle cx="7.5" cy="10" r=".8" fill="currentColor"/><circle cx="9.5" cy="6.5" r=".8" fill="currentColor"/><circle cx="14" cy="6.2" r=".8" fill="currentColor"/></svg>Appearance</h2>
           <div class="section-note">Choose a palette and type pairing.</div>
 
@@ -2168,21 +2240,15 @@
             </div>
           </div>
 
-          <div class="adaptive-theme-controls">
-            <div class="control-group adaptive-mode-control">
-              <label for="adaptiveControl">Adaptive theme</label>
-              <select id="adaptiveControl">
-                <option value="manual">Manual</option>
-                <option value="system">System light / dark</option>
-                <option value="solar">Sunrise / sunset</option>
-              </select>
-              <small class="control-note">Solar mode follows the weather location, with system preference as fallback.</small>
-            </div>
-            <div id="themePairingControls" class="theme-pairing" hidden>
-              <div class="control-group"><label for="dayThemeControl">Day theme</label><select id="dayThemeControl"><option value="warm-editorial">Warm Editorial</option><option value="ocean">Ocean</option><option value="forest">Forest</option><option value="midnight">Midnight</option><option value="aurora">Aurora</option></select></div>
-              <div class="control-group"><label for="nightThemeControl">Night theme</label><select id="nightThemeControl"><option value="midnight">Midnight</option><option value="aurora">Aurora</option><option value="ocean">Ocean</option><option value="forest">Forest</option><option value="warm-editorial">Warm Editorial</option></select></div>
-            </div>
-          </div>
+          <input id="adaptiveControl" type="hidden" value="manual" />
+          <input id="dayThemeControl" type="hidden" value="warm-editorial" />
+          <input id="nightThemeControl" type="hidden" value="midnight" />
+
+          </section>
+
+          <section class="settings-section typography-section">
+          <h2 class="settings-title"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 5h14M12 5v14M8 19h8"/></svg>Typography</h2>
+          <div class="section-note">Choose a typography pairing.</div>
 
           <div class="control-group">
             <label id="typePickerLabel">Typography</label>
@@ -2196,11 +2262,18 @@
             </div>
           </div>
 
+          </section>
+
+          <section class="settings-section fine-tune-section">
+
           <div class="fine-tune">
             <div class="fine-tune-heading"><span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" aria-hidden="true"><path d="M4 7h10M18 7h2M4 17h2M10 17h10M4 12h4M12 12h8"/><circle cx="16" cy="7" r="2"/><circle cx="8" cy="17" r="2"/><circle cx="10" cy="12" r="2"/></svg>Fine-tune</span><small>Motion, shape and finish</small></div>
             <div class="fine-tune-body">
               <div class="control-group motion-control-group">
-                <div class="control-label-line"><label id="motionPickerLabel">Background motion</label><button id="motionOffButton" class="motion-off-button" type="button" data-motion-value="none" aria-pressed="false">Off</button></div>
+                <div class="adaptive-motion-row">
+                  <div><label id="motionPickerLabel">Background motion</label><small>Follow local daylight or choose an effect.</small></div>
+                  <button id="adaptiveMotionToggle" class="adaptive-motion-toggle" type="button" role="switch" aria-checked="true"><span class="adaptive-toggle-track" aria-hidden="true"></span><span>Adaptive</span></button>
+                </div>
                 <select id="motionControl" class="visually-hidden-control" tabindex="-1" aria-hidden="true">
                   <option value="adaptive">Adaptive · local time</option>
                   <option value="rain">Rain</option>
@@ -2213,7 +2286,7 @@
                   <option value="none">Off</option>
                 </select>
                 <div id="motionPicker" class="motion-picker" role="radiogroup" aria-labelledby="motionPickerLabel">
-                  <button type="button" class="motion-tile" data-motion-value="adaptive" aria-pressed="true"><span class="motion-thumb-stage" aria-hidden="true"></span><span>Adaptive</span></button>
+                  <button type="button" class="motion-tile motion-off-tile" data-motion-value="none" aria-pressed="false"><span class="motion-thumb-stage" aria-hidden="true"><i></i></span><span>Off</span></button>
                   <button type="button" class="motion-tile" data-motion-value="rain" aria-pressed="false"><span class="motion-thumb-stage" aria-hidden="true"></span><span>Rain</span></button>
                   <button type="button" class="motion-tile" data-motion-value="window-light" aria-pressed="false"><span class="motion-thumb-stage" aria-hidden="true"></span><span>Window Light</span></button>
                   <button type="button" class="motion-tile" data-motion-value="water-caustics" aria-pressed="false"><span class="motion-thumb-stage" aria-hidden="true"></span><span>Water Caustics</span></button>
@@ -2224,33 +2297,44 @@
                 </div>
                 <small class="control-note">Adaptive follows morning, afternoon, evening and night at the weather location.</small>
               </div>
-              <div class="fine-tune-sliders">
-              <div class="control-group">
-                <div class="control-label-line"><label for="intensityControl">Motion intensity</label><span id="intensityValue" class="range-value">60%</span></div>
-                <div class="range-row"><input id="intensityControl" type="range" min="20" max="90" step="5" value="60" /></div>
-                <div class="range-scale"><span>Soft</span><span>Visible</span></div>
-              </div>
-              <div class="control-group">
-                <div class="control-label-line"><label for="radiusControl">Corner radius</label><span id="radiusValue" class="range-value">28px</span></div>
-                <div class="range-row">
-                  <input id="radiusControl" type="range" min="8" max="42" step="1" value="28" />
+              <div class="fine-tune-presets">
+              <fieldset class="preset-column">
+                <legend><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" aria-hidden="true"><path d="M4 15c3-7 5 7 8 0s5 7 8 0"/><path d="M4 9c3-5 5 5 8 0s5 5 8 0"/></svg><span>Motion intensity</span></legend>
+                <input id="intensityControl" class="visually-hidden-control" type="number" min="0" max="80" step="10" value="50" tabindex="-1" aria-hidden="true" />
+                <div class="preset-list" role="radiogroup" aria-label="Motion intensity">
+                  <button type="button" data-preset-control="intensity" data-preset-value="0" aria-pressed="false"><span>Off</span><small>0%</small><i aria-hidden="true"></i></button>
+                  <button type="button" data-preset-control="intensity" data-preset-value="20" aria-pressed="false"><span>Subtle</span><small>20%</small><i aria-hidden="true"></i></button>
+                  <button type="button" data-preset-control="intensity" data-preset-value="50" aria-pressed="true"><span>Balanced</span><small>50%</small><i aria-hidden="true"></i></button>
+                  <button type="button" data-preset-control="intensity" data-preset-value="80" aria-pressed="false"><span>Vivid</span><small>80%</small><i aria-hidden="true"></i></button>
                 </div>
-                <div class="range-scale"><span>Sharp</span><span>Rounded</span></div>
-              </div>
-              <div class="control-group">
-                <div class="control-label-line"><label for="glossControl">Glossy effect</label><span id="glossValue" class="range-value">20%</span></div>
-                <div class="range-row">
-                  <input id="glossControl" type="range" min="0" max="100" step="5" value="20" />
+              </fieldset>
+              <fieldset class="preset-column">
+                <legend><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" aria-hidden="true"><path d="M5 19V9a4 4 0 0 1 4-4h10"/></svg><span>Corner radius</span></legend>
+                <input id="radiusControl" class="visually-hidden-control" type="number" min="8" max="42" step="1" value="28" tabindex="-1" aria-hidden="true" />
+                <div class="preset-list" role="radiogroup" aria-label="Corner radius">
+                  <button type="button" data-preset-control="radius" data-preset-value="8" aria-pressed="false"><span>Sharp</span><small>8px</small><i aria-hidden="true"></i></button>
+                  <button type="button" data-preset-control="radius" data-preset-value="18" aria-pressed="false"><span>Soft</span><small>18px</small><i aria-hidden="true"></i></button>
+                  <button type="button" data-preset-control="radius" data-preset-value="28" aria-pressed="true"><span>Rounded</span><small>28px</small><i aria-hidden="true"></i></button>
+                  <button type="button" data-preset-control="radius" data-preset-value="42" aria-pressed="false"><span>Extra</span><small>42px</small><i aria-hidden="true"></i></button>
                 </div>
-                <div class="range-scale"><span>Matte</span><span>Glossy</span></div>
-              </div>
+              </fieldset>
+              <fieldset class="preset-column">
+                <legend><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" aria-hidden="true"><path d="m12 3 1.5 4.5L18 9l-4.5 1.5L12 15l-1.5-4.5L6 9l4.5-1.5L12 3Z"/></svg><span>Surface finish</span></legend>
+                <input id="glossControl" class="visually-hidden-control" type="number" min="0" max="80" step="10" value="20" tabindex="-1" aria-hidden="true" />
+                <div class="preset-list" role="radiogroup" aria-label="Surface finish">
+                  <button type="button" data-preset-control="gloss" data-preset-value="0" aria-pressed="false"><span>Matte</span><small>0%</small><i aria-hidden="true"></i></button>
+                  <button type="button" data-preset-control="gloss" data-preset-value="20" aria-pressed="true"><span>Satin</span><small>20%</small><i aria-hidden="true"></i></button>
+                  <button type="button" data-preset-control="gloss" data-preset-value="50" aria-pressed="false"><span>Soft Glow</span><small>50%</small><i aria-hidden="true"></i></button>
+                  <button type="button" data-preset-control="gloss" data-preset-value="80" aria-pressed="false"><span>Glossy</span><small>80%</small><i aria-hidden="true"></i></button>
+                </div>
+              </fieldset>
               </div>
             </div>
           </div>
 
           </section>
 
-          <section class="settings-section">
+          <section class="settings-section quote-section">
 
           <h2 class="settings-title"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7 17H5a3 3 0 0 1-3-3v-3a5 5 0 0 1 5-5h1v5H5v3h2v3Zm10 0h-2a3 3 0 0 1-3-3v-3a5 5 0 0 1 5-5h1v5h-3v3h2v3Z"/></svg>Quote</h2>
           <div class="section-note">Choose what kind of quote appears.</div>
@@ -2286,10 +2370,10 @@
             <label id="quoteLengthLabel">Maximum length · characters</label>
             <input id="maxLengthControl" type="hidden" value="200" />
             <div class="length-picker" role="radiogroup" aria-labelledby="quoteLengthLabel">
-              <button type="button" data-length-value="100" aria-pressed="false">Short</button>
-              <button type="button" data-length-value="200" aria-pressed="true">Medium</button>
-              <button type="button" data-length-value="350" aria-pressed="false">Long</button>
-              <button id="customLengthButton" type="button" data-length-value="custom" aria-pressed="false">Custom</button>
+              <button type="button" data-length-value="100" aria-pressed="false"><span>Short</span><small>100</small></button>
+              <button type="button" data-length-value="200" aria-pressed="true"><span>Medium</span><small>200</small></button>
+              <button type="button" data-length-value="350" aria-pressed="false"><span>Long</span><small>350</small></button>
+              <button id="customLengthButton" type="button" data-length-value="custom" aria-pressed="false"><span>Custom</span><small>#</small></button>
             </div>
             <label id="customLengthWrap" class="custom-length-wrap" hidden><span class="sr-only">Custom maximum quote length</span><input id="customLengthInput" type="number" min="70" max="500" step="1" value="200" inputmode="numeric" aria-label="Custom maximum quote length in characters" /><small>70–500</small></label>
           </div>
@@ -2297,21 +2381,22 @@
 
           </section>
 
-          <section class="settings-section">
+          <section class="settings-section clock-section">
 
           <h2 class="settings-title"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg>Clock</h2>
           <div class="section-note">Set time details and panel balance.</div>
 
-          <div class="clock-controls-grid">
-          <div class="control-group">
-            <label for="timeFormatControl">Time format</label>
-            <select id="timeFormatControl">
-              <option value="12">12-hour</option>
-              <option value="24">24-hour</option>
-            </select>
+          <div class="clock-settings-layout">
+          <div class="clock-visual-group time-format-group">
+            <label id="timeFormatLabel">Time format</label>
+            <select id="timeFormatControl" class="visually-hidden-control" tabindex="-1" aria-hidden="true"><option value="12">12-hour</option><option value="24">24-hour</option></select>
+            <div class="time-format-cards" role="radiogroup" aria-labelledby="timeFormatLabel">
+              <button type="button" data-time-format="12" aria-pressed="true"><span>12h</span><small>01:45 PM</small><i aria-hidden="true"></i></button>
+              <button type="button" data-time-format="24" aria-pressed="false"><span>24h</span><small>13:45</small><i aria-hidden="true"></i></button>
+            </div>
           </div>
 
-          <div class="control-group">
+          <div class="control-group timezone-control">
             <label for="timeZoneControl">Time zone</label>
             <input id="timeZoneControl" type="text" value="local" list="timeZoneSuggestions"
               placeholder="local or Region/City" autocomplete="off" spellcheck="false" />
@@ -2321,26 +2406,26 @@
             <small class="control-note">Use “local” or an IANA zone such as Australia/Sydney.</small>
           </div>
 
-          <label class="toggle-row">
-            <input id="showDateControl" type="checkbox" checked />
-            Show date
-          </label>
-
-          <label class="toggle-row">
-            <input id="showSecondsControl" type="checkbox" />
-            Show seconds
-          </label>
+          <div class="clock-visual-group display-options-group">
+            <label id="displayOptionsLabel">Display options</label>
+            <div class="display-options-row" role="group" aria-labelledby="displayOptionsLabel">
+              <label class="studio-toggle"><span>Date</span><input id="showDateControl" type="checkbox" checked /><i aria-hidden="true"></i></label>
+              <label class="studio-toggle"><span>Seconds</span><input id="showSecondsControl" type="checkbox" /><i aria-hidden="true"></i></label>
+            </div>
+          </div>
           </div>
 
           <div class="control-group clock-width-control">
-            <div class="control-label-line"><label for="clockWidthControl">Clock width</label><span id="clockWidthValue" class="range-value">25%</span></div>
-            <div id="clockWidthModel" class="clock-width-model" style="--clock-model-width:25%" role="slider" tabindex="0" aria-label="Clock panel width" aria-valuemin="20" aria-valuemax="35" aria-valuenow="25">
-              <span class="clock-width-quote"><i></i><i></i><i></i></span>
-              <span class="clock-width-clock">12:24<small>Weather</small></span>
-              <input id="clockWidthControl" type="range" min="20" max="35" step="1" value="25" tabindex="-1" aria-hidden="true" />
+            <div class="control-label-line"><label id="clockWidthLabel">Clock width</label><span id="clockWidthValue" class="range-value">25%</span></div>
+            <input id="clockWidthControl" class="visually-hidden-control" type="number" min="25" max="45" step="5" value="25" tabindex="-1" aria-hidden="true" />
+            <div class="clock-width-presets" role="radiogroup" aria-labelledby="clockWidthLabel">
+              <button type="button" data-clock-width="25" aria-pressed="true"><span>Compact</span><small>25%</small></button>
+              <button type="button" data-clock-width="30" aria-pressed="false"><span>Balanced</span><small>30%</small></button>
+              <button type="button" data-clock-width="35" aria-pressed="false"><span>Comfortable</span><small>35%</small></button>
+              <button type="button" data-clock-width="40" aria-pressed="false"><span>Wide</span><small>40%</small></button>
+              <button type="button" data-clock-width="45" aria-pressed="false"><span>Extra Wide</span><small>45%</small></button>
             </div>
-            <div class="range-scale"><span>Quote</span><span>Protected minimum</span><span>Clock</span></div>
-            <small class="control-note">Drag the divider. The clock keeps a content-aware minimum width.</small>
+            <small class="control-note">The clock panel retains a protected content minimum at every preset.</small>
           </div>
 
           </section>
@@ -2401,23 +2486,24 @@
 
     const embedView = document.getElementById("embedView");
     const setupView = document.getElementById("setupView");
-    startPopupTimers();
-    document.querySelectorAll(".credit-section").forEach(section => {
-      section.addEventListener("toggle", () => {
-        if (!section.open) return;
-        document.querySelectorAll(".credit-section[open]").forEach(other => {
-          if (other !== section) other.open = false;
+    queueMicrotask(() => {
+      startPopupTimers();
+      document.querySelectorAll(".credit-section").forEach(section => {
+        section.addEventListener("toggle", () => {
+          if (!section.open) return;
+          document.querySelectorAll(".credit-section[open]").forEach(other => {
+            if (other !== section) other.open = false;
+          });
         });
       });
+      if (isSetup) {
+        setupView.hidden = false;
+        startCustomizer();
+      } else {
+        embedView.hidden = false;
+        startWidget();
+      }
     });
-
-    if (isSetup) {
-      setupView.hidden = false;
-      startCustomizer();
-    } else {
-      embedView.hidden = false;
-      startWidget();
-    }
 
     /* ============================================================
        SHARED HELPERS
@@ -2617,7 +2703,6 @@
     function applyThemeAndFont(config, resolvedTheme = config.theme, resolvedMotion = config.motion) {
       document.body.dataset.theme = resolvedTheme;
       document.body.dataset.font = config.font;
-      applyBackgroundMotion(resolvedMotion);
 
       const typography = {
         editorial: {
@@ -2662,6 +2747,7 @@
         String(config.gloss * 0.007)
       );
       document.documentElement.style.setProperty("--motion-intensity", String(config.intensity / 100));
+      renderBackgroundMotion(resolvedMotion, config.intensity / 100);
     }
 
     function legacyApplyBackgroundMotion(motion) {
@@ -2743,8 +2829,8 @@
 
     var motionSwapTimer;
     var pendingMotion = "";
-    function applyBackgroundMotion(motion) {
-      const layers = [...document.querySelectorAll(".panel-motion-layer")];
+    function legacyDomApplyBackgroundMotion(motion) {
+      const layers = [...document.querySelectorAll(".legacy-panel-motion-layer")];
       if (!layers.length || pendingMotion === motion || document.body.dataset.motion === motion) return;
       pendingMotion = motion;
       clearTimeout(motionSwapTimer);
@@ -2754,7 +2840,7 @@
         document.body.dataset.motion = motion;
         pendingMotion = "";
         if (motion !== "none" && !reducedMotion) {
-          const scene = buildMotionScene(motion);
+          const scene = legacyBuildMotionScene(motion);
           layers.forEach((layer, index) => layer.append(index ? scene.cloneNode(true) : scene));
         }
         requestAnimationFrame(() => layers.forEach(layer => layer.classList.remove("is-changing")));
@@ -2767,7 +2853,7 @@
       motionSwapTimer = window.setTimeout(commitMotion, 180);
     }
 
-    function buildMotionScene(motion, thumbnail = false) {
+    function legacyBuildMotionScene(motion, thumbnail = false) {
       const scene = document.createElement("div");
       scene.className = `motion-scene motion-${motion}${thumbnail ? " motion-thumbnail-scene" : ""}`;
       const compact = thumbnail || window.matchMedia("(max-width: 600px)").matches;
@@ -3038,6 +3124,13 @@
         this.instances.delete(target);
       }
 
+      destroyAll() {
+        [...this.instances.keys()].forEach(target => this.unmount(target));
+        if (this.frame) cancelAnimationFrame(this.frame);
+        this.frame = 0;
+        this.lastTime = 0;
+      }
+
       pause(target, paused) {
         const instance = this.instances.get(target);
         if (instance) instance.paused = Boolean(paused);
@@ -3068,7 +3161,8 @@
           if (!instance.paused && instance.target.isConnected && instance.width && instance.height) {
             const minFrame = instance.thumbnail ? 1000 / 20 : 1000 / 30;
             if (!instance.lastPaint || time - instance.lastPaint >= minFrame) {
-              instance.render(dt, time / 1000);
+              const instanceDt = instance.lastPaint ? Math.min(0.05, (time - instance.lastPaint) / 1000) : dt;
+              instance.render(instanceDt, time / 1000);
               instance.lastPaint = time;
             }
             active = true;
@@ -3173,7 +3267,7 @@
         if (this.effect === "fireflies") {
           return { lights: Array.from({ length: count(5, 7, 10) }, () => ({
             x: this.random(), y: this.random(), phase: this.random() * Math.PI * 2,
-            speed: 0.22 + this.random() * 0.36, radius: 1.2 + this.random() * 2.4,
+            speed: 0.22 + this.random() * 0.36, radius: 0.7 + this.random() * 1.25,
             dx: 8 + this.random() * 20, dy: 7 + this.random() * 17
           })) };
         }
@@ -3311,7 +3405,7 @@
         ctx.fillStyle = gradient;
         ctx.fillRect(-w * 0.7, -h, w * 1.4, h * 2);
         ctx.filter = `blur(${this.thumbnail ? 1 : 7}px)`;
-        ctx.fillStyle = this.rgba(palette.shade, 0.075 * this.intensity);
+        ctx.fillStyle = this.rgba(palette.shade, 0.105 * this.intensity);
         [-0.24, 0.08, 0.38].forEach(offset => ctx.fillRect(w * offset, -h, Math.max(2, w * 0.025), h * 2));
         ctx.restore();
       }
@@ -3401,7 +3495,7 @@
         ctx.fillRect(0, 0, w, h);
         ctx.beginPath();
         ctx.arc(x + radius * 0.055, y - radius * 0.015, radius * 0.31, 0, Math.PI * 2);
-        ctx.fillStyle = this.rgba(palette.shade, 0.18 * this.intensity);
+        ctx.fillStyle = this.rgba(palette.shade, 0.12 * this.intensity);
         ctx.fill();
       }
 
@@ -3412,13 +3506,17 @@
           const y = light.y * h + Math.cos(time * light.speed * 0.76 + light.phase) * light.dy;
           const pulse = Math.max(0, Math.sin(time * (0.7 + index * 0.045) + light.phase));
           const alpha = (0.12 + pulse * 0.5) * this.intensity;
-          const glow = ctx.createRadialGradient(x, y, 0, x, y, light.radius * (3.5 + pulse * 2));
+          const glow = ctx.createRadialGradient(x, y, 0, x, y, light.radius * (3 + pulse * 1.8));
           glow.addColorStop(0, this.rgba(palette.warm, alpha));
           glow.addColorStop(0.22, this.rgba(palette.warm, alpha * 0.6));
           glow.addColorStop(1, this.rgba(palette.warm, 0));
           ctx.fillStyle = glow;
           ctx.beginPath();
-          ctx.arc(x, y, light.radius * (4 + pulse * 2), 0, Math.PI * 2);
+          ctx.arc(x, y, light.radius * (3.4 + pulse * 2), 0, Math.PI * 2);
+          ctx.fill();
+          ctx.beginPath();
+          ctx.arc(x, y, Math.max(0.45, light.radius * 0.5), 0, Math.PI * 2);
+          ctx.fillStyle = this.rgba("#fff2b8", alpha * 0.72);
           ctx.fill();
         });
       }
@@ -3426,12 +3524,18 @@
 
     const backgroundMotionEngine = new BackgroundMotionEngine();
     window.__backgroundMotionDebug = () => backgroundMotionEngine.debug();
+    window.addEventListener("pagehide", () => backgroundMotionEngine.destroyAll(), { once: true });
 
     var canvasMotionSwapTimer;
     function renderBackgroundMotion(motion, intensity = 0.6) {
-      const layers = [...document.querySelectorAll(".panel-motion-layer")];
+      const layers = [...document.querySelectorAll(".widget-motion-layer")];
       if (!layers.length) return;
       clearTimeout(canvasMotionSwapTimer);
+      if (intensity <= 0) {
+        layers.forEach(layer => { backgroundMotionEngine.unmount(layer); layer.classList.remove("is-changing"); });
+        document.body.dataset.motion = motion;
+        return;
+      }
       const current = document.body.dataset.motion;
       const commit = () => {
         layers.forEach(layer => {
@@ -3504,8 +3608,8 @@
         showSeconds: boolParam(params, "seconds", false),
         radius: clampNumber(params.get("radius"), 8, 42, 28),
         gloss: clampNumber(params.get("gloss"), 0, 100, 20),
-        intensity: clampNumber(params.get("intensity"), 20, 90, 60),
-        clockWidth: clampNumber(params.get("clock"), 20, 35, 25),
+        intensity: clampNumber(params.get("intensity"), 0, 80, 50),
+        clockWidth: clampNumber(params.get("clock"), 25, 45, 25),
         batchSize: 12
       };
     }
@@ -3545,14 +3649,14 @@
       if (pageParams.has("date")) controls.showDate.checked = initialConfig.showDate;
       if (pageParams.has("seconds")) controls.showSeconds.checked = initialConfig.showSeconds;
 
-      const radiusValue = document.getElementById("radiusValue");
-      const glossValue = document.getElementById("glossValue");
-      const intensityValue = document.getElementById("intensityValue");
+      const presetOptions = { intensity: [0, 20, 50, 80], radius: [8, 18, 28, 42], gloss: [0, 20, 50, 80], clockWidth: [25, 30, 35, 40, 45] };
+      const nearestPreset = (value, options) => options.reduce((nearest, option) => Math.abs(option - Number(value)) < Math.abs(nearest - Number(value)) ? option : nearest, options[0]);
+      Object.entries(presetOptions).forEach(([key, options]) => { controls[key].value = String(nearestPreset(controls[key].value, options)); });
+
       const lengthButtons = [...document.querySelectorAll("[data-length-value]")];
       const customLengthInput = document.getElementById("customLengthInput");
       const customLengthWrap = document.getElementById("customLengthWrap");
       const clockWidthValue = document.getElementById("clockWidthValue");
-      const clockWidthModel = document.getElementById("clockWidthModel");
       const previewFrame = document.getElementById("previewFrame");
       const controlsCard = document.querySelector(".controls-card");
       const embedUrlPreview = document.getElementById("embedUrlPreview");
@@ -3560,22 +3664,61 @@
       const themeTiles = [...document.querySelectorAll("[data-theme-value]")];
       const typeTiles = [...document.querySelectorAll("[data-font-value]")];
       const motionTiles = [...document.querySelectorAll("[data-motion-value]")];
+      const presetButtons = [...document.querySelectorAll("[data-preset-control]")];
+      const timeFormatButtons = [...document.querySelectorAll("[data-time-format]")];
+      const clockWidthButtons = [...document.querySelectorAll("[data-clock-width]")];
+      const adaptiveMotionToggle = document.getElementById("adaptiveMotionToggle");
       const previewDeviceButtons = [...document.querySelectorAll("[data-preview-device]")];
       const previewFrameWrap = document.querySelector(".preview-frame-wrap");
       const previewCard = document.querySelector(".preview-card");
       const togglePreviewButton = document.getElementById("togglePreviewButton");
-      const themePairingControls = document.getElementById("themePairingControls");
       const undoButton = document.getElementById("undoSettingsButton");
       const redoButton = document.getElementById("redoSettingsButton");
       const surpriseButton = document.getElementById("surpriseSettingsButton");
       let previewStarted = false;
       let latestPreviewUrl = "";
-      let previewResizeObserver;
       const presetLengths = [100, 200, 350];
       let customLengthMode = !presetLengths.includes(Number(controls.maxLength.value));
       const undoStack = [];
       const redoStack = [];
       const historyLimit = 30;
+      let lastManualMotion = controls.motion.value === "adaptive" ? "none" : controls.motion.value;
+      let secondsViewportSnapshot = null;
+      let viewportRestoreGeneration = 0;
+
+      function captureSettingsViewport() {
+        return {
+          panelScrollTop: controlsCard.scrollTop,
+          pageScrollX: window.scrollX,
+          pageScrollY: window.scrollY
+        };
+      }
+
+      function restoreSettingsViewport(snapshot) {
+        if (!snapshot) return;
+        const generation = ++viewportRestoreGeneration;
+        const restore = () => {
+          if (generation !== viewportRestoreGeneration) return;
+          if (controlsCard.scrollTop !== snapshot.panelScrollTop) controlsCard.scrollTop = snapshot.panelScrollTop;
+          if (window.scrollX !== snapshot.pageScrollX || window.scrollY !== snapshot.pageScrollY) {
+            window.scrollTo(snapshot.pageScrollX, snapshot.pageScrollY);
+          }
+        };
+        restore();
+        requestAnimationFrame(() => {
+          restore();
+          requestAnimationFrame(restore);
+        });
+        window.setTimeout(restore, 140);
+      }
+
+      const secondsToggle = controls.showSeconds.closest(".studio-toggle");
+      secondsToggle?.addEventListener("pointerdown", () => {
+        secondsViewportSnapshot = captureSettingsViewport();
+      }, { capture: true });
+      controls.showSeconds.addEventListener("keydown", event => {
+        if (event.key === " " || event.key === "Enter") secondsViewportSnapshot = captureSettingsViewport();
+      });
 
       const snapshotSettings = () => Object.fromEntries(Object.entries(controls).map(([key, control]) => [key, control.type === "checkbox" ? control.checked : control.value]));
       const sameSnapshot = (a, b) => JSON.stringify(a) === JSON.stringify(b);
@@ -3631,7 +3774,21 @@
 
       themeTiles.forEach(tile => tile.addEventListener("click", () => selectVisualControl(controls.theme, tile.dataset.themeValue)));
       typeTiles.forEach(tile => tile.addEventListener("click", () => selectVisualControl(controls.font, tile.dataset.fontValue)));
-      motionTiles.forEach(tile => tile.addEventListener("click", () => selectVisualControl(controls.motion, tile.dataset.motionValue)));
+      motionTiles.forEach(tile => tile.addEventListener("click", () => {
+        lastManualMotion = tile.dataset.motionValue;
+        selectVisualControl(controls.motion, lastManualMotion);
+      }));
+      adaptiveMotionToggle.addEventListener("click", () => {
+        const enabled = controls.motion.value === "adaptive";
+        if (enabled) selectVisualControl(controls.motion, lastManualMotion || "none");
+        else {
+          if (controls.motion.value !== "adaptive") lastManualMotion = controls.motion.value;
+          selectVisualControl(controls.motion, "adaptive");
+        }
+      });
+      presetButtons.forEach(button => button.addEventListener("click", () => selectVisualControl(controls[button.dataset.presetControl], button.dataset.presetValue)));
+      timeFormatButtons.forEach(button => button.addEventListener("click", () => selectVisualControl(controls.timeFormat, button.dataset.timeFormat)));
+      clockWidthButtons.forEach(button => button.addEventListener("click", () => selectVisualControl(controls.clockWidth, button.dataset.clockWidth)));
       lengthButtons.forEach(button => button.addEventListener("click", () => {
         if (button.dataset.lengthValue === "custom") {
           customLengthMode = true;
@@ -3656,15 +3813,16 @@
         controls.maxLength.dispatchEvent(new Event("input", { bubbles: true }));
         controls.maxLength.dispatchEvent(new Event("change", { bubbles: true }));
       });
+      const thumbnailObserver = new IntersectionObserver(entries => {
+        entries.forEach(entry => backgroundMotionEngine.pause(entry.target, !entry.isIntersecting));
+      }, { threshold: 0.05 });
       document.querySelectorAll(".motion-tile").forEach(tile => {
         const requestedMotion = tile.dataset.motionValue;
-        const previewMotion = requestedMotion === "adaptive" ? motionForLocalTime(new Date().getHours()) : requestedMotion;
-        tile.querySelector(".motion-thumb-stage")?.append(buildMotionScene(previewMotion, true));
+        const stage = tile.querySelector(".motion-thumb-stage");
+        if (!stage) return;
+        if (requestedMotion !== "none") backgroundMotionEngine.mount(stage, requestedMotion, { thumbnail: true, intensity: 0.72 });
+        thumbnailObserver.observe(stage);
       });
-      const motionPicker = document.getElementById("motionPicker");
-      new IntersectionObserver(entries => {
-        motionPicker.classList.toggle("motion-previews-paused", !entries[0].isIntersecting);
-      }, { threshold: 0.05 }).observe(motionPicker);
       let studioScrollFrame = 0;
       controlsCard.addEventListener("scroll", () => {
         if (studioScrollFrame) return;
@@ -3678,21 +3836,17 @@
         try {
           const shell = previewFrame.contentDocument?.querySelector(".widget-shell");
           if (!shell) return;
-          const height = Math.ceil(shell.getBoundingClientRect().height);
-          if (height > 0) previewFrame.style.height = `${height + 2}px`;
+          const measured = Math.ceil(shell.getBoundingClientRect().height) + 2;
+          if (!Number.isFinite(measured) || measured < 160) return;
+          const nextHeight = Math.min(720, measured);
+          if (Math.abs(previewFrame.getBoundingClientRect().height - nextHeight) > 1) previewFrame.style.height = `${nextHeight}px`;
         } catch { /* Cross-origin hosts retain the responsive CSS fallback. */ }
       }
-
-      function watchPreviewSize() {
-        previewResizeObserver?.disconnect();
-        try {
-          const shell = previewFrame.contentDocument?.querySelector(".widget-shell");
-          if (!shell) return;
-          previewResizeObserver = new ResizeObserver(fitPreviewFrame);
-          previewResizeObserver.observe(shell);
-          requestAnimationFrame(() => requestAnimationFrame(fitPreviewFrame));
-        } catch { /* Cross-origin hosts retain the responsive CSS fallback. */ }
-      }
+      let previewFitTimer;
+      window.addEventListener("resize", () => {
+        clearTimeout(previewFitTimer);
+        previewFitTimer = window.setTimeout(fitPreviewFrame, 140);
+      }, { passive: true });
 
       function sendPreviewSettings() {
         if (!latestPreviewUrl) return;
@@ -3702,7 +3856,7 @@
 
       previewFrame.addEventListener("load", () => {
         sendPreviewSettings();
-        watchPreviewSize();
+        requestAnimationFrame(() => requestAnimationFrame(fitPreviewFrame));
       });
 
       function buildEmbedUrl() {
@@ -3747,22 +3901,21 @@
         setupView.dataset.previewTheme = controls.theme.value;
         themeTiles.forEach(tile => tile.setAttribute("aria-pressed", String(tile.dataset.themeValue === controls.theme.value)));
         typeTiles.forEach(tile => tile.setAttribute("aria-pressed", String(tile.dataset.fontValue === controls.font.value)));
-        motionTiles.forEach(tile => tile.setAttribute("aria-pressed", String(tile.dataset.motionValue === controls.motion.value)));
-        themePairingControls.hidden = controls.adaptive.value === "manual";
+        const adaptiveMotion = controls.motion.value === "adaptive";
+        if (!adaptiveMotion) lastManualMotion = controls.motion.value;
+        adaptiveMotionToggle.setAttribute("aria-checked", String(adaptiveMotion));
+        motionTiles.forEach(tile => tile.setAttribute("aria-pressed", String(!adaptiveMotion && tile.dataset.motionValue === controls.motion.value)));
+        presetButtons.forEach(button => button.setAttribute("aria-pressed", String(controls[button.dataset.presetControl].value === button.dataset.presetValue)));
+        timeFormatButtons.forEach(button => button.setAttribute("aria-pressed", String(controls.timeFormat.value === button.dataset.timeFormat)));
+        clockWidthButtons.forEach(button => button.setAttribute("aria-pressed", String(controls.clockWidth.value === button.dataset.clockWidth)));
         const themeOwnsMotion = Boolean(getThemeMotion(controls.theme.value));
         controls.motion.disabled = themeOwnsMotion;
         controls.motion.title = themeOwnsMotion
           ? "This theme includes its own ambient animation."
           : "Choose a background animation.";
-        radiusValue.textContent = `${controls.radius.value}px`;
-        glossValue.textContent = `${controls.gloss.value}%`;
-        intensityValue.textContent = `${controls.intensity.value}%`;
         setupView.style.setProperty("--studio-motion-intensity", String(controls.intensity.value / 100));
         updateQuoteLengthUI();
         clockWidthValue.textContent = `${controls.clockWidth.value}%`;
-        clockWidthModel.style.setProperty("--clock-model-width", `${controls.clockWidth.value}%`);
-        clockWidthModel.setAttribute("aria-valuenow", controls.clockWidth.value);
-        clockWidthModel.setAttribute("aria-valuetext", `${controls.clockWidth.value}% clock panel width`);
 
         const url = buildEmbedUrl();
         embedUrlPreview.textContent = url;
@@ -3776,7 +3929,6 @@
           previewFrame.src = previewUrl;
         } else {
           sendPreviewSettings();
-          requestAnimationFrame(fitPreviewFrame);
         }
       }
 
@@ -3800,6 +3952,11 @@
           commitSettingsChange();
         });
       });
+      controls.showSeconds.addEventListener("change", () => {
+        const snapshot = secondsViewportSnapshot || captureSettingsViewport();
+        secondsViewportSnapshot = null;
+        restoreSettingsViewport(snapshot);
+      });
 
       undoButton.addEventListener("click", undoSettings);
       redoButton.addEventListener("click", redoSettings);
@@ -3817,49 +3974,6 @@
         window.setTimeout(fitPreviewFrame, 300);
       }));
 
-      const setClockWidthFromPointer = event => {
-        const bounds = clockWidthModel.getBoundingClientRect();
-        const pointerPercent = (event.clientX - bounds.left) / Math.max(1, bounds.width) * 100;
-        const value = Math.round(Math.min(35, Math.max(20, 100 - pointerPercent)));
-        if (controls.clockWidth.value === String(value)) return;
-        controls.clockWidth.value = String(value);
-        controls.clockWidth.dispatchEvent(new Event("input", { bubbles: true }));
-      };
-      let clockDividerDragging = false;
-      clockWidthModel.addEventListener("pointerdown", event => {
-        clockDividerDragging = true;
-        clockWidthModel.focus();
-        clockWidthModel.setPointerCapture(event.pointerId);
-        setClockWidthFromPointer(event);
-      });
-      clockWidthModel.addEventListener("pointermove", event => {
-        if (clockDividerDragging) setClockWidthFromPointer(event);
-      });
-      const finishClockDivider = event => {
-        if (!clockDividerDragging) return;
-        clockDividerDragging = false;
-        setClockWidthFromPointer(event);
-        controls.clockWidth.dispatchEvent(new Event("change", { bubbles: true }));
-      };
-      clockWidthModel.addEventListener("pointerup", finishClockDivider);
-      clockWidthModel.addEventListener("pointercancel", () => {
-        if (!clockDividerDragging) return;
-        clockDividerDragging = false;
-        controls.clockWidth.dispatchEvent(new Event("change", { bubbles: true }));
-      });
-      clockWidthModel.addEventListener("keydown", event => {
-        let value = Number(controls.clockWidth.value);
-        if (["ArrowRight", "ArrowUp"].includes(event.key)) value += 1;
-        else if (["ArrowLeft", "ArrowDown"].includes(event.key)) value -= 1;
-        else if (event.key === "Home") value = 20;
-        else if (event.key === "End") value = 35;
-        else return;
-        event.preventDefault();
-        controls.clockWidth.value = String(Math.min(35, Math.max(20, value)));
-        controls.clockWidth.dispatchEvent(new Event("input", { bubbles: true }));
-        controls.clockWidth.dispatchEvent(new Event("change", { bubbles: true }));
-      });
-
       togglePreviewButton.addEventListener("click", () => {
         const collapsed = previewCard.classList.toggle("is-preview-collapsed");
         togglePreviewButton.setAttribute("aria-expanded", String(!collapsed));
@@ -3869,16 +3983,16 @@
       });
 
       const styleRecipes = [
-        { theme: "warm-editorial", font: "editorial", motion: "window-light", radius: "30", gloss: "20" },
-        { theme: "warm-editorial", font: "classic-literary", motion: "breathing-gradient", radius: "24", gloss: "10" },
-        { theme: "ocean", font: "modern-minimal", motion: "water-caustics", radius: "34", gloss: "35" },
-        { theme: "ocean", font: "contemporary-display", motion: "rain", radius: "26", gloss: "25" },
-        { theme: "forest", font: "classic-literary", motion: "dandelion", radius: "28", gloss: "15" },
-        { theme: "forest", font: "soft-handwritten", motion: "fireflies", radius: "32", gloss: "20" },
-        { theme: "midnight", font: "contemporary-display", motion: "eclipse-glow", radius: "22", gloss: "40" },
-        { theme: "midnight", font: "modern-minimal", motion: "rain", radius: "28", gloss: "30" },
-        { theme: "aurora", font: "modern-minimal", motion: "breathing-gradient", radius: "34", gloss: "35" },
-        { theme: "aurora", font: "editorial", motion: "eclipse-glow", radius: "27", gloss: "25" }
+        { theme: "warm-editorial", font: "editorial", motion: "window-light", radius: "28", gloss: "20" },
+        { theme: "warm-editorial", font: "classic-literary", motion: "breathing-gradient", radius: "18", gloss: "0" },
+        { theme: "ocean", font: "modern-minimal", motion: "water-caustics", radius: "28", gloss: "50" },
+        { theme: "ocean", font: "contemporary-display", motion: "rain", radius: "28", gloss: "20" },
+        { theme: "forest", font: "classic-literary", motion: "dandelion", radius: "28", gloss: "20" },
+        { theme: "forest", font: "soft-handwritten", motion: "fireflies", radius: "42", gloss: "20" },
+        { theme: "midnight", font: "contemporary-display", motion: "eclipse-glow", radius: "18", gloss: "50" },
+        { theme: "midnight", font: "modern-minimal", motion: "rain", radius: "28", gloss: "50" },
+        { theme: "aurora", font: "modern-minimal", motion: "breathing-gradient", radius: "42", gloss: "50" },
+        { theme: "aurora", font: "editorial", motion: "eclipse-glow", radius: "28", gloss: "20" }
       ];
       let lastRecipe = -1;
       surpriseButton.addEventListener("click", () => {
@@ -3925,12 +4039,13 @@
 
       document.getElementById("resetSettingsButton").addEventListener("click", () => {
         const defaults = {
-          theme: "warm-editorial", adaptive: "manual", dayTheme: "warm-editorial", nightTheme: "midnight", motion: "adaptive", font: "modern-minimal", radius: "28", gloss: "20", intensity: "60",
+          theme: "warm-editorial", adaptive: "manual", dayTheme: "warm-editorial", nightTheme: "midnight", motion: "adaptive", font: "modern-minimal", radius: "28", gloss: "20", intensity: "50",
           source: "auto", category: "", maxLength: "200", timeFormat: "12", timeZone: "local", clockWidth: "25"
         };
         Object.entries(defaults).forEach(([key, value]) => { controls[key].value = value; });
         controls.showDate.checked = true;
         controls.showSeconds.checked = false;
+        lastManualMotion = "none";
         customLengthMode = false;
         updatePreview();
         commitSettingsChange();
@@ -4012,6 +4127,7 @@
       const creditsProgressCircle = document.getElementById("creditsCountdownProgress");
       const quoteFront = document.getElementById("quoteFront");
       const quoteBack = document.getElementById("quoteBack");
+      const creditsPopup = quoteBack.querySelector(".credits-popup");
       const funFacts = [
         "A day on Venus lasts longer than a Venusian year.",
         "Octopuses have three hearts and copper-rich blue blood.",
@@ -4027,6 +4143,30 @@
       let creditsProgress;
       let creditsRemaining = 5000;
       let creditsStartedAt = 0;
+      let creditsFitFrame = 0;
+
+      function fitCreditsContent() {
+        creditsFitFrame = 0;
+        const backStyle = getComputedStyle(quoteBack);
+        const availableWidth = Math.max(1, quoteBack.clientWidth - (parseFloat(backStyle.paddingLeft) || 0) - (parseFloat(backStyle.paddingRight) || 0));
+        const availableHeight = Math.max(1, quoteBack.clientHeight - (parseFloat(backStyle.paddingTop) || 0) - (parseFloat(backStyle.paddingBottom) || 0));
+        const contentWidth = Math.max(1, creditsPopup.offsetWidth, creditsPopup.scrollWidth);
+        const contentHeight = Math.max(1, creditsPopup.offsetHeight, creditsPopup.scrollHeight);
+        const scale = Math.min(1, availableWidth / contentWidth, availableHeight / contentHeight);
+        creditsPopup.style.setProperty("--credits-fit-scale", String(Math.max(0.01, Math.floor(scale * 1000) / 1000)));
+      }
+
+      function scheduleCreditsFit() {
+        if (creditsFitFrame) cancelAnimationFrame(creditsFitFrame);
+        creditsFitFrame = requestAnimationFrame(() => {
+          creditsFitFrame = requestAnimationFrame(fitCreditsContent);
+        });
+      }
+
+      const creditsResizeObserver = new ResizeObserver(scheduleCreditsFit);
+      creditsResizeObserver.observe(quoteBack);
+      const creditsContentObserver = new MutationObserver(scheduleCreditsFit);
+      creditsContentObserver.observe(creditsPopup, { childList: true, subtree: true, characterData: true, attributes: true, attributeFilter: ["open"] });
       function rotateCreditsFact() {
         let index = Math.floor(Math.random() * funFacts.length);
         if (funFacts.length > 1 && index === previousFact) index = (index + 1) % funFacts.length;
@@ -4086,6 +4226,7 @@
         quoteBack.setAttribute("aria-hidden", String(!visible));
         if (visible) {
           rotateCreditsFact();
+          scheduleCreditsFit();
           window.setTimeout(() => creditsBack.focus({ preventScroll: true }), 520);
           requestAnimationFrame(() => startCreditsReturnTimer(true));
         }
@@ -4100,6 +4241,7 @@
       quoteBack.addEventListener("input", scheduleCreditsRestart, true);
       quoteBack.addEventListener("keydown", scheduleCreditsRestart, true);
       quoteBack.addEventListener("scroll", scheduleCreditsRestart, { passive: true });
+      quoteBack.addEventListener("toggle", scheduleCreditsFit, true);
       document.addEventListener("keydown", event => {
         if (event.key === "Escape" && quotePanel.classList.contains("is-flipped")) {
           setCreditsVisible(false, true);
