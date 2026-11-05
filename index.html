@@ -868,9 +868,9 @@
       margin-inline: auto;
     }
 
-    .clock-header { display: grid; grid-template-columns: minmax(0, 1fr) minmax(70px, auto); align-items: start; gap: 10px; min-width: 0; }
+    .clock-header { display: grid; grid-template-columns: minmax(0, 1fr) minmax(70px, auto); align-items: center; gap: 10px; min-width: 0; }
     .clock-time-block { min-width: 0; }
-    .clock-location { position: relative; display: grid; justify-items: end; align-self: start; min-width: 0; max-width: 112px; padding-right: 0; justify-self: end; text-align: right; }
+    .clock-location { position: relative; display: grid; justify-items: end; align-self: center; min-width: 0; max-width: 112px; padding-right: 0; justify-self: end; text-align: right; }
     .clock-location .location-picker { width: 100%; }
     .clock-location .location-picker summary {
       display: block;
@@ -946,6 +946,7 @@
     #clockDate {
       grid-area: date;
       margin: 0;
+      min-height: 1.3em;
       width: 100%;
       text-align: center;
       color: var(--muted);
@@ -953,7 +954,9 @@
       line-height: 1.3;
       letter-spacing: 0.12em;
       text-transform: uppercase;
+      transition: opacity 140ms ease;
     }
+    #clockDate[aria-hidden="true"] { visibility: hidden; opacity: 0; }
 
     #clockZone {
       color: color-mix(in srgb, var(--muted) 72%, var(--aura-2));
@@ -2277,7 +2280,7 @@
                 <select id="motionControl" class="visually-hidden-control" tabindex="-1" aria-hidden="true">
                   <option value="adaptive">Adaptive · local time</option>
                   <option value="rain">Rain</option>
-                  <option value="window-light">Window Light</option>
+                  <option value="luminous-mesh">Luminous Mesh</option>
                   <option value="water-caustics">Water Caustics</option>
                   <option value="breathing-gradient">Breathing Gradient</option>
                   <option value="dandelion">Dandelion Drift</option>
@@ -2288,7 +2291,7 @@
                 <div id="motionPicker" class="motion-picker" role="radiogroup" aria-labelledby="motionPickerLabel">
                   <button type="button" class="motion-tile motion-off-tile" data-motion-value="none" aria-pressed="false"><span class="motion-thumb-stage" aria-hidden="true"><i></i></span><span>Off</span></button>
                   <button type="button" class="motion-tile" data-motion-value="rain" aria-pressed="false"><span class="motion-thumb-stage" aria-hidden="true"></span><span>Rain</span></button>
-                  <button type="button" class="motion-tile" data-motion-value="window-light" aria-pressed="false"><span class="motion-thumb-stage" aria-hidden="true"></span><span>Window Light</span></button>
+                  <button type="button" class="motion-tile" data-motion-value="luminous-mesh" aria-pressed="false"><span class="motion-thumb-stage" aria-hidden="true"></span><span>Luminous Mesh</span></button>
                   <button type="button" class="motion-tile" data-motion-value="water-caustics" aria-pressed="false"><span class="motion-thumb-stage" aria-hidden="true"></span><span>Water Caustics</span></button>
                   <button type="button" class="motion-tile" data-motion-value="breathing-gradient" aria-pressed="false"><span class="motion-thumb-stage" aria-hidden="true"></span><span>Breathing Gradient</span></button>
                   <button type="button" class="motion-tile" data-motion-value="dandelion" aria-pressed="false"><span class="motion-thumb-stage" aria-hidden="true"></span><span>Dandelion Drift</span></button>
@@ -2690,11 +2693,11 @@
       const sunset = Number(solarTimes?.sunsetMinutes);
       if (Number.isFinite(sunrise) && Number.isFinite(sunset) && sunset > sunrise) {
         if (minute < sunrise - 45 || minute > sunset + 75) return new Date().getDate() % 2 ? "fireflies" : "eclipse-glow";
-        if (minute < sunrise + Math.min(270, (sunset - sunrise) * 0.38)) return "window-light";
+        if (minute < sunrise + Math.min(270, (sunset - sunrise) * 0.38)) return "luminous-mesh";
         if (minute < sunset - 90) return "water-caustics";
         return "breathing-gradient";
       }
-      if (hour >= 5 && hour < 12) return "window-light";
+      if (hour >= 5 && hour < 12) return "luminous-mesh";
       if (hour >= 12 && hour < 17) return "water-caustics";
       if (hour >= 17 && hour < 21) return "breathing-gradient";
       return new Date().getDate() % 2 ? "fireflies" : "eclipse-glow";
@@ -2879,10 +2882,15 @@
             "--slant": `${-2 + Math.random() * 4}deg`
           });
         }
-      } else if (motion === "window-light") {
-        ["-18%", "21%", "56%"].forEach((left, index) => add("window-patch", {
-          "--left": left, "--opacity": `${0.22 - index * 0.04}`,
-          "--duration": `${24 + index * 7}s`, "--delay": `${-index * 9}s`
+      } else if (motion === "luminous-mesh") {
+        [
+          ["-18%", "8%", "var(--motion-cool)"],
+          ["20%", "42%", "var(--motion-warm)"],
+          ["58%", "18%", "var(--motion-soft)"]
+        ].forEach((field, index) => add("gradient-field", {
+          "--left": field[0], "--top": field[1], "--field-color": field[2],
+          "--opacity": `${0.18 - index * 0.02}`, "--duration": `${34 + index * 9}s`,
+          "--drift-x": `${index % 2 ? -12 : 14}%`, "--drift-y": `${index % 2 ? 7 : -5}%`, "--delay": `${-index * 13}s`
         }));
       } else if (motion === "water-caustics") {
         add("caustic-field", { "--rotate": "-7deg", "--duration": "22s", "--delay": "-4s" });
@@ -3093,6 +3101,7 @@
         this.frame = 0;
         this.lastTime = 0;
         this.serial = 0;
+        this.pointer = { x: 0, y: 0, active: false };
         this.reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)");
         this.resizeObserver = new ResizeObserver(entries => {
           entries.forEach(entry => this.instances.get(entry.target)?.resize());
@@ -3102,6 +3111,13 @@
           this.instances.forEach(instance => instance.clear());
           this.wake();
         });
+        document.addEventListener("pointermove", event => {
+          this.pointer.x = event.clientX;
+          this.pointer.y = event.clientY;
+          this.pointer.active = true;
+        }, { passive: true });
+        document.addEventListener("pointerleave", () => { this.pointer.active = false; }, { passive: true });
+        window.addEventListener("blur", () => { this.pointer.active = false; });
         document.addEventListener("visibilitychange", () => this.wake());
       }
 
@@ -3271,7 +3287,28 @@
             dx: 8 + this.random() * 20, dy: 7 + this.random() * 17
           })) };
         }
+        if (this.effect === "luminous-mesh") {
+          return {
+            particles: Array.from({ length: count(8, 15, 24) }, (_, index) => this.makeMeshParticle(index))
+          };
+        }
         return {};
+      }
+
+      makeMeshParticle(index) {
+        const depth = 0.48 + this.random() * 0.52;
+        const angle = this.random() * Math.PI * 2;
+        const speed = (this.thumbnail ? 1.2 : 2.8) + this.random() * (this.thumbnail ? 2.2 : 4.2);
+        return {
+          x: this.random() * Math.max(1, this.width),
+          y: this.random() * Math.max(1, this.height),
+          vx: Math.cos(angle) * speed,
+          vy: Math.sin(angle) * speed,
+          depth,
+          radius: (this.thumbnail ? 0.55 : 0.8) + this.random() * (this.thumbnail ? 0.8 : 1.35),
+          phase: this.random() * Math.PI * 2 + index * 0.37,
+          tint: index % 3
+        };
       }
 
       makeRainDrop(initial = false) {
@@ -3308,7 +3345,7 @@
         this.clear();
         const draw = {
           rain: () => this.drawRain(dt),
-          "window-light": () => this.drawWindowLight(time),
+          "luminous-mesh": () => this.drawLuminousMesh(dt, time),
           "water-caustics": () => this.drawWaterCaustics(time),
           "breathing-gradient": () => this.drawBreathingGradient(time),
           dandelion: () => this.drawDandelion(dt, time),
@@ -3390,23 +3427,101 @@
         }
       }
 
-      drawWindowLight(time) {
+      drawLuminousMesh(dt, time) {
         const { ctx, width: w, height: h, palette } = this;
-        const drift = Math.sin(time * 0.09) * w * 0.055;
+        const particles = this.state.particles;
+        const strength = this.intensity;
+        const colors = [palette.warm, palette.cool, "#f2eee2"];
+        let pointerX = -10000;
+        let pointerY = -10000;
+        let pointerActive = false;
+        if (!this.thumbnail && this.engine.pointer.active) {
+          const rect = this.target.getBoundingClientRect();
+          pointerX = this.engine.pointer.x - rect.left;
+          pointerY = this.engine.pointer.y - rect.top;
+          pointerActive = pointerX >= 0 && pointerX <= w && pointerY >= 0 && pointerY <= h;
+        }
+
+        particles.forEach((particle, index) => {
+          const driftX = Math.sin(time * (0.17 + particle.depth * 0.05) + particle.phase) * 0.42;
+          const driftY = Math.cos(time * (0.13 + particle.depth * 0.04) + particle.phase * 1.3) * 0.36;
+          particle.vx += driftX * dt;
+          particle.vy += driftY * dt;
+          if (pointerActive) {
+            const dx = particle.x - pointerX;
+            const dy = particle.y - pointerY;
+            const distanceSquared = dx * dx + dy * dy;
+            const influence = this.thumbnail ? 0 : Math.min(120, Math.max(62, Math.min(w, h) * 0.34));
+            if (distanceSquared > 0.01 && distanceSquared < influence * influence) {
+              const distance = Math.sqrt(distanceSquared);
+              const force = (1 - distance / influence) * 8 * dt;
+              particle.vx += dx / distance * force;
+              particle.vy += dy / distance * force;
+            }
+          }
+          const maxSpeed = (this.thumbnail ? 4 : 8) * (0.72 + particle.depth * 0.45);
+          const speed = Math.hypot(particle.vx, particle.vy);
+          if (speed > maxSpeed) {
+            particle.vx = particle.vx / speed * maxSpeed;
+            particle.vy = particle.vy / speed * maxSpeed;
+          }
+          particle.vx *= Math.pow(0.993, dt * 60);
+          particle.vy *= Math.pow(0.993, dt * 60);
+          particle.x += particle.vx * dt;
+          particle.y += particle.vy * dt;
+          const margin = 4;
+          if (particle.x <= margin || particle.x >= w - margin) {
+            particle.x = Math.max(margin, Math.min(w - margin, particle.x));
+            particle.vx *= -1;
+          }
+          if (particle.y <= margin || particle.y >= h - margin) {
+            particle.y = Math.max(margin, Math.min(h - margin, particle.y));
+            particle.vy *= -1;
+          }
+        });
+
+        const connectionDistance = this.thumbnail
+          ? Math.max(22, w * 0.38)
+          : Math.min(178, Math.max(82, Math.sqrt(w * h) * 0.22));
         ctx.save();
-        ctx.translate(w * 0.42 + drift, h * 0.5 + Math.cos(time * 0.07) * h * 0.04);
-        ctx.rotate(-0.16 + Math.sin(time * 0.055) * 0.035);
-        ctx.filter = `blur(${this.thumbnail ? 3 : 14}px)`;
-        const gradient = ctx.createLinearGradient(-w * 0.55, 0, w * 0.55, 0);
-        gradient.addColorStop(0, this.rgba(palette.warm, 0));
-        gradient.addColorStop(0.28, this.rgba(palette.warm, 0.28 * this.intensity));
-        gradient.addColorStop(0.68, this.rgba(palette.warm, 0.14 * this.intensity));
-        gradient.addColorStop(1, this.rgba(palette.warm, 0));
-        ctx.fillStyle = gradient;
-        ctx.fillRect(-w * 0.7, -h, w * 1.4, h * 2);
-        ctx.filter = `blur(${this.thumbnail ? 1 : 7}px)`;
-        ctx.fillStyle = this.rgba(palette.shade, 0.105 * this.intensity);
-        [-0.24, 0.08, 0.38].forEach(offset => ctx.fillRect(w * offset, -h, Math.max(2, w * 0.025), h * 2));
+        ctx.lineCap = "round";
+        for (let left = 0; left < particles.length; left++) {
+          for (let right = left + 1; right < particles.length; right++) {
+            const first = particles[left];
+            const second = particles[right];
+            const dx = first.x - second.x;
+            const dy = first.y - second.y;
+            const distanceSquared = dx * dx + dy * dy;
+            if (distanceSquared >= connectionDistance * connectionDistance) continue;
+            const proximity = 1 - Math.sqrt(distanceSquared) / connectionDistance;
+            const flicker = 0.82 + Math.sin(time * 0.42 + first.phase + second.phase) * 0.18;
+            const depth = Math.min(first.depth, second.depth);
+            ctx.beginPath();
+            ctx.moveTo(first.x, first.y);
+            ctx.lineTo(second.x, second.y);
+            ctx.lineWidth = (this.thumbnail ? 0.5 : 0.64) + depth * 0.36;
+            ctx.strokeStyle = this.rgba(colors[(first.tint + second.tint) % colors.length], proximity * flicker * depth * 0.26 * strength);
+            ctx.stroke();
+          }
+        }
+
+        particles.forEach(particle => {
+          const flicker = 0.72 + (Math.sin(time * (0.58 + particle.depth * 0.16) + particle.phase) + 1) * 0.14;
+          const radius = particle.radius * (0.82 + particle.depth * 0.42);
+          const glowRadius = radius * (this.thumbnail ? 3.2 : 4.5);
+          const glow = ctx.createRadialGradient(particle.x, particle.y, 0, particle.x, particle.y, glowRadius);
+          glow.addColorStop(0, this.rgba(colors[particle.tint], 0.5 * flicker * strength));
+          glow.addColorStop(0.24, this.rgba(colors[particle.tint], 0.22 * flicker * strength));
+          glow.addColorStop(1, this.rgba(colors[particle.tint], 0));
+          ctx.fillStyle = glow;
+          ctx.beginPath();
+          ctx.arc(particle.x, particle.y, glowRadius, 0, Math.PI * 2);
+          ctx.fill();
+          ctx.fillStyle = this.rgba(colors[particle.tint], (0.44 + particle.depth * 0.3) * flicker * strength);
+          ctx.beginPath();
+          ctx.arc(particle.x, particle.y, Math.max(0.42, radius * 0.52), 0, Math.PI * 2);
+          ctx.fill();
+        });
         ctx.restore();
       }
 
@@ -3573,8 +3688,8 @@
         goodkitty: "soft-handwritten", jinky: "soft-handwritten", marker: "soft-handwritten",
         serif: "editorial", sans: "modern-minimal", mono: "modern-minimal"
       };
-      const allowedMotion = ["adaptive", "rain", "window-light", "water-caustics", "breathing-gradient", "dandelion", "eclipse-glow", "fireflies", "none"];
-      const legacyMotion = { bubbles: "breathing-gradient", petals: "dandelion", gradient: "breathing-gradient", stars: "fireflies", "aurora-stars": "eclipse-glow", aurora: "eclipse-glow" };
+      const allowedMotion = ["adaptive", "rain", "luminous-mesh", "water-caustics", "breathing-gradient", "dandelion", "eclipse-glow", "fireflies", "none"];
+      const legacyMotion = { "morning-mist": "luminous-mesh", "window-light": "luminous-mesh", bubbles: "breathing-gradient", petals: "dandelion", gradient: "breathing-gradient", stars: "fireflies", "aurora-stars": "eclipse-glow", aurora: "eclipse-glow" };
       const allowedAdaptive = ["manual", "system", "solar"];
 
       const theme = allowedThemes.includes(params.get("theme"))
@@ -3983,7 +4098,7 @@
       });
 
       const styleRecipes = [
-        { theme: "warm-editorial", font: "editorial", motion: "window-light", radius: "28", gloss: "20" },
+        { theme: "warm-editorial", font: "editorial", motion: "luminous-mesh", radius: "28", gloss: "20" },
         { theme: "warm-editorial", font: "classic-literary", motion: "breathing-gradient", radius: "18", gloss: "0" },
         { theme: "ocean", font: "modern-minimal", motion: "water-caustics", radius: "28", gloss: "50" },
         { theme: "ocean", font: "contemporary-display", motion: "rain", radius: "28", gloss: "20" },
@@ -4379,17 +4494,13 @@
         meridiemEl.textContent =
           config.timeFormat === "12" ? dayPeriod.toUpperCase() : "";
 
-        if (config.showDate) {
-          dateEl.style.display = "";
-          dateEl.textContent = new Intl.DateTimeFormat("en-AU", {
-            timeZone: requestedZone,
-            weekday: "short",
-            day: "numeric",
-            month: "short"
-          }).format(now);
-        } else {
-          dateEl.style.display = "none";
-        }
+        dateEl.textContent = new Intl.DateTimeFormat("en-AU", {
+          timeZone: requestedZone,
+          weekday: "short",
+          day: "numeric",
+          month: "short"
+        }).format(now);
+        dateEl.setAttribute("aria-hidden", String(!config.showDate));
 
         try {
           const zoneName = new Intl.DateTimeFormat("en-AU", {
