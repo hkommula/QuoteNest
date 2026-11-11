@@ -58,6 +58,31 @@
       --radius: 28px;
       --gloss-strength: 0.14;
       --clock-width: 25%;
+      /* Shared rhythm for the widget, popups and studio. */
+      --space-1: 4px;
+      --space-2: 8px;
+      --space-3: 12px;
+      --space-4: 16px;
+      --space-5: 24px;
+      --space-6: 32px;
+      --type-caption: 0.625rem;
+      --type-small: 0.6875rem;
+      --type-body: 0.75rem;
+      --type-control: 0.8125rem;
+      --line-ui: 1.4;
+      --weight-regular: 400;
+      --weight-medium: 500;
+      --weight-strong: 600;
+      --icon-small: 14px;
+      --icon: 16px;
+      --control-size: 32px;
+      --radius-control: 8px;
+      --radius-popup: 14px;
+      --ease-soft: cubic-bezier(.2, .7, .3, 1);
+      --duration-fast: 140ms;
+      --duration-normal: 220ms;
+      --popup-shadow: 0 8px 24px rgb(24 24 28 / 0.12);
+      --quote-measure: 44rem;
     }
 
     body[data-theme="warm-editorial"] {
@@ -129,13 +154,15 @@
        EMBED VIEW
     ============================================================ */
     #embedView {
+      container: widget / inline-size;
       width: 100%;
       min-height: 100vh;
+      min-height: 100dvh;
       height: auto;
       background: var(--bg);
       color: var(--text);
       position: relative;
-      overflow: hidden;
+      overflow: clip;
     }
     html.preview-document,
     html.preview-document body { height: auto; min-height: 0; overflow: hidden; }
@@ -492,9 +519,9 @@
       min-height: max(128px, 100dvh);
       display: grid;
       grid-template-columns: minmax(0, var(--quote-fraction, 3fr)) minmax(300px, var(--clock-fraction, 1fr));
-      gap: clamp(6px, 1vw, 14px);
+      gap: clamp(6px, 1cqi, 14px);
       align-items: stretch;
-      padding: 10px clamp(10px, 1.4vw, 18px);
+      padding: 10px clamp(10px, 1.4cqi, 18px);
       border-radius: calc(var(--radius) + 10px);
     }
 
@@ -521,7 +548,7 @@
       border: 1px solid var(--border);
       border-color: color-mix(in srgb, var(--border) 48%, transparent);
       border-radius: var(--radius);
-      box-shadow: 0 1px 0 rgb(255 255 255 / 0.12), 0 18px 50px rgba(40, 30, 20, 0.025);
+      box-shadow: none;
     }
 
     .quote-panel::before,
@@ -532,9 +559,7 @@
       z-index: 0;
       border-radius: inherit;
       pointer-events: none;
-      background:
-        linear-gradient(145deg, color-mix(in srgb, var(--soft-strong) 12%, transparent), transparent 48%),
-        color-mix(in srgb, var(--soft) 52%, transparent);
+      background: color-mix(in srgb, var(--soft) 42%, transparent);
     }
 
     .quote-panel::after,
@@ -545,13 +570,9 @@
       z-index: 2;
       border-radius: inherit;
       pointer-events: none;
-      opacity: max(.16, var(--gloss-strength));
-      background:
-        linear-gradient(90deg, color-mix(in srgb, var(--soft) 28%, transparent), transparent 44%, color-mix(in srgb, var(--soft) 18%, transparent)),
-        linear-gradient(145deg, rgba(255, 255, 255, 0.38) 0%, rgba(255, 255, 255, 0.10) 18%, transparent 42%),
-        radial-gradient(ellipse at 78% 92%, rgba(255, 255, 255, 0.14), transparent 42%);
-      box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.26);
-      transition: opacity 90ms ease;
+      opacity: var(--gloss-strength);
+      background: linear-gradient(145deg, rgb(255 255 255 / 0.24), transparent 55%);
+      transition: opacity var(--duration-normal) var(--ease-soft);
     }
 
     .quote-panel {
@@ -567,7 +588,7 @@
       width: 100%;
       min-height: 100%;
       transform-style: preserve-3d;
-      transition: transform 900ms cubic-bezier(.2,.76,.22,1);
+      transition: transform 520ms var(--ease-soft);
     }
 
     .quote-panel.is-flipped .quote-flipper { transform: rotateY(180deg); }
@@ -577,7 +598,7 @@
       position: relative;
       min-width: 0;
       min-height: 100%;
-      padding: clamp(22px, 4vh, 46px) clamp(28px, 5vw, 72px) 48px;
+      padding: clamp(22px, 4vh, 46px) clamp(28px, 5vw, 72px) 56px;
       backface-visibility: hidden;
       -webkit-backface-visibility: hidden;
       transform-style: preserve-3d;
@@ -591,7 +612,7 @@
       align-items: center;
       justify-content: center;
       min-height: 0;
-      padding: clamp(10px, 2vh, 18px) clamp(16px, 3vw, 42px);
+      padding: 48px var(--space-4) var(--space-3);
       transform: rotateY(180deg);
       overflow: hidden;
       background:
@@ -610,7 +631,7 @@
       position: relative;
       z-index: 1;
       width: 100%;
-      max-width: 900px;
+      max-width: min(100%, var(--quote-measure));
       margin-inline: auto;
       transform-origin: center;
     }
@@ -641,13 +662,13 @@
     }
 
     #quoteAuthor {
-      margin-top: 18px;
+      margin-top: var(--space-4);
       color: var(--muted);
       font-family: var(--author-font);
       font-size: clamp(0.68rem, 0.9vw, 0.82rem);
       line-height: 1.35;
-      letter-spacing: 0.065em;
-      font-weight: 500;
+      letter-spacing: 0.025em;
+      font-weight: var(--weight-medium);
     }
 
     body[data-font="editorial"] { --quote-size: clamp(1.2rem, 2.55vw, 2.4rem); --quote-line-height: 1.27; --quote-letter-spacing: -0.025em; --quote-weight: 400; --clock-weight: 400; --clock-letter-spacing: -0.04em; }
@@ -659,7 +680,7 @@
     .source-credits {
       position: absolute;
       right: 48px;
-      bottom: 10px;
+      bottom: var(--space-3);
       font-family: var(--quote-font);
       z-index: 3;
       border: 0;
@@ -672,8 +693,8 @@
     .source-credits {
       display: grid;
       place-items: center;
-      width: 30px;
-      height: 30px;
+      width: var(--control-size);
+      height: var(--control-size);
       border-radius: 50%;
       list-style: none;
       color: var(--muted);
@@ -682,21 +703,25 @@
 
     .source-credits:hover, .source-credits[aria-pressed="true"] { background: var(--soft); color: var(--text); }
     .source-credits:focus-visible { outline: 1px solid var(--muted); outline-offset: 1px; }
-    .source-credits svg { width: 17px; height: 17px; }
+    .source-credits svg { width: var(--icon); height: var(--icon); }
 
     .credits-popup {
       position: relative;
       width: min(500px, 100%);
-      max-height: none;
-      padding: 10px 8px;
+      max-height: 100%;
+      min-height: 0;
+      overflow-y: auto;
+      overscroll-behavior: contain;
+      scrollbar-width: thin;
+      padding: 0;
       border: 0;
       border-radius: 0;
       background: transparent;
       box-shadow: none;
       color: var(--muted);
       font-family: var(--clock-font);
-      font-size: clamp(0.65rem, 0.86vw, 0.78rem);
-      line-height: 1.52;
+      font-size: var(--type-body);
+      line-height: var(--line-ui);
       transform: scale(var(--credits-fit-scale, 1));
       transform-origin: center;
       will-change: transform;
@@ -714,8 +739,8 @@
     .credits-back {
       display: grid;
       place-items: center;
-      width: 30px;
-      height: 30px;
+      width: var(--control-size);
+      height: var(--control-size);
       padding: 0;
       border: 0;
       border-radius: 50%;
@@ -726,7 +751,7 @@
     }
     .credits-back:hover { color: var(--text); background: var(--soft); transform: translateX(-1px); }
     .credits-back:focus-visible { outline: 1px solid var(--muted); outline-offset: 1px; }
-    .credits-back svg { width: 17px; height: 17px; }
+    .credits-back svg { width: var(--icon); height: var(--icon); }
 
     .credits-heading { margin: 0 0 4px; padding-right: 54px; color: var(--text); font-family: var(--quote-font); font-size: clamp(1rem, 1.4vw, 1.2rem); font-weight: 500; letter-spacing: -0.028em; }
     .credits-fact { max-width: 44ch; margin: 0 0 12px; padding-right: 46px; color: color-mix(in srgb, var(--muted) 86%, transparent); font-size: clamp(0.58rem, 0.72vw, 0.67rem); line-height: 1.4; }
@@ -770,13 +795,14 @@
     .countdown-ring-progress { fill: none; stroke-width: 1.35; }
     .countdown-ring-track { stroke: currentColor; opacity: 0.13; }
     .countdown-ring-progress { stroke: currentColor; stroke-linecap: round; stroke-dasharray: 100; stroke-dashoffset: 0; }
-    .location-form-heading { display: flex; align-items: center; gap: 7px; margin-bottom: 9px; }
+    .location-form-heading { display: flex; align-items: center; gap: 8px; margin-bottom: 10px; }
     .location-form-heading label { flex: 1; margin: 0; }
     .location-close {
       display: grid;
       place-items: center;
-      width: 25px;
-      height: 25px;
+      flex: 0 0 auto;
+      width: var(--control-size);
+      height: var(--control-size);
       padding: 0;
       border: 0;
       border-radius: 50%;
@@ -785,11 +811,11 @@
       transition: color 150ms ease, background 150ms ease, transform 150ms ease;
     }
     .location-close:hover { color: var(--text); background: var(--soft); transform: rotate(4deg); }
-    .location-close svg { width: 13px; height: 13px; }
+    .location-close svg { display: block; width: 16px; height: 16px; }
     .location-form > .countdown-ring {
       position: absolute;
-      top: 17px;
-      right: 45px;
+      top: 22px;
+      right: 56px;
     }
     .popup-collapse-layer {
       position: fixed;
@@ -802,7 +828,7 @@
       position: absolute;
       pointer-events: none;
       transform-origin: center;
-      will-change: transform, opacity, filter, clip-path;
+      will-change: transform, opacity;
     }
     .credits-popup a {
       color: inherit;
@@ -817,15 +843,16 @@
     #refreshButton {
       position: absolute;
       z-index: 2;
-      right: 12px;
-      bottom: 10px;
-      width: 30px;
-      height: 30px;
+      right: var(--space-3);
+      bottom: var(--space-3);
+      width: var(--control-size);
+      height: var(--control-size);
+      padding: 0;
       border: 1px solid transparent;
       border-radius: 50%;
       background: transparent;
       color: var(--text);
-      opacity: 0.38;
+      opacity: 0.6;
       cursor: pointer;
       font-size: 22px;
       line-height: 1;
@@ -838,12 +865,14 @@
       opacity: 0.88;
       background: var(--soft-strong);
       border-color: var(--border);
-      transform: rotate(90deg);
+      transform: rotate(15deg);
     }
 
     #refreshButton.loading {
       animation: spin 800ms linear infinite;
     }
+    #refreshButton svg, #weatherRetry svg { display: block; width: var(--icon); height: var(--icon); }
+    #refreshButton:disabled { cursor: wait; }
 
     @keyframes spin {
       to { transform: rotate(360deg); }
@@ -851,30 +880,35 @@
 
     .clock-panel {
       position: relative;
-      padding: clamp(16px, 2vw, 24px) clamp(14px, 1.8vw, 22px);
+      padding: clamp(16px, 2cqi, 24px) clamp(14px, 1.8cqi, 22px);
       display: flex;
       align-items: center;
       justify-content: center;
       text-align: left;
       overflow: visible;
-      container-type: inline-size;
+      container: clock / inline-size;
     }
 
     .clock-inner {
       position: relative;
       z-index: 1;
       width: 100%;
-      max-width: 250px;
+      max-width: 360px;
       margin-inline: auto;
+      display: flex;
+      flex-direction: column;
+      gap: clamp(24px, 9cqi, 32px);
+      container: clock-content / inline-size;
     }
 
-    .clock-header { display: grid; grid-template-columns: minmax(0, 1fr) minmax(70px, auto); align-items: center; gap: 10px; min-width: 0; }
+    .clock-header { display: grid; grid-template-columns: minmax(0, 1fr) minmax(62px, 0.65fr); align-items: center; gap: clamp(20px, 8cqi, 36px); min-width: 0; }
     .clock-time-block { min-width: 0; }
     .clock-location { position: relative; display: grid; justify-items: end; align-self: center; min-width: 0; max-width: 112px; padding-right: 0; justify-self: end; text-align: right; }
     .clock-location .location-picker { width: 100%; }
     .clock-location .location-picker summary {
       display: block;
-      padding: 0;
+      min-height: 44px;
+      padding-block: 4px;
       overflow: visible;
       text-align: right;
       white-space: normal;
@@ -882,14 +916,13 @@
     .location-context-icon { width: 14px; height: 14px; margin-bottom: 4px; color: var(--muted); stroke-width: 1.6; }
     .location-copy { display: grid; justify-items: end; width: fit-content; max-width: 100%; margin-left: auto; min-width: 0; text-align: right; }
     .location-city, .location-country { display: block; max-width: 100%; overflow-wrap: anywhere; }
-    .location-city { color: var(--text); font-size: 0.66rem; font-weight: 500; line-height: 1.18; white-space: normal; overflow-wrap: anywhere; text-align: right; }
-    .location-country { justify-self: end; color: var(--muted); font-size: 0.52rem; line-height: 1.15; text-align: right; }
-    .clock-location .location-form { top: calc(100% + 8px); right: 0; bottom: auto; }
+    .location-city { color: var(--text); font-size: var(--type-small); font-weight: var(--weight-medium); line-height: 1.3; white-space: normal; overflow-wrap: anywhere; text-align: right; }
+    .location-country { justify-self: end; color: var(--muted); font-size: var(--type-caption); line-height: 1.3; text-align: right; }
 
     .clock-reading {
       display: block;
       font-variant-numeric: tabular-nums;
-      font-size: clamp(1.99rem, 3.64vw, 3.34rem);
+      font-size: clamp(1.5rem, 10cqi, 3.34rem);
       line-height: 1;
       letter-spacing: var(--clock-letter-spacing);
       font-weight: var(--clock-weight);
@@ -927,7 +960,7 @@
     }
 
     #clockMeridiem {
-      font-size: 0.62rem;
+      font-size: var(--type-caption);
       letter-spacing: 0.04em;
       color: color-mix(in srgb, var(--text) 58%, var(--aura-1));
     }
@@ -935,49 +968,50 @@
 
     #clockSeconds {
       order: -1;
-      min-height: .6rem;
-      opacity: 0.43;
-      font-size: 0.64rem;
+      min-width: 3ch;
+      min-height: 1.08em;
+      opacity: 0.65;
+      font-size: var(--type-caption);
       letter-spacing: 0;
       margin-bottom: 3px;
     }
-    #clockSeconds:empty { display: none; }
+    /* Keep the seconds slot in the layout so toggling it never changes the clock's footprint. */
+    #clockSeconds:empty { visibility: hidden; }
 
     #clockDate {
       grid-area: date;
       margin: 0;
       min-height: 1.3em;
       width: 100%;
-      text-align: center;
+      text-align: left;
       color: var(--muted);
-      font-size: 0.61rem;
+      font-size: var(--type-caption);
       line-height: 1.3;
-      letter-spacing: 0.12em;
+      letter-spacing: 0.08em;
       text-transform: uppercase;
       transition: opacity 140ms ease;
     }
     #clockDate[aria-hidden="true"] { visibility: hidden; opacity: 0; }
 
     #clockZone {
-      color: color-mix(in srgb, var(--muted) 72%, var(--aura-2));
-      opacity: 0.82;
-      font-size: 0.58rem;
+      color: var(--muted);
+      font-size: var(--type-caption);
       letter-spacing: 0.03em;
     }
 
     .weather {
       position: relative;
       display: block;
-      margin-top: 15px;
-      padding: 12px 0 0;
+      margin-top: 0;
+      padding: clamp(14px, 5cqi, 22px) 0 0;
       border-top: 1px solid color-mix(in srgb, var(--border) 58%, transparent);
-      font-size: 0.78rem;
-      line-height: 1.4;
+      font-size: var(--type-body);
+      line-height: var(--line-ui);
     }
 
-    .current-weather-row { display: flex; align-items: center; gap: 6px; min-width: 0; white-space: nowrap; }
+    .current-weather-row { display: flex; align-items: center; gap: clamp(6px, 2cqi, 12px); min-width: 0; }
     .weather-visual { flex: 0 0 28px; width: 28px; height: 28px; display: grid; place-items: center; pointer-events: none; }
-    .forecast-symbol.current-weather-symbol { width: 27px; height: 27px; stroke-width: 1.8; }
+    .forecast-symbol.current-weather-symbol { width: 24px; height: 24px; stroke-width: 1.8; }
     .weather-reading { flex: 1 1 auto; min-width: 0; text-align: left; }
     .weather:is([data-condition="loading"], [data-condition="unavailable"]) .weather-visual { display: none; }
 
@@ -998,73 +1032,83 @@
     .location-picker summary:hover { color: var(--text); }
 
     .location-form {
-      position: absolute;
-      z-index: 5;
-      bottom: 0;
-      right: 0;
+      position: fixed;
+      z-index: 1000;
+      inset: auto;
+      margin: 0;
+      font-family: var(--clock-font);
+      font-size: var(--type-body);
+      font-weight: var(--weight-regular);
+      line-height: var(--line-ui);
+      letter-spacing: normal;
+      color: var(--text);
       width: min(290px, calc(100vw - 24px));
       max-height: min(280px, calc(100vh - 32px));
       overflow-y: auto;
-      padding: 15px;
+      overscroll-behavior: contain;
+      overflow-wrap: anywhere;
+      padding: var(--space-4);
       border: 0;
-      border-radius: 12px;
+      border-radius: var(--radius-popup);
       background: color-mix(in srgb, var(--bg) 92%, #eadfce);
-      box-shadow: 0 14px 40px rgba(39, 31, 24, 0.11);
+      box-shadow: var(--popup-shadow);
       text-align: left;
     }
 
-    .location-form label { display: block; margin-bottom: 9px; color: var(--text); font-family: var(--quote-font); font-size: 0.76rem; font-weight: 500; letter-spacing: -0.01em; }
+    .location-form label { display: block; margin: 0; padding-right: 24px; color: var(--text); font: inherit; font-weight: 500; }
+    .location-form :is(input, button) { font: inherit; letter-spacing: inherit; }
     .location-search { position: relative; display: block; }
     .location-search input { min-width: 0; width: 100%; }
     .location-form input {
       border: 1px solid color-mix(in srgb, var(--border) 78%, transparent);
-      border-radius: 10px;
+      border-radius: var(--radius-control);
       background: color-mix(in srgb, var(--soft-strong) 46%, transparent);
       color: var(--text);
-      padding: 9px 38px 9px 10px;
-      font-size: 0.72rem;
+      min-height: 36px;
+      padding: 8px 40px 8px 10px;
       outline: none;
       transition: border-color 160ms ease, background 160ms ease, box-shadow 160ms ease;
     }
     .location-form input:hover { background: color-mix(in srgb, var(--soft-strong) 62%, transparent); }
     .location-form input:focus { border-color: color-mix(in srgb, var(--text) 34%, transparent); background: color-mix(in srgb, var(--soft-strong) 70%, transparent); box-shadow: 0 0 0 3px color-mix(in srgb, var(--text) 7%, transparent); }
     .location-form input::-webkit-search-cancel-button { display: none; }
+    .location-form input::placeholder { font: inherit; color: var(--muted); opacity: 1; }
     .location-form button { cursor: pointer; }
-    .location-crosshair { position: absolute; top: 50%; right: 4px; display: grid; place-items: center; width: 30px; height: 30px; border: 0; border-radius: 7px; padding: 6px; background: transparent; color: var(--muted); transform: translateY(-50%); transition: color 160ms ease, background 160ms ease, transform 160ms ease; }
+    .location-crosshair { position: absolute; top: 50%; right: var(--space-1); display: grid; place-items: center; width: var(--control-size); height: var(--control-size); border: 0; border-radius: var(--radius-control); padding: 6px; background: transparent; color: var(--muted); transform: translateY(-50%); transition: color 160ms ease, background 160ms ease, transform 160ms ease; }
     .location-crosshair:hover { color: var(--text); background: color-mix(in srgb, var(--soft-strong) 78%, transparent); transform: translateY(-50%) scale(1.04); }
     .location-crosshair.is-loading { animation: location-pulse 900ms ease-in-out infinite alternate; }
-    .location-crosshair svg { width: 100%; height: 100%; }
+    .location-crosshair svg { display: block; width: 16px; height: 16px; }
     @keyframes location-pulse { to { opacity: 0.45; transform: translateY(-50%) scale(.92); } }
     #locationResults { display: grid; gap: 2px; margin-top: 8px; }
     #locationResults:empty { display: none; }
-    #locationResults button { display: block; width: 100%; border: 0; border-radius: 7px; padding: 7px 8px; background: transparent; color: var(--muted); font-size: 0.62rem; line-height: 1.35; text-align: left; transition: color 140ms ease, background 140ms ease; }
+    #locationResults button { display: block; width: 100%; border: 0; border-radius: var(--radius-control); padding: var(--space-2); background: transparent; color: var(--muted); font-size: var(--type-body); line-height: inherit; text-align: left; transition: color 140ms ease, background 140ms ease; }
     #locationResults button:focus, #locationResults button:hover { background: color-mix(in srgb, var(--soft-strong) 58%, transparent); color: var(--text); }
-    #locationSearchStatus { min-height: 10px; margin: 5px 0 0; color: var(--muted); font-size: 0.54rem; }
-    #weatherSummary { display: flex; align-items: baseline; flex-wrap: nowrap; gap: 5px; min-width: 0; margin: 0; }
+    #locationSearchStatus { min-height: 10px; margin: var(--space-1) 0 0; color: var(--muted); font-size: var(--type-small); }
+    #weatherSummary { display: flex; align-items: baseline; flex-wrap: wrap; gap: var(--space-1) var(--space-2); min-width: 0; margin: 0; }
     .weather-temperature { flex: 0 0 auto; color: var(--text); font-size: 1.02rem; font-weight: 600; white-space: nowrap; }
-    .weather-feels { flex: 0 0 auto; color: var(--muted); font-size: 0.58rem; font-weight: 400; white-space: nowrap; }
-    .weather-feels strong { color: color-mix(in srgb, var(--text) 78%, var(--muted)); font-size: 1.08em; font-weight: 550; }
-    .weather-condition { flex: 1 1 auto; min-width: 0; overflow: hidden; color: var(--muted); font-size: 0.62rem; text-overflow: ellipsis; white-space: nowrap; }
+    .weather-feels { flex: 0 0 auto; color: var(--muted); font-size: var(--type-caption); font-weight: var(--weight-regular); white-space: nowrap; }
+    .weather-feels strong { color: var(--muted); font-size: inherit; font-weight: var(--weight-medium); }
+    .weather-condition { flex: 1 1 6ch; min-width: 0; color: var(--muted); font-size: var(--type-small); line-height: var(--line-ui); text-wrap: pretty; }
     #weatherRetry {
-      flex: 0 0 18px;
-      width: 18px;
-      height: 18px;
+      flex: 0 0 var(--control-size);
+      width: var(--control-size);
+      height: var(--control-size);
       display: grid;
       place-items: center;
       margin: 0;
       border: 0;
-      border-radius: 0;
+      border-radius: 50%;
       padding: 0;
       background: transparent;
       box-shadow: none;
       color: var(--muted);
-      opacity: 0.5;
+      opacity: 0.6;
       cursor: pointer;
       font-size: 17px;
       line-height: 1;
       transition: opacity 160ms ease, transform 300ms ease;
     }
-    #weatherRetry:hover { opacity: 0.9; background: transparent; transform: rotate(90deg); }
+    #weatherRetry:hover { opacity: 0.9; background: var(--soft); transform: rotate(15deg); }
     #weatherRetry:focus-visible { opacity: 0.9; outline: 2px solid var(--muted); outline-offset: 2px; }
     #weatherRetry.loading { animation: spin 800ms linear infinite; }
 
@@ -1072,9 +1116,9 @@
       grid-column: 1 / -1;
       display: grid;
       grid-template-columns: repeat(3, minmax(0, 1fr));
-      gap: 6px;
-      margin-top: 8px;
-      padding-top: 7px;
+      gap: var(--space-2);
+      margin-top: var(--space-3);
+      padding-top: var(--space-3);
       border-top: 1px solid color-mix(in srgb, var(--border) 58%, transparent);
       font-size: 0.72rem;
       line-height: 1.4;
@@ -1085,7 +1129,7 @@
     .forecast-heading { display: flex; justify-content: center; gap: 4px; align-items: center; }
     .forecast-day { min-width: 0; text-align: center; }
     .forecast-day + .forecast-day { border-left: 1px solid color-mix(in srgb, var(--border) 45%, transparent); }
-    .forecast-date { white-space: nowrap; font-size: 0.6rem; }
+    .forecast-date { white-space: nowrap; font-size: var(--type-caption); }
     .forecast-symbol {
       width: 16px;
       height: 16px;
@@ -1121,7 +1165,7 @@
     .forecast-high { color: var(--text); }
     .forecast-unavailable { grid-column: 1 / -1; }
 
-    .sun-times { grid-column: 1 / -1; display: grid; grid-template-columns: minmax(0, 1fr) auto; align-items: end; gap: 7px 16px; margin-top: 7px; color: var(--muted); font-size: 0.67rem; font-variant-numeric: tabular-nums; }
+    .sun-times { grid-column: 1 / -1; display: grid; grid-template-columns: minmax(0, 1fr) auto; align-items: end; gap: var(--space-2) var(--space-4); margin-top: var(--space-3); color: var(--muted); font-size: var(--type-small); font-variant-numeric: tabular-nums; }
     .sun-times[hidden] { display: none; }
     .sun-event { display: inline-flex; align-items: center; justify-content: center; gap: 4px; white-space: nowrap; }
     .sun-event svg {
@@ -1145,7 +1189,7 @@
       width: 100%;
       min-width: 0;
     }
-    .daylight-duration { grid-area: duration; color: color-mix(in srgb, var(--muted) 78%, transparent); font-size: 0.5rem; white-space: nowrap; }
+    .daylight-duration { grid-area: duration; color: var(--muted); font-size: var(--type-caption); white-space: nowrap; }
     .daylight-track {
       --daylight-fill: #c9954d;
       grid-area: track;
@@ -1159,7 +1203,7 @@
     .solar-cycle[data-daylight="false"] .daylight-fill { background: color-mix(in srgb, var(--muted) 35%, transparent); }
     .solar-cycle #sunriseItem { grid-area: rise; justify-content: flex-start; }
     .solar-cycle #sunsetItem { grid-area: set; justify-content: flex-end; }
-    .solar-cycle .sun-event svg { display: block; width: 13px; height: 13px; }
+    .solar-cycle .sun-event svg { display: block; width: var(--icon-small); height: var(--icon-small); flex-shrink: 0; }
     #uvItem > svg { display: none; }
     #uvItem {
       display: block;
@@ -1179,8 +1223,8 @@
     }
     .uv-summary { grid-area: value; display: inline-flex; align-items: baseline; gap: 5px; min-width: 0; white-space: nowrap; }
     .uv-current-value { color: var(--text); font-size: 0.68rem; font-weight: 600; }
-    .uv-risk { overflow: hidden; color: var(--muted); font-size: 0.53rem; text-overflow: ellipsis; }
-    .uv-peak { grid-area: peak; color: var(--muted); font-size: 0.5rem; white-space: nowrap; }
+    .uv-risk { overflow: hidden; color: var(--muted); font-size: var(--type-caption); text-overflow: ellipsis; }
+    .uv-peak { grid-area: peak; color: var(--muted); font-size: var(--type-caption); white-space: nowrap; }
     .uv-scale-track {
       grid-area: track;
       position: relative;
@@ -1212,27 +1256,24 @@
     .rain-chance[hidden] { display: none; }
     .rain-chance svg { grid-area: icon; width: 12px; height: 12px; stroke-width: 1.8; }
     .rain-chance strong { grid-area: value; color: var(--text); font-size: 0.68rem; font-weight: 600; line-height: 1; }
-    .rain-label { grid-area: label; color: var(--muted); font-size: 0.45rem; line-height: 1; }
+    .rain-label { grid-area: label; color: var(--muted); font-size: var(--type-caption); line-height: 1.2; }
     .sun-event:focus-visible { outline: 1px solid var(--muted); outline-offset: 3px; border-radius: 4px; }
     button:focus-visible, .location-picker summary:focus-visible { outline: 2px solid var(--muted); outline-offset: 2px; }
 
-    @container (max-width: 280px) {
-      .clock-header { grid-template-columns: minmax(0, 1fr) minmax(62px, 82px); gap: 6px; }
+    @container clock (max-width: 280px) {
       .clock-location { max-width: 88px; }
       .location-context-icon { width: 13px; height: 13px; }
-      .location-city { font-size: 0.6rem; }
-      .location-country { font-size: 0.48rem; }
-      .current-weather-row { gap: 4px; }
+      .location-city { font-size: var(--type-small); }
+      .location-country { font-size: var(--type-caption); }
       .weather-visual { flex-basis: 24px; width: 24px; height: 24px; }
       .forecast-symbol.current-weather-symbol { width: 24px; height: 24px; }
       #weatherSummary { gap: 4px; }
       .weather-temperature { font-size: 0.96rem; }
-      .weather-feels { font-size: 0.55rem; }
-      .weather-condition, .location-picker summary { font-size: 0.58rem; }
-      #weatherRetry { width: 18px; height: 18px; }
+      .weather-feels { font-size: var(--type-caption); }
+      .weather-condition, .location-picker summary { font-size: var(--type-small); }
     }
 
-    @container (max-width: 175px) {
+    @container clock (max-width: 175px) {
       .sun-times {
         grid-template-columns: minmax(0, 1fr);
         justify-content: start;
@@ -1244,7 +1285,32 @@
       .forecast-date { font-size: 0.55rem; }
     }
 
-    @media (max-width: 680px) {
+    @container clock-content (max-width: 230px) {
+      .clock-header { grid-template-columns: minmax(0, 1fr); gap: 18px; }
+      .clock-location { max-width: 100%; }
+      #weatherSummary { flex-wrap: wrap; }
+      .weather-condition { flex-basis: 100%; white-space: normal; }
+    }
+
+    @media (pointer: coarse) {
+      .source-credits, #refreshButton, .credits-back { width: 44px; height: 44px; }
+      .source-credits { right: 60px; }
+      .quote-card-front { padding-bottom: 64px; }
+      .credit-section > summary { min-height: 44px; }
+      #weatherRetry { flex-basis: 44px; width: 44px; height: 44px; }
+      .location-close, .location-crosshair { width: 44px; height: 44px; }
+      .location-close { padding: 12px; }
+      .location-form input { min-height: 44px; padding-right: 50px; font-size: max(16px, 0.76rem); }
+      .location-form > .countdown-ring { top: 28px; right: 68px; }
+      #locationResults button { min-height: 44px; font-size: var(--type-control); }
+    }
+
+    @supports (-webkit-touch-callout: none) {
+      /* iOS also needs 16px text when a trackpad changes the primary pointer. */
+      .location-form input { font-size: max(16px, 0.76rem); }
+    }
+
+    @container widget (max-width: 680px) {
       .widget-shell {
         grid-template-columns: minmax(0, 1fr);
         grid-template-rows: auto auto;
@@ -1256,32 +1322,27 @@
       .quote-panel {
         min-height: clamp(104px, 22vh, 180px);
       }
-      .quote-card-face { padding: 12px 24px 40px; }
-      .quote-card-back { padding: 8px 14px; }
+      .quote-card-face { padding: 12px 24px 56px; }
+      .quote-card-back { padding: 48px var(--space-4) var(--space-3); }
+      #quoteText { font-size: clamp(1.25rem, 5.6cqi, 1.75rem); }
+      body[data-font="soft-handwritten"] #quoteText { font-size: clamp(1.5rem, 6.8cqi, 2rem); }
       .credits-popup {
-        display: grid;
-        grid-template-columns: minmax(96px, 0.78fr) minmax(150px, 1.22fr);
-        grid-template-areas: "heading sections" "fact sections";
-        grid-template-rows: auto auto;
-        align-items: start;
-        gap: 3px 12px;
-        padding: 4px 6px;
-        font-size: 0.58rem;
-        line-height: 1.35;
+        display: block;
+        font-size: var(--type-small);
       }
       .credits-nav { top: 6px; right: 7px; gap: 3px; }
-      .credits-back { width: 25px; height: 25px; }
-      .credits-back svg { width: 14px; height: 14px; }
-      .credits-heading { grid-area: heading; margin-bottom: 2px; padding-right: 0; font-size: 0.88rem; }
-      .credits-fact { grid-area: fact; margin-bottom: 0; padding-right: 0; font-size: 0.52rem; line-height: 1.3; }
-      .credit-sections { grid-area: sections; min-width: 0; padding-top: 27px; }
-      .credit-section > summary { grid-template-columns: 17px minmax(0, 1fr) 10px; gap: 5px; padding: 5px 0; font-size: 0.58rem; }
+      .credits-back { width: var(--control-size); height: var(--control-size); }
+      .credits-back svg { width: var(--icon); height: var(--icon); }
+      .credits-heading { margin-bottom: var(--space-1); padding-right: 0; font-size: 1rem; }
+      .credits-fact { margin-bottom: var(--space-2); padding-right: 0; font-size: var(--type-caption); line-height: var(--line-ui); }
+      .credit-sections { min-width: 0; }
+      .credit-section > summary { grid-template-columns: 20px minmax(0, 1fr) 12px; gap: var(--space-2); min-height: 32px; padding: var(--space-2) 0; font-size: var(--type-small); }
       .credit-icon { width: 17px; height: 17px; }
       .credit-icon svg { width: 13px; height: 13px; }
       .credit-section-body { padding: 0 0 5px 22px; }
 
       .clock-panel {
-        padding: 18px clamp(16px, 5vw, 28px);
+        padding: 18px clamp(16px, 5cqi, 28px);
       }
 
       .widget-shell > .quote-panel,
@@ -1289,39 +1350,36 @@
       .clock-inner { width: 100%; max-width: 420px; }
 
       .clock-reading {
-        font-size: clamp(1.99rem, 8.95vw, 2.99rem);
+        font-size: clamp(1.5rem, 10cqi, 2.99rem);
       }
 
-      .weather { margin-top: 14px; padding-top: 12px; }
       .sun-times { margin-top: 7px; }
       .weather-forecast { margin-top: 8px; padding-top: 7px; }
 
     }
 
-    @media (max-height: 260px), (max-width: 680px) {
+    @media (max-height: 260px) {
       .widget-shell { padding-top: 6px; padding-bottom: 6px; }
-      .quote-card-face { padding-top: 12px; padding-bottom: 38px; }
+      .quote-card-front { padding-top: 12px; padding-bottom: 56px; }
       #quoteText { font-size: clamp(1rem, min(2.3vw, 9vh), 1.7rem); line-height: 1.2; }
       .quote-mark { font-size: 1.4rem; line-height: 0.55; margin-bottom: 3px; }
       .quote-mark-end { margin: 2px 0 -6px; }
       #quoteAuthor { margin-top: 8px; font-size: 0.68rem; }
       .clock-panel { padding-top: 10px; padding-bottom: 10px; }
-      .clock-reading { font-size: clamp(1.89rem, 3.4vw, 2.19rem); }
       .clock-primary { gap: 5px 6px; }
       #clockDate { margin: 0; font-size: 0.66rem; line-height: 1.3; }
-      .weather { margin-top: 14px; padding: 10px 0 0; font-size: 0.76rem; line-height: 1.4; }
+      .clock-inner { gap: clamp(14px, 6cqi, 22px); }
+      .weather { padding-top: 10px; font-size: 0.76rem; line-height: 1.4; }
     }
 
     @media (max-height: 260px) and (min-width: 681px) {
       .widget-shell {
-        height: 100vh;
-        min-height: 128px;
+        min-height: max(128px, 100dvh);
         gap: 10px;
         padding: 5px 8px;
       }
-      .quote-card-face { padding: 8px 26px 34px; }
+      .quote-card-front { padding: 8px 26px 56px; }
       .clock-panel { padding: 5px 9px; }
-      .clock-reading { font-size: clamp(1.64rem, 4.18vw, 1.99rem); }
       .clock-primary { gap: 4px 5px; }
       #clockDate { margin: 0; font-size: 0.57rem; }
       #clockSeconds { font-size: 0.56rem; }
@@ -1329,8 +1387,8 @@
       #clockZone { font-size: 0.51rem; }
       .weather {
         grid-template-columns: 26px minmax(0, 1fr);
-        margin-top: 5px;
-        padding-top: 5px;
+        margin-top: 0;
+        padding-top: 10px;
         column-gap: 4px;
         font-size: 0.68rem;
         line-height: 1.25;
@@ -1363,12 +1421,6 @@
       .forecast-symbol { width: 13px; height: 13px; flex-basis: 13px; }
       .forecast-temperatures { margin-top: 2px; }
       .credits-popup { width: 100%; }
-      .location-form {
-        position: fixed;
-        right: 8px;
-        bottom: 8px;
-        max-height: calc(100vh - 16px);
-      }
     }
 
     /* ============================================================
@@ -1377,21 +1429,21 @@
     #setupView {
       --studio-accent: #a65f43;
       --studio-accent-soft: rgba(166, 95, 67, 0.09);
-      --studio-control-height: 34px;
-      --studio-control-radius: 7px;
-      --studio-card-radius: 8px;
+      --studio-control-height: 36px;
+      --studio-control-radius: var(--radius-control);
+      --studio-card-radius: var(--radius-control);
       --studio-card-transition: border-color 160ms ease, background-color 160ms ease, color 160ms ease, box-shadow 160ms ease, transform 160ms ease;
-      --studio-label-size: 0.7rem;
-      --studio-note-size: 0.6rem;
+      --studio-label-size: var(--type-body);
+      --studio-note-size: var(--type-small);
       --studio-control-font: "DM Sans", "Manrope", "Segoe UI", sans-serif;
       --studio-control-border: color-mix(in srgb, var(--studio-accent) 18%, rgba(58, 52, 44, 0.15));
       height: 100dvh;
       min-height: 520px;
       overflow: hidden;
-      background:
-        radial-gradient(circle at 9% 4%, var(--studio-accent-soft), transparent 28%),
-        repeating-linear-gradient(0deg, transparent 0 31px, rgba(73, 62, 51, 0.026) 31px 32px),
-        #f2eee6;
+      background: radial-gradient(circle at 9% 4%, var(--studio-accent-soft), transparent 32%), #f2eee6;
+      font-family: var(--studio-control-font);
+      font-size: var(--type-control);
+      line-height: var(--line-ui);
       color: #292722;
       padding: clamp(16px, 2.4vw, 32px);
     }
@@ -1478,8 +1530,8 @@
       max-width: 100%;
       background: rgba(255, 253, 248, 0.76);
       border: 1px solid color-mix(in srgb, var(--studio-accent) 17%, rgba(42, 38, 33, 0.10));
-      border-radius: 18px 9px 16px 8px;
-      box-shadow: 0 18px 50px rgba(48, 41, 32, 0.045), inset 0 1px rgba(255, 255, 255, 0.7);
+      border-radius: var(--radius-popup);
+      box-shadow: none;
     }
 
     .controls-card {
@@ -1517,7 +1569,7 @@
     .settings-header h2 { font-size: 1.32rem; }
     .settings-title-line { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
     .history-controls { display: inline-flex; align-items: center; gap: 4px; }
-    .history-controls button { min-width: 28px; height: 28px; display: inline-flex; align-items: center; justify-content: center; gap: 4px; padding: 0 7px; border: 1px solid var(--studio-control-border); border-radius: var(--studio-control-radius); background: rgba(255, 254, 251, 0.68); color: #514b43; font-size: 0.61rem; font-weight: 650; cursor: pointer; transition: var(--studio-card-transition); }
+    .history-controls button { min-width: 28px; height: 28px; display: inline-flex; align-items: center; justify-content: center; gap: 4px; padding: 0 7px; border: 1px solid var(--studio-control-border); border-radius: var(--studio-control-radius); background: rgba(255, 254, 251, 0.68); color: #514b43; font-size: 0.61rem; font-weight: var(--weight-medium); cursor: pointer; transition: var(--studio-card-transition); }
     .history-controls button:hover:not(:disabled) { color: var(--studio-accent); border-color: color-mix(in srgb, var(--studio-accent) 50%, transparent); background: #fffefb; box-shadow: 0 3px 9px rgba(48, 41, 32, 0.07); transform: translateY(-1px); }
     .history-controls button:focus-visible { outline: 2px solid var(--studio-accent-soft); outline-offset: 2px; }
     .history-controls button:disabled { opacity: 0.35; cursor: default; }
@@ -1542,7 +1594,7 @@
       background: color-mix(in srgb, var(--studio-accent) 82%, #27231f);
       color: white;
       font-size: 0.72rem;
-      font-weight: 650;
+      font-weight: var(--weight-medium);
       cursor: pointer;
       white-space: nowrap;
       transition: var(--studio-card-transition);
@@ -1589,7 +1641,7 @@
       border-radius: var(--studio-card-radius);
       transition: var(--studio-card-transition);
     }
-    .theme-tile { display: grid; align-content: center; gap: 4px; min-height: 42px; padding: 6px 7px; font-size: 0.62rem; line-height: 1.15; text-align: left; }
+    .theme-tile { display: grid; align-content: center; gap: var(--space-2); min-height: 52px; padding: var(--space-2); font-size: var(--type-small); line-height: var(--line-ui); text-align: left; }
     .theme-tile:hover,
     .type-tile:hover { transform: translateY(-1px); border-color: color-mix(in srgb, var(--studio-accent) 42%, transparent); background: #fffefb; box-shadow: 0 3px 9px rgba(48, 41, 32, 0.06); }
     .theme-tile[aria-pressed="true"],
@@ -1615,14 +1667,14 @@
 
     .fine-tune { margin-top: 12px; padding-top: 11px; border-top: 1px solid color-mix(in srgb, var(--studio-accent) 16%, transparent); }
     .fine-tune-heading { display: flex; align-items: baseline; justify-content: space-between; gap: 10px; padding-bottom: 10px; color: #403a34; }
-    .fine-tune-heading > span { display: inline-flex; align-items: center; gap: 7px; font-size: 0.72rem; font-weight: 650; }
+    .fine-tune-heading > span { display: inline-flex; align-items: center; gap: 7px; font-size: 0.72rem; font-weight: var(--weight-medium); }
     .fine-tune-heading svg { width: 15px; height: 15px; color: var(--studio-accent); }
     .fine-tune-heading small { color: #817970; font-size: 0.59rem; font-weight: 400; }
     .fine-tune-body { padding: 3px 0 1px; }
 
     .visually-hidden-control { position: absolute !important; width: 1px !important; height: 1px !important; overflow: hidden !important; clip: rect(0 0 0 0) !important; white-space: nowrap !important; opacity: 0 !important; pointer-events: none !important; }
     .motion-picker { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); grid-auto-rows: 36px; gap: 4px 6px; }
-    .motion-tile { position: relative; display: grid; grid-template-columns: 16px minmax(0, 1fr) 12px; align-items: center; gap: 6px; min-width: 0; height: 36px; padding: 0 8px; border: 1px solid rgba(58, 52, 44, 0.14); border-radius: var(--studio-control-radius); background: rgba(255, 254, 251, 0.62); color: #4b453e; cursor: pointer; font-family: var(--studio-control-font); font-size: 0.7rem; font-weight: 450; line-height: 1; text-align: left; white-space: nowrap; transition: border-color 140ms ease, color 140ms ease, background 140ms ease; }
+    .motion-tile { position: relative; display: grid; grid-template-columns: 16px minmax(0, 1fr) 12px; align-items: center; gap: 6px; min-width: 0; height: 36px; padding: 0 8px; border: 1px solid rgba(58, 52, 44, 0.14); border-radius: var(--studio-control-radius); background: rgba(255, 254, 251, 0.62); color: #4b453e; cursor: pointer; font-family: var(--studio-control-font); font-size: 0.7rem; font-weight: var(--weight-regular); line-height: 1; text-align: left; white-space: nowrap; transition: border-color 140ms ease, color 140ms ease, background 140ms ease; }
     .motion-tile::after { content: ""; grid-column: 3; width: 7px; height: 4px; border-left: 1.5px solid transparent; border-bottom: 1.5px solid transparent; transform: rotate(-45deg); }
     .motion-tile:hover { border-color: color-mix(in srgb, var(--studio-accent) 44%, transparent); color: #332f2a; }
     .motion-tile:focus-visible { outline: 2px solid var(--studio-accent-soft); outline-offset: 2px; }
@@ -1634,7 +1686,7 @@
 
     .adaptive-motion-row { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-bottom: 7px; }
     .adaptive-motion-row > div { min-width: 0; }
-    .adaptive-motion-row label { display: block; margin: 0 0 2px; color: #49443d; font-size: var(--studio-label-size); font-weight: 650; }
+    .adaptive-motion-row label { display: block; margin: 0 0 2px; color: #49443d; font-size: var(--studio-label-size); font-weight: var(--weight-medium); }
     .adaptive-motion-row small { display: block; overflow: hidden; color: #817970; font-size: var(--studio-note-size); text-overflow: ellipsis; white-space: nowrap; }
     .adaptive-motion-toggle { display: inline-flex; align-items: center; gap: 6px; flex: 0 0 auto; min-height: 28px; padding: 3px 7px; border: 1px solid var(--studio-control-border); border-radius: var(--studio-control-radius); background: rgba(255,254,251,.68); color: #6c655c; font-family: var(--studio-control-font); font-size: 10px; cursor: pointer; transition: var(--studio-card-transition); }
     .adaptive-motion-toggle:hover { border-color: color-mix(in srgb, var(--studio-accent) 42%, transparent); background: #fffefb; box-shadow: 0 3px 9px rgba(48,41,32,.06); transform: translateY(-1px); }
@@ -1656,10 +1708,10 @@
 
     .fine-tune-presets { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 9px; margin-top: 9px; }
     .preset-column { min-width: 0; margin: 0; padding: 0; border: 0; }
-    .preset-column legend { display: grid; grid-template-columns: 16px minmax(0,1fr); align-items: center; gap: 6px; width: 100%; height: 24px; margin: 0 0 4px; padding: 0; color: #49443d; font-family: var(--studio-control-font); font-size: var(--studio-label-size); font-weight: 650; white-space: nowrap; }
+    .preset-column legend { display: grid; grid-template-columns: 16px minmax(0,1fr); align-items: center; gap: 6px; width: 100%; height: 24px; margin: 0 0 4px; padding: 0; color: #49443d; font-family: var(--studio-control-font); font-size: var(--studio-label-size); font-weight: var(--weight-medium); white-space: nowrap; }
     .preset-column legend svg { width: 16px; height: 16px; color: var(--studio-accent); stroke-width: 1.5; }
     .preset-list { display: grid; grid-template-rows: repeat(4, 34px); gap: 4px; }
-    .preset-list button { display: grid; grid-template-columns: minmax(0,1fr) auto 12px; align-items: center; gap: 5px; width: 100%; height: 34px; min-width: 0; padding: 0 7px; border: 1px solid var(--studio-control-border); border-radius: var(--studio-control-radius); background: rgba(255,254,251,.62); color: #5d574f; font-family: var(--studio-control-font); font-size: 11px; font-weight: 450; text-align: left; cursor: pointer; transition: var(--studio-card-transition); }
+    .preset-list button { display: grid; grid-template-columns: minmax(0,1fr) auto 12px; align-items: center; gap: 5px; width: 100%; height: 34px; min-width: 0; padding: 0 7px; border: 1px solid var(--studio-control-border); border-radius: var(--studio-control-radius); background: rgba(255,254,251,.62); color: #5d574f; font-family: var(--studio-control-font); font-size: 11px; font-weight: var(--weight-regular); text-align: left; cursor: pointer; transition: var(--studio-card-transition); }
     .preset-list button > span { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
     .preset-list button small { color: #918980; font-size: 10px; font-variant-numeric: tabular-nums; }
     .preset-list button i { width: 8px; height: 5px; justify-self: end; border-left: 1.5px solid transparent; border-bottom: 1.5px solid transparent; transform: rotate(-45deg); }
@@ -1673,7 +1725,7 @@
     .time-format-group { grid-area: format; }
     .display-options-group { grid-area: display; }
     .timezone-control { grid-area: timezone; min-width: 0; margin-bottom: 5px; }
-    .clock-visual-group > label { display: block; min-height: 16px; margin: 0 0 5px; color: #49443d; font-size: var(--studio-label-size); font-weight: 650; line-height: 1.2; }
+    .clock-visual-group > label { display: block; min-height: 16px; margin: 0 0 5px; color: #49443d; font-size: var(--studio-label-size); font-weight: var(--weight-medium); line-height: 1.2; }
     .time-format-cards, .display-options-row { display: grid; grid-template-columns: repeat(2,minmax(0,1fr)); gap: 5px; }
     .time-format-cards button { display: grid; grid-template-columns: minmax(0,1fr) 12px; grid-template-rows: auto auto; align-items: center; min-width: 0; height: 42px; padding: 4px 7px; border: 1px solid var(--studio-control-border); border-radius: var(--studio-control-radius); background: rgba(255,254,251,.68); color: #5d574f; font-family: var(--studio-control-font); text-align: left; cursor: pointer; transition: var(--studio-card-transition); }
     .time-format-cards button span { grid-column:1; font-size: 11px; font-weight: 600; }
@@ -1685,7 +1737,8 @@
     .time-format-cards button[aria-pressed="true"] i { border-color:currentColor; }
     .studio-toggle { display:flex; align-items:center; justify-content:space-between; gap:5px; height:42px; min-width:0; padding:0 7px; border:1px solid var(--studio-control-border); border-radius:var(--studio-control-radius); background:rgba(255,254,251,.68); color:#5d574f; font-family:var(--studio-control-font); font-size:10px; cursor:pointer; transition:var(--studio-card-transition); }
     .studio-toggle:hover { border-color:color-mix(in srgb,var(--studio-accent) 42%,transparent); background:#fffefb; box-shadow:0 3px 9px rgba(48,41,32,.06); transform:translateY(-1px); }
-    .studio-toggle input { position:absolute; width:1px; height:1px; opacity:0; pointer-events:none; }
+    .studio-toggle { position: relative; }
+    .studio-toggle input { position:absolute; inset:0; margin:0; width:1px; height:1px; opacity:0; pointer-events:none; }
     .studio-toggle i { position:relative; flex:0 0 auto; width:25px; height:14px; border-radius:999px; background:#d7d0c7; transition:background 140ms ease; }
     .studio-toggle i::after { content:""; position:absolute; top:2px; left:2px; width:10px; height:10px; border-radius:50%; background:#fffefa; box-shadow:0 1px 3px rgba(47,40,34,.18); transition:transform 140ms ease; }
     .studio-toggle:has(input:checked) { border-color:color-mix(in srgb,var(--studio-accent) 50%,transparent); background:var(--studio-accent-soft); color:var(--studio-accent); }
@@ -1706,7 +1759,7 @@
     .quote-controls-grid > .control-group { min-width: 0; margin-bottom: 0; }
     .quote-controls-grid > .control-group > label:first-child { min-height: 16px; margin-bottom: 5px; line-height: 1.2; white-space: nowrap; }
     .length-picker { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); grid-auto-rows: 34px; gap: 4px; }
-    .length-picker button { display: grid; place-items: center; align-content: center; gap: 1px; min-width: 0; height: 34px; padding: 2px 3px; overflow: hidden; border: 1px solid var(--studio-control-border); border-radius: var(--studio-control-radius); background: rgba(255,254,251,.72); color: #6f675e; font-family: var(--studio-control-font); font-size: 10px; font-weight: 450; line-height: 1; white-space: nowrap; cursor: pointer; transition: var(--studio-card-transition); }
+    .length-picker button { display: grid; place-items: center; align-content: center; gap: 1px; min-width: 0; height: 34px; padding: 2px 3px; overflow: hidden; border: 1px solid var(--studio-control-border); border-radius: var(--studio-control-radius); background: rgba(255,254,251,.72); color: #6f675e; font-family: var(--studio-control-font); font-size: 10px; font-weight: var(--weight-regular); line-height: 1; white-space: nowrap; cursor: pointer; transition: var(--studio-card-transition); }
     .length-picker button span { max-width: 100%; overflow: hidden; text-overflow: ellipsis; }
     .length-picker button small { color: #918980; font-size: 9px; font-variant-numeric: tabular-nums; }
     .length-picker button:hover { border-color: color-mix(in srgb, var(--studio-accent) 42%, transparent); background:#fffefb; color: #3e3933; box-shadow:0 3px 9px rgba(48,41,32,.06); transform:translateY(-1px); }
@@ -1732,7 +1785,7 @@
       display: block;
       margin-bottom: 7px;
       font-size: var(--studio-label-size);
-      font-weight: 650;
+      font-weight: var(--weight-medium);
       color: #49443d;
       letter-spacing: 0.025em;
     }
@@ -1754,12 +1807,12 @@
       color: #292722;
       font-family: var(--studio-control-font);
       font-size: 13px;
-      font-weight: 450;
+      font-weight: var(--weight-regular);
       line-height: 1.2;
       outline: none;
       transition: border-color 140ms ease, box-shadow 140ms ease, background 140ms ease;
     }
-    .control-group select option { font-family: var(--studio-control-font); font-size: 13px; font-weight: 450; }
+    .control-group select option { font-family: var(--studio-control-font); font-size: 13px; font-weight: var(--weight-regular); }
 
     .control-group select:focus,
     .control-group input:focus {
@@ -1807,7 +1860,7 @@
       cursor: pointer;
       background: #fffefb;
       color: #292722;
-      font-weight: 650;
+      font-weight: var(--weight-medium);
       font-size: 0.74rem;
       transition: var(--studio-card-transition);
     }
@@ -1918,7 +1971,7 @@
       height: clamp(270px, 31vw, 390px);
       overflow: hidden;
       border: 1px solid color-mix(in srgb, var(--studio-accent) 16%, rgba(42, 38, 33, 0.10));
-      border-radius: 12px 6px 12px 6px;
+      border-radius: var(--radius-control);
       background: #f8f6f1;
       transition: width 280ms cubic-bezier(.2,.75,.25,1);
     }
@@ -1944,6 +1997,55 @@
     .settings-footer { margin-top: 11px; padding-top: 11px; }
     .preview-top { padding: 10px 14px 8px; }
     .preview-frame-wrap { padding: 0 10px 10px; }
+
+    /* Shared control dimensions, readable labels and restrained interaction states. */
+    .settings-columns { gap: var(--space-4) var(--space-5); }
+    .settings-section { padding: var(--space-3) var(--space-4) var(--space-2); }
+    .controls-card :is(button, input, select) { line-height: var(--line-ui); }
+    .controls-card :is(button, .studio-toggle):hover { transform: none; box-shadow: none; }
+    .controls-card :is(button, .studio-toggle):active { background-color: var(--studio-accent-soft); }
+    .theme-tile[aria-pressed="true"], .type-tile[aria-pressed="true"] { box-shadow: none; }
+    .control-group label { letter-spacing: normal; }
+    .control-group select, .control-group input[type="text"], .control-group input[type="number"] { font-size: var(--type-control); }
+    .control-group select { cursor: pointer; padding-right: var(--space-5); }
+    .control-group :is(input, select)::placeholder { color: #817970; opacity: 1; }
+    .section-note, .settings-hint, .preview-copy { font-size: var(--type-small); line-height: var(--line-ui); }
+    .type-meta b { font-family: var(--studio-control-font); font-size: var(--type-caption); font-weight: var(--weight-medium); }
+    .type-meta i, .length-picker button small, .time-format-cards button small, .clock-width-presets button small { font-size: var(--type-caption); }
+    .type-tile { min-height: 56px; gap: var(--space-2); }
+    .theme-picker, .type-picker { gap: var(--space-2); }
+    .motion-tile > span:last-child { font-size: var(--type-caption); line-height: 1.2; }
+    .preset-list button, .studio-toggle, .clock-width-presets button span, .length-picker button { font-size: var(--type-small); }
+    .preset-list { grid-template-rows: repeat(4, var(--studio-control-height)); }
+    .preset-list button, .length-picker button { height: var(--studio-control-height); }
+    .length-picker { grid-auto-rows: var(--studio-control-height); gap: var(--space-2); }
+    .time-format-cards button, .studio-toggle { height: 44px; }
+    .clock-width-presets button { height: 40px; }
+    .history-controls button, .adaptive-motion-toggle { min-height: var(--control-size); font-size: var(--type-small); }
+    .quote-controls-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: var(--space-3); }
+    .quote-controls-grid > .control-group:last-child { grid-column: 1 / -1; }
+    .preview-device-switcher button { min-height: var(--control-size); font-size: var(--type-small); }
+    .preview-device-switcher svg, .settings-title svg { width: var(--icon); height: var(--icon); flex-shrink: 0; }
+    .preview-toggle { width: var(--control-size); height: var(--control-size); }
+    .preview-toggle svg, .embed-copy-button svg { width: var(--icon); height: var(--icon); }
+    .controls-card :is(button, input, select):focus-visible,
+    .studio-toggle:has(input:focus-visible) { outline: 2px solid color-mix(in srgb, var(--studio-accent) 70%, transparent); outline-offset: 3px; box-shadow: none; }
+    .source-credits, .location-picker summary { transition: color var(--duration-fast) ease, background var(--duration-fast) ease; }
+    button { -webkit-tap-highlight-color: transparent; }
+    .location-picker summary { -webkit-tap-highlight-color: transparent; }
+
+    @media (pointer: coarse) {
+      #setupView { --studio-control-height: 44px; --control-size: 44px; }
+      .controls-card input:not(.visually-hidden-control), .controls-card select { font-size: max(16px, var(--type-control)); }
+      .history-controls button, .adaptive-motion-toggle, .action-row button, .embed-copy-button, .clock-width-presets button { min-height: 44px; }
+      .quote-card-front { padding-bottom: 64px; }
+      .credits-back { width: 44px; height: 44px; }
+      .credit-section > summary { min-height: 44px; }
+    }
+
+    @supports (-webkit-touch-callout: none) {
+      .controls-card input:not(.visually-hidden-control), .controls-card select { font-size: max(16px, var(--type-control)); }
+    }
 
     @media (max-width: 900px) {
       #setupView { padding: 15px; }
@@ -1991,7 +2093,14 @@
       .section-note { margin-bottom: 14px; }
       .control-group { margin-bottom: 13px; }
       .theme-picker, .type-picker { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+      .type-tile { min-height: 84px; }
+      .type-meta { display: block; }
+      .type-meta b { display: block; overflow: visible; white-space: normal; line-height: 1.3; }
+      .type-meta i { display: block; margin-top: var(--space-1); }
       .motion-picker { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+      .motion-picker { grid-auto-rows: 76px; }
+      .motion-tile { height: 76px; grid-template-rows: 32px minmax(24px, auto); }
+      .motion-tile > span:last-child { overflow: visible; white-space: normal; line-height: 1.2; }
       .quote-controls-grid { grid-template-columns: 1fr; gap: 4px; }
       .clock-settings-layout { grid-template-columns: 1fr; grid-template-areas: "format" "display" "timezone"; gap: 9px; }
       .clock-width-presets { grid-template-columns: repeat(2,minmax(0,1fr)); }
@@ -2008,7 +2117,18 @@
       .action-row { grid-template-columns: 1fr; }
     }
 
+    /* Small screens scroll as a page so the preview cannot trap the settings below it. */
+    @media (max-width: 900px), (max-height: 700px) {
+      #setupView { height: auto; min-height: 100dvh; overflow: visible; }
+      .setup-wrap { height: auto; grid-template-rows: auto auto; }
+      .setup-grid { grid-template-rows: auto auto; overflow: visible; }
+      .preview-card { position: relative; top: auto; }
+      .controls-card { overflow: visible; margin-top: var(--space-5); }
+    }
+
     @media (prefers-reduced-motion: reduce) {
+      .source-credits, #refreshButton, #weatherRetry, .location-crosshair,
+      .controls-card button, .studio-toggle { animation: none !important; transition: none !important; transform: none !important; }
       .aura { animation: none !important; }
       .weather-visual *, .forecast-symbol, .forecast-symbol *, .sun-event svg { animation: none !important; }
       body .background-bubbles, body .ambient-objects { display: none !important; }
@@ -2034,8 +2154,9 @@
     <div class="aura a1" aria-hidden="true"></div>
     <div class="aura a2" aria-hidden="true"></div>
     <div class="aura a3" aria-hidden="true"></div>
+    <!-- One continuous canvas behind every section; only this outer layer has motion bounds. -->
+    <div id="widgetMotionLayer" class="widget-motion-layer" aria-hidden="true"></div>
     <div class="widget-shell">
-      <div class="widget-motion-layer" aria-hidden="true"></div>
 
       <section class="quote-panel">
         <div class="quote-flipper">
@@ -2052,7 +2173,7 @@
               <circle cx="12" cy="12" r="9" /><path d="M12 11v6" /><circle cx="12" cy="7.5" r="0.75" fill="currentColor" stroke="none" />
             </svg>
             </button>
-            <button id="refreshButton" type="button" aria-label="Load another quote" title="Another quote">↻</button>
+            <button id="refreshButton" type="button" aria-label="Load another quote" title="Another quote"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 7v5h-5M19 12a7 7 0 1 0-2 5M20 12a8 8 0 0 0-2-5"/></svg></button>
           </div>
 
           <div id="quoteBack" class="quote-card-face quote-card-back" aria-hidden="true" inert>
@@ -2124,7 +2245,7 @@
                     <span id="weatherLocationCountry" class="location-country"></span>
                   </span>
                 </summary>
-                <form id="locationForm" class="location-form">
+                <form id="locationForm" class="location-form" hidden>
                   <div class="location-form-heading">
                     <label for="locationInput">Weather location</label>
                     <button id="locationClose" class="location-close" type="button" aria-label="Close location search" title="Close">
@@ -2150,7 +2271,7 @@
               <div class="weather-reading">
                 <div id="weatherSummary" role="status">Loading weather…</div>
               </div>
-              <button id="weatherRetry" type="button" aria-label="Refresh weather" title="Refresh weather">↻</button>
+              <button id="weatherRetry" type="button" aria-label="Refresh weather" title="Refresh weather"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 7v5h-5M19 12a7 7 0 1 0-2 5M20 12a8 8 0 0 0-2-5"/></svg></button>
             </div>
             <div id="sunTimes" class="sun-times" aria-label="Today's daylight, UV index and current-hour rain chance in the weather location" hidden>
               <span id="solarCycle" class="solar-cycle">
@@ -2234,7 +2355,7 @@
           <div class="control-group">
             <label id="themePickerLabel">Theme</label>
             <input id="themeControl" type="hidden" value="warm-editorial" />
-            <div class="theme-picker" role="radiogroup" aria-labelledby="themePickerLabel">
+            <div class="theme-picker" role="group" aria-labelledby="themePickerLabel">
               <button class="theme-tile" type="button" data-theme-value="warm-editorial" aria-pressed="true"><span class="theme-swatches"><i style="--swatch:#f3eee5"></i><i style="--swatch:#d9b79c"></i><i style="--swatch:#a65f43"></i></span><span>Warm Editorial</span></button>
               <button class="theme-tile" type="button" data-theme-value="ocean" aria-pressed="false"><span class="theme-swatches"><i style="--swatch:#eaf3f4"></i><i style="--swatch:#80c6c6"></i><i style="--swatch:#397b87"></i></span><span>Ocean</span></button>
               <button class="theme-tile" type="button" data-theme-value="forest" aria-pressed="false"><span class="theme-swatches"><i style="--swatch:#edf1e8"></i><i style="--swatch:#9eae83"></i><i style="--swatch:#53674c"></i></span><span>Forest</span></button>
@@ -2256,7 +2377,7 @@
           <div class="control-group">
             <label id="typePickerLabel">Typography</label>
             <input id="fontControl" type="hidden" value="modern-minimal" />
-            <div class="type-picker" role="radiogroup" aria-labelledby="typePickerLabel">
+            <div class="type-picker" role="group" aria-labelledby="typePickerLabel">
               <button class="type-tile type-editorial" type="button" data-font-value="editorial" aria-pressed="false"><span class="type-sample">A quiet thought</span><span class="type-meta"><b>Editorial</b><i>12:24</i></span></button>
               <button class="type-tile type-modern" type="button" data-font-value="modern-minimal" aria-pressed="true"><span class="type-sample">A quiet thought</span><span class="type-meta"><b>Modern Minimal</b><i>12:24</i></span></button>
               <button class="type-tile type-literary" type="button" data-font-value="classic-literary" aria-pressed="false"><span class="type-sample">A quiet thought</span><span class="type-meta"><b>Classic Literary</b><i>12:24</i></span></button>
@@ -2288,7 +2409,7 @@
                   <option value="fireflies">Fireflies</option>
                   <option value="none">Off</option>
                 </select>
-                <div id="motionPicker" class="motion-picker" role="radiogroup" aria-labelledby="motionPickerLabel">
+                <div id="motionPicker" class="motion-picker" role="group" aria-labelledby="motionPickerLabel">
                   <button type="button" class="motion-tile motion-off-tile" data-motion-value="none" aria-pressed="false"><span class="motion-thumb-stage" aria-hidden="true"><i></i></span><span>Off</span></button>
                   <button type="button" class="motion-tile" data-motion-value="rain" aria-pressed="false"><span class="motion-thumb-stage" aria-hidden="true"></span><span>Rain</span></button>
                   <button type="button" class="motion-tile" data-motion-value="luminous-mesh" aria-pressed="false"><span class="motion-thumb-stage" aria-hidden="true"></span><span>Luminous Mesh</span></button>
@@ -2304,7 +2425,7 @@
               <fieldset class="preset-column">
                 <legend><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" aria-hidden="true"><path d="M4 15c3-7 5 7 8 0s5 7 8 0"/><path d="M4 9c3-5 5 5 8 0s5 5 8 0"/></svg><span>Motion intensity</span></legend>
                 <input id="intensityControl" class="visually-hidden-control" type="number" min="0" max="80" step="10" value="50" tabindex="-1" aria-hidden="true" />
-                <div class="preset-list" role="radiogroup" aria-label="Motion intensity">
+                <div class="preset-list" role="group" aria-label="Motion intensity">
                   <button type="button" data-preset-control="intensity" data-preset-value="0" aria-pressed="false"><span>Off</span><small>0%</small><i aria-hidden="true"></i></button>
                   <button type="button" data-preset-control="intensity" data-preset-value="20" aria-pressed="false"><span>Subtle</span><small>20%</small><i aria-hidden="true"></i></button>
                   <button type="button" data-preset-control="intensity" data-preset-value="50" aria-pressed="true"><span>Balanced</span><small>50%</small><i aria-hidden="true"></i></button>
@@ -2314,7 +2435,7 @@
               <fieldset class="preset-column">
                 <legend><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" aria-hidden="true"><path d="M5 19V9a4 4 0 0 1 4-4h10"/></svg><span>Corner radius</span></legend>
                 <input id="radiusControl" class="visually-hidden-control" type="number" min="8" max="42" step="1" value="28" tabindex="-1" aria-hidden="true" />
-                <div class="preset-list" role="radiogroup" aria-label="Corner radius">
+                <div class="preset-list" role="group" aria-label="Corner radius">
                   <button type="button" data-preset-control="radius" data-preset-value="8" aria-pressed="false"><span>Sharp</span><small>8px</small><i aria-hidden="true"></i></button>
                   <button type="button" data-preset-control="radius" data-preset-value="18" aria-pressed="false"><span>Soft</span><small>18px</small><i aria-hidden="true"></i></button>
                   <button type="button" data-preset-control="radius" data-preset-value="28" aria-pressed="true"><span>Rounded</span><small>28px</small><i aria-hidden="true"></i></button>
@@ -2324,7 +2445,7 @@
               <fieldset class="preset-column">
                 <legend><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" aria-hidden="true"><path d="m12 3 1.5 4.5L18 9l-4.5 1.5L12 15l-1.5-4.5L6 9l4.5-1.5L12 3Z"/></svg><span>Surface finish</span></legend>
                 <input id="glossControl" class="visually-hidden-control" type="number" min="0" max="80" step="10" value="20" tabindex="-1" aria-hidden="true" />
-                <div class="preset-list" role="radiogroup" aria-label="Surface finish">
+                <div class="preset-list" role="group" aria-label="Surface finish">
                   <button type="button" data-preset-control="gloss" data-preset-value="0" aria-pressed="false"><span>Matte</span><small>0%</small><i aria-hidden="true"></i></button>
                   <button type="button" data-preset-control="gloss" data-preset-value="20" aria-pressed="true"><span>Satin</span><small>20%</small><i aria-hidden="true"></i></button>
                   <button type="button" data-preset-control="gloss" data-preset-value="50" aria-pressed="false"><span>Soft Glow</span><small>50%</small><i aria-hidden="true"></i></button>
@@ -2372,7 +2493,7 @@
           <div class="control-group">
             <label id="quoteLengthLabel">Maximum length · characters</label>
             <input id="maxLengthControl" type="hidden" value="200" />
-            <div class="length-picker" role="radiogroup" aria-labelledby="quoteLengthLabel">
+            <div class="length-picker" role="group" aria-labelledby="quoteLengthLabel">
               <button type="button" data-length-value="100" aria-pressed="false"><span>Short</span><small>100</small></button>
               <button type="button" data-length-value="200" aria-pressed="true"><span>Medium</span><small>200</small></button>
               <button type="button" data-length-value="350" aria-pressed="false"><span>Long</span><small>350</small></button>
@@ -2393,7 +2514,7 @@
           <div class="clock-visual-group time-format-group">
             <label id="timeFormatLabel">Time format</label>
             <select id="timeFormatControl" class="visually-hidden-control" tabindex="-1" aria-hidden="true"><option value="12">12-hour</option><option value="24">24-hour</option></select>
-            <div class="time-format-cards" role="radiogroup" aria-labelledby="timeFormatLabel">
+            <div class="time-format-cards" role="group" aria-labelledby="timeFormatLabel">
               <button type="button" data-time-format="12" aria-pressed="true"><span>12h</span><small>01:45 PM</small><i aria-hidden="true"></i></button>
               <button type="button" data-time-format="24" aria-pressed="false"><span>24h</span><small>13:45</small><i aria-hidden="true"></i></button>
             </div>
@@ -2421,7 +2542,7 @@
           <div class="control-group clock-width-control">
             <div class="control-label-line"><label id="clockWidthLabel">Clock width</label><span id="clockWidthValue" class="range-value">25%</span></div>
             <input id="clockWidthControl" class="visually-hidden-control" type="number" min="25" max="45" step="5" value="25" tabindex="-1" aria-hidden="true" />
-            <div class="clock-width-presets" role="radiogroup" aria-labelledby="clockWidthLabel">
+            <div class="clock-width-presets" role="group" aria-labelledby="clockWidthLabel">
               <button type="button" data-clock-width="25" aria-pressed="true"><span>Compact</span><small>25%</small></button>
               <button type="button" data-clock-width="30" aria-pressed="false"><span>Balanced</span><small>30%</small></button>
               <button type="button" data-clock-width="35" aria-pressed="false"><span>Comfortable</span><small>35%</small></button>
@@ -2557,7 +2678,7 @@
 
         function startCountdown(reset = true) {
           clearTimeout(closeTimer);
-          if (!popup.open) return;
+          if (!popup.open || panel.contains(document.activeElement)) return;
           if (reset || !progress) {
             progress?.cancel();
             remaining = 5000;
@@ -2590,8 +2711,7 @@
           closingLayer?.remove();
           if (!reducedMotion.matches) {
             const rect = panel.getBoundingClientRect();
-            const triggerRect = popup.querySelector("summary").getBoundingClientRect();
-            // Freeze the popup so it can fold back into its trigger like fabric returning to a pocket.
+            // Hold the current footprint while the popup fades away.
             const snapshot = panel.cloneNode(true);
             const originals = [panel, ...panel.querySelectorAll("*")];
             const copies = [snapshot, ...snapshot.querySelectorAll("*")];
@@ -2603,6 +2723,7 @@
               copy.removeAttribute("id");
               copy.removeAttribute("for");
             });
+            snapshot.removeAttribute("popover");
             snapshot.querySelector(".countdown-ring")?.remove();
             Object.assign(snapshot.style, {
               position: "absolute", left: `${rect.left}px`, top: `${rect.top}px`, right: "auto", bottom: "auto",
@@ -2618,37 +2739,10 @@
             layer.append(snapshot);
             closingLayer = layer;
             document.body.append(layer);
-            const dx = triggerRect.left + triggerRect.width / 2 - (rect.left + rect.width / 2);
-            const dy = triggerRect.top + triggerRect.height / 2 - (rect.top + rect.height / 2);
-            const fold = dx >= 0 ? 1 : -1;
             const animation = snapshot.animate([
-              {
-                transform: "translate(0, 0) rotate(0) skew(0) scale(1)", opacity: 1, filter: "blur(0)",
-                clipPath: "polygon(0 0,50% 0,100% 0,100% 50%,100% 100%,50% 100%,0 100%,0 50%)"
-              },
-              {
-                offset: 0.2,
-                transform: `translate(${dx * -0.025}px, ${dy * -0.018}px) rotate(${fold * -0.7}deg) skewY(${fold * 0.8}deg) scale(1.012,.975)`,
-                opacity: 0.98, filter: "blur(0)",
-                clipPath: "polygon(3% 2%,50% 0,97% 4%,100% 46%,96% 96%,54% 100%,4% 94%,0 50%)"
-              },
-              {
-                offset: 0.52,
-                transform: `translate(${dx * 0.26}px, ${dy * 0.22}px) rotate(${fold * 2.2}deg) skewY(${fold * -2.5}deg) scale(.86,.68)`,
-                opacity: 0.92, filter: "blur(.15px)",
-                clipPath: "polygon(12% 8%,51% 1%,91% 12%,100% 46%,87% 86%,56% 100%,13% 88%,0 49%)"
-              },
-              {
-                offset: 0.8,
-                transform: `translate(${dx * 0.7}px, ${dy * 0.67}px) rotate(${fold * -1.4}deg) skewY(${fold * 3}deg) scale(.36,.22)`,
-                opacity: 0.66, filter: "blur(.55px)",
-                clipPath: "polygon(31% 29%,52% 20%,75% 30%,83% 48%,71% 69%,54% 80%,33% 69%,23% 48%)"
-              },
-              {
-                transform: `translate(${dx}px, ${dy}px) rotate(0) skew(0) scale(.035,.025)`, opacity: 0, filter: "blur(1.5px)",
-                clipPath: "polygon(48% 48%,50% 48%,52% 48%,52% 50%,52% 52%,50% 52%,48% 52%,48% 50%)"
-              }
-            ], { duration: 920, easing: "cubic-bezier(.3,.02,.18,1)", fill: "forwards" });
+              { opacity: 1, transform: "translateY(0)" },
+              { opacity: 0, transform: "translateY(3px)" }
+            ], { duration: 140, easing: "ease-out", fill: "forwards" });
             animation.finished.catch(() => {}).then(() => {
               layer.remove();
               if (closingLayer === layer) closingLayer = null;
@@ -2659,6 +2753,11 @@
           if (hasFocus) popup.querySelector("summary").focus({ preventScroll: true });
         });
         popup.querySelector("summary").addEventListener("click", event => {
+          if (panel.classList.contains("location-form") && !popup.open) {
+            event.preventDefault();
+            popup.open = true;
+            return;
+          }
           if (!popup.open) return;
           event.preventDefault();
           closePopup(popup);
@@ -2679,6 +2778,8 @@
           panel.addEventListener("keydown", scheduleCountdownRestart, true);
           panel.addEventListener("scroll", scheduleCountdownRestart, { passive: true });
           panel.addEventListener("input", scheduleCountdownRestart, true);
+          panel.addEventListener("focusin", () => { clearTimeout(inactivityTimer); pauseCountdown(); });
+          panel.addEventListener("focusout", scheduleCountdownRestart);
         }
       });
     }
@@ -3094,7 +3195,7 @@
       requestAnimationFrame(animate);
     }
 
-    /* One scheduler and one renderer implementation power cards and thumbnails. */
+    /* One scheduler powers the outer widget canvas and independent setup thumbnails. */
     class BackgroundMotionEngine {
       constructor() {
         this.instances = new Map();
@@ -3257,15 +3358,45 @@
         const width = Math.max(0, Math.round(rect.width));
         const height = Math.max(0, Math.round(rect.height));
         if (!width || !height || (width === this.width && height === this.height)) return;
+        const previousWidth = this.width;
+        const previousHeight = this.height;
         this.width = width;
         this.height = height;
+        this.cornerInset = (parseFloat(getComputedStyle(this.target).borderTopLeftRadius) || 0) * (1 - Math.SQRT1_2);
         const dpr = Math.min(2, window.devicePixelRatio || 1);
         this.canvas.width = Math.max(1, Math.round(width * dpr));
         this.canvas.height = Math.max(1, Math.round(height * dpr));
         this.canvas.style.width = `${width}px`;
         this.canvas.style.height = `${height}px`;
         this.ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
-        this.state = this.createState();
+        if (!previousWidth || !previousHeight) this.state = this.createState();
+        else {
+          for (const items of Object.values(this.state)) {
+            items.forEach(item => {
+              if (Number.isFinite(item.x)) item.x *= width / previousWidth;
+              if (Number.isFinite(item.y)) item.y *= height / previousHeight;
+            });
+          }
+          if (this.state.lights) {
+            const count = this.fireflyCount();
+            while (this.state.lights.length < count) this.state.lights.push(this.makeFirefly(this.state.lights.length));
+            this.state.lights.length = count;
+          }
+        }
+        this.render(0, performance.now() / 1000);
+      }
+
+      // Account for the entire painted shape, including glow and rounded corners.
+      bounce(particle, radiusX, radiusY = radiusX) {
+        const constrain = (position, velocity, extent, radius) => {
+          const inset = Math.min(extent / 2, radius + (this.cornerInset || 0) + 1);
+          const maximum = extent - inset;
+          if (position <= inset) return [inset, Math.abs(velocity || 0)];
+          if (position >= maximum) return [maximum, -Math.abs(velocity || 0)];
+          return [position, velocity];
+        };
+        [particle.x, particle.vx] = constrain(particle.x, particle.vx, this.width, radiusX);
+        [particle.y, particle.vy] = constrain(particle.y, particle.vy, this.height, radiusY);
       }
 
       createState() {
@@ -3281,11 +3412,7 @@
           return { seeds: Array.from({ length: count(3, 6, 9) }, (_, index) => this.makeSeed(index, true)) };
         }
         if (this.effect === "fireflies") {
-          return { lights: Array.from({ length: count(5, 7, 10) }, () => ({
-            x: this.random(), y: this.random(), phase: this.random() * Math.PI * 2,
-            speed: 0.22 + this.random() * 0.36, radius: 0.7 + this.random() * 1.25,
-            dx: 8 + this.random() * 20, dy: 7 + this.random() * 17
-          })) };
+          return { lights: Array.from({ length: this.fireflyCount() }, (_, index) => this.makeFirefly(index)) };
         }
         if (this.effect === "luminous-mesh") {
           return {
@@ -3293,6 +3420,22 @@
           };
         }
         return {};
+      }
+
+      fireflyCount() { return this.thumbnail ? 7 : this.width < 600 ? 18 : 30; }
+
+      makeFirefly(index) {
+        const angle = this.random() * Math.PI * 2;
+        const velocity = (this.thumbnail ? 1.2 : 2) + this.random() * (this.thumbnail ? 3 : 7);
+        return {
+          x: this.random() * this.width, y: this.random() * this.height,
+          vx: Math.cos(angle) * velocity, vy: Math.sin(angle) * velocity,
+          radius: [0.65, 1.15, 1.85][index % 3] * (0.85 + this.random() * 0.35),
+          brightness: 0.35 + this.random() * 0.55, glow: 3 + this.random() * 2.5,
+          speed: 0.18 + this.random() * 0.5, phase: this.random() * Math.PI * 2,
+          flickerSpeed: 0.45 + this.random() * 1.3, flickerPhase: this.random() * Math.PI * 2,
+          flickerDepth: 0.2 + this.random() * 0.6
+        };
       }
 
       makeMeshParticle(index) {
@@ -3313,22 +3456,26 @@
 
       makeRainDrop(initial = false) {
         const depth = 0.55 + this.random() * 0.75;
-        return {
+        const drop = {
           x: this.random() * Math.max(1, this.width),
-          y: initial ? this.random() * Math.max(1, this.height) : -10 - this.random() * Math.max(20, this.height * 0.3),
-          length: (this.thumbnail ? 5 : 9) + this.random() * (this.thumbnail ? 11 : 25) * depth,
-          speed: (this.thumbnail ? 48 : 82) + this.random() * (this.thumbnail ? 52 : 120) * depth,
+          y: initial ? this.random() * Math.max(1, this.height) : 0,
+          length: Math.min(this.height * 0.25, (this.thumbnail ? 5 : 9) + this.random() * (this.thumbnail ? 11 : 25) * depth),
+          speed: (this.thumbnail ? 28 : 44) + this.random() * (this.thumbnail ? 32 : 64) * depth,
           vx: -4 + this.random() * 8,
           width: 0.55 + depth * 0.6,
           alpha: 0.34 + depth * 0.34
         };
+        this.bounce(drop, Math.abs(drop.vx * drop.length / drop.speed) + drop.width, drop.length / 2 + drop.width);
+        return drop;
       }
 
       makeSeed(index, initial = false) {
         return {
-          x: initial ? this.random() * Math.max(1, this.width) : -18 - this.random() * 35,
-          baseY: this.height * (0.16 + this.random() * 0.7),
-          size: (this.thumbnail ? 3.5 : 7) + this.random() * (this.thumbnail ? 3 : 7),
+          x: this.random() * Math.max(1, this.width),
+          y: this.height * (0.16 + this.random() * 0.7),
+          vx: (index % 2 ? -1 : 1) * (8 + this.random() * 12),
+          vy: (this.random() - 0.5) * 6,
+          size: Math.min(Math.min(this.width, this.height) / 5, (this.thumbnail ? 3.5 : 7) + this.random() * (this.thumbnail ? 3 : 7)),
           speed: (this.thumbnail ? 5 : 8) + this.random() * (this.thumbnail ? 8 : 12),
           wave: 8 + this.random() * 18,
           phase: this.random() * Math.PI * 2 + index,
@@ -3350,7 +3497,7 @@
           "breathing-gradient": () => this.drawBreathingGradient(time),
           dandelion: () => this.drawDandelion(dt, time),
           "eclipse-glow": () => this.drawEclipse(time),
-          fireflies: () => this.drawFireflies(time)
+          fireflies: () => this.drawFireflies(dt, time)
         }[this.effect];
         draw?.();
       }
@@ -3361,47 +3508,55 @@
         this.state.drops.forEach(drop => {
           drop.x += drop.vx * dt;
           drop.y += drop.speed * dt;
+          drop.vy = drop.speed;
+          drop.length = Math.min(drop.length, height * 0.25);
+          this.bounce(drop, Math.abs(drop.vx * drop.length / drop.speed) + drop.width, drop.length / 2 + drop.width);
           ctx.beginPath();
-          ctx.moveTo(drop.x - drop.vx * drop.length / drop.speed, drop.y - drop.length);
-          ctx.lineTo(drop.x, drop.y);
+          ctx.moveTo(drop.x - drop.vx * drop.length / drop.speed, drop.y - drop.length / 2);
+          ctx.lineTo(drop.x, drop.y + drop.length / 2);
           ctx.lineWidth = drop.width;
           ctx.lineCap = "round";
           ctx.strokeStyle = this.rgba(palette.cool, drop.alpha * strength);
           ctx.stroke();
-          if (drop.y >= height - 1) {
-            this.spawnRainImpact(Math.max(2, Math.min(width - 2, drop.x)), height - 1, drop.speed);
+          if (drop.vy < 0) {
+            this.spawnRainImpact(drop.x, drop.y + drop.length / 2, drop.speed);
             Object.assign(drop, this.makeRainDrop(false));
-          } else if (drop.x < -8 || drop.x > width + 8) drop.x = (drop.x + width) % width;
+          }
         });
 
-        const gravity = this.thumbnail ? 65 : 125;
+        const gravity = this.thumbnail ? 85 : 110;
         this.state.splashes = this.state.splashes.filter(particle => {
+          if (particle.delay > 0) { particle.delay -= dt; return true; }
           particle.life -= dt;
           if (particle.life <= 0) return false;
           particle.vy += gravity * dt;
           particle.x += particle.vx * dt;
           particle.y += particle.vy * dt;
-          if (particle.y >= height - 1 && particle.bounces < 1 && Math.abs(particle.vy) > 8) {
-            particle.y = height - 1;
-            particle.vy *= -0.28;
+          const incomingY = particle.vy;
+          this.bounce(particle, particle.radius + 1);
+          if (incomingY > 0 && particle.vy < 0) {
+            particle.vy *= particle.rebound;
             particle.vx *= 0.72;
             particle.bounces++;
           }
           const alpha = particle.life / particle.maxLife;
           ctx.beginPath();
           ctx.arc(particle.x, particle.y, particle.radius * (0.55 + alpha * 0.45), 0, Math.PI * 2);
-          ctx.fillStyle = this.rgba(palette.cool, alpha * 0.55 * strength);
+          ctx.fillStyle = this.rgba(palette.cool, alpha * particle.brightness * strength);
           ctx.fill();
-          return particle.x > -8 && particle.x < width + 8;
+          return true;
         });
 
         this.state.ripples = this.state.ripples.filter(ripple => {
           ripple.life -= dt;
           if (ripple.life <= 0) return false;
           const progress = 1 - ripple.life / ripple.maxLife;
+          const radius = 2 + progress * ripple.radius;
+          ripple.y = height - 3;
+          this.bounce(ripple, radius + 1, 4);
           ctx.beginPath();
-          ctx.ellipse(ripple.x, height - 1.5, 2 + progress * ripple.radius, 0.5 + progress * 1.5, 0, Math.PI, Math.PI * 2);
-          ctx.strokeStyle = this.rgba(palette.cool, (1 - progress) * 0.36 * strength);
+          ctx.ellipse(ripple.x, ripple.y, radius, 0.5 + progress * 1.5, 0, Math.PI, Math.PI * 2);
+          ctx.strokeStyle = this.rgba(palette.cool, (1 - progress) * 0.44 * strength);
           ctx.lineWidth = 0.7;
           ctx.stroke();
           return true;
@@ -3409,21 +3564,26 @@
       }
 
       spawnRainImpact(x, y, speed) {
-        const amount = 2 + Math.floor(this.random() * 3);
+        const limit = this.thumbnail ? 24 : this.width < 600 ? 80 : 120;
+        const amount = Math.max(0, Math.min(limit - this.state.splashes.length, (this.thumbnail ? 2 : 4) + Math.floor(this.random() * (this.thumbnail ? 2 : 4))));
+        const jumpScale = this.thumbnail ? 0.65 : Math.min(1, Math.max(0.4, this.height / 160));
+        const wind = (this.random() - 0.5) * 10;
         this.impactCount++;
         this.splashParticleCount += amount;
         for (let index = 0; index < amount; index++) {
           const outward = (index / Math.max(1, amount - 1) - 0.5) * 2;
-          const life = 0.34 + this.random() * 0.34;
+          const life = 0.75 + this.random() * 0.45;
           this.state.splashes.push({
-            x, y, vx: outward * (8 + this.random() * 19) + (this.random() - 0.5) * 7,
-            vy: -(12 + this.random() * Math.min(30, speed * 0.18)), radius: 0.6 + this.random() * 0.8,
-            life, maxLife: life, bounces: 0
+            x, y, vx: (outward * (14 + this.random() * 26) + wind + (this.random() - 0.5) * 9) * jumpScale,
+            vy: -(28 + this.random() * 28 + speed * 0.06) * jumpScale,
+            radius: (0.65 + this.random() * 1.2) * (this.thumbnail ? 0.7 : 1),
+            brightness: 0.55 + this.random() * 0.3, delay: this.random() * 0.06,
+            rebound: 0.42 + this.random() * 0.16, life, maxLife: life, bounces: 0
           });
         }
-        if (this.random() < 0.34) {
-          const life = 0.38 + this.random() * 0.22;
-          this.state.ripples.push({ x, life, maxLife: life, radius: 5 + this.random() * 8 });
+        if (this.state.ripples.length < 24 && this.random() < 0.55) {
+          const life = 0.45 + this.random() * 0.4;
+          this.state.ripples.push({ x, life, maxLife: life, radius: 8 + this.random() * 10 });
         }
       }
 
@@ -3469,15 +3629,7 @@
           particle.vy *= Math.pow(0.993, dt * 60);
           particle.x += particle.vx * dt;
           particle.y += particle.vy * dt;
-          const margin = 4;
-          if (particle.x <= margin || particle.x >= w - margin) {
-            particle.x = Math.max(margin, Math.min(w - margin, particle.x));
-            particle.vx *= -1;
-          }
-          if (particle.y <= margin || particle.y >= h - margin) {
-            particle.y = Math.max(margin, Math.min(h - margin, particle.y));
-            particle.vy *= -1;
-          }
+          this.bounce(particle, particle.radius * (0.82 + particle.depth * 0.42) * (this.thumbnail ? 3.2 : 4.5));
         });
 
         const connectionDistance = this.thumbnail
@@ -3575,12 +3727,13 @@
       drawDandelion(dt, time) {
         const { ctx, width: w, height: h, palette } = this;
         this.state.seeds.forEach((seed, index) => {
-          seed.x += seed.speed * dt;
-          if (seed.x > w + seed.size * 3) Object.assign(seed, this.makeSeed(index, false));
-          const y = seed.baseY + Math.sin(time * 0.52 + seed.phase + seed.x * 0.018) * seed.wave;
+          seed.size = Math.min(seed.size, Math.min(w, h) / 5);
+          seed.x += seed.vx * dt;
+          seed.y += seed.vy * (1 + Math.sin(time * 0.52 + seed.phase) * 0.35) * dt;
+          this.bounce(seed, seed.size * 1.5 + 1);
           const angle = seed.rotation + Math.sin(time * 0.38 + seed.phase) * 0.42;
           ctx.save();
-          ctx.translate(seed.x, y);
+          ctx.translate(seed.x, seed.y);
           ctx.rotate(angle);
           ctx.strokeStyle = this.rgba(palette.ink, 0.42 * this.intensity);
           ctx.lineWidth = this.thumbnail ? 0.45 : 0.75;
@@ -3598,9 +3751,9 @@
 
       drawEclipse(time) {
         const { ctx, width: w, height: h, palette } = this;
-        const radius = Math.max(34, Math.min(w, h) * (this.thumbnail ? 0.72 : 0.9));
-        const x = w * 0.76 + Math.sin(time * 0.055) * w * 0.035;
-        const y = h * 0.26 + Math.cos(time * 0.048) * h * 0.05;
+        const radius = Math.min(w, h) * 0.42;
+        const x = w / 2 + Math.sin(time * 0.055) * Math.max(0, w / 2 - radius - (this.cornerInset || 0));
+        const y = h / 2 + Math.cos(time * 0.048) * Math.max(0, h / 2 - radius - (this.cornerInset || 0));
         const glow = ctx.createRadialGradient(x, y, radius * 0.26, x, y, radius);
         glow.addColorStop(0.22, this.rgba(palette.warm, 0));
         glow.addColorStop(0.38, this.rgba(palette.warm, (0.3 + Math.sin(time * 0.19) * 0.04) * this.intensity));
@@ -3614,20 +3767,25 @@
         ctx.fill();
       }
 
-      drawFireflies(time) {
+      drawFireflies(dt, time) {
         const { ctx, width: w, height: h, palette } = this;
-        this.state.lights.forEach((light, index) => {
-          const x = light.x * w + Math.sin(time * light.speed + light.phase) * light.dx;
-          const y = light.y * h + Math.cos(time * light.speed * 0.76 + light.phase) * light.dy;
-          const pulse = Math.max(0, Math.sin(time * (0.7 + index * 0.045) + light.phase));
-          const alpha = (0.12 + pulse * 0.5) * this.intensity;
-          const glow = ctx.createRadialGradient(x, y, 0, x, y, light.radius * (3 + pulse * 1.8));
+        this.state.lights.forEach(light => {
+          light.x += light.vx * (1 + Math.sin(time * light.speed + light.phase) * 0.45) * dt;
+          light.y += light.vy * (1 + Math.cos(time * light.speed * 0.76 + light.phase) * 0.45) * dt;
+          this.bounce(light, light.radius * light.glow * 1.3);
+          const { x, y } = light;
+          const pulse = 0.5 + Math.sin(time * light.flickerSpeed + light.phase) * 0.32
+            + Math.sin(time * light.flickerSpeed * 2.17 + light.flickerPhase) * 0.18;
+          const flicker = 1 - light.flickerDepth * (0.5 + Math.sin(time * light.flickerSpeed * 0.61 + light.flickerPhase) * 0.5);
+          const alpha = (0.1 + pulse * 0.75) * light.brightness * flicker * this.intensity;
+          const glowRadius = light.radius * light.glow * (0.85 + pulse * 0.45);
+          const glow = ctx.createRadialGradient(x, y, 0, x, y, glowRadius);
           glow.addColorStop(0, this.rgba(palette.warm, alpha));
           glow.addColorStop(0.22, this.rgba(palette.warm, alpha * 0.6));
           glow.addColorStop(1, this.rgba(palette.warm, 0));
           ctx.fillStyle = glow;
           ctx.beginPath();
-          ctx.arc(x, y, light.radius * (3.4 + pulse * 2), 0, Math.PI * 2);
+          ctx.arc(x, y, glowRadius, 0, Math.PI * 2);
           ctx.fill();
           ctx.beginPath();
           ctx.arc(x, y, Math.max(0.45, light.radius * 0.5), 0, Math.PI * 2);
@@ -3643,7 +3801,7 @@
 
     var canvasMotionSwapTimer;
     function renderBackgroundMotion(motion, intensity = 0.6) {
-      const layers = [...document.querySelectorAll(".widget-motion-layer")];
+      const layers = [document.getElementById("widgetMotionLayer")].filter(Boolean);
       if (!layers.length) return;
       clearTimeout(canvasMotionSwapTimer);
       if (intensity <= 0) {
@@ -3952,8 +4110,8 @@
           const shell = previewFrame.contentDocument?.querySelector(".widget-shell");
           if (!shell) return;
           const measured = Math.ceil(shell.getBoundingClientRect().height) + 2;
-          if (!Number.isFinite(measured) || measured < 160) return;
-          const nextHeight = Math.min(720, measured);
+          if (!Number.isFinite(measured) || measured < 64) return;
+          const nextHeight = Math.min(720, Math.max(128, measured));
           if (Math.abs(previewFrame.getBoundingClientRect().height - nextHeight) > 1) previewFrame.style.height = `${nextHeight}px`;
         } catch { /* Cross-origin hosts retain the responsive CSS fallback. */ }
       }
@@ -4226,12 +4384,15 @@
         if (url.origin !== window.location.origin || url.pathname !== window.location.pathname) return;
         const nextConfig = getWidgetConfig(url.searchParams);
         const quoteSettingsChanged = ["source", "category", "maxLength"].some(key => config[key] !== nextConfig[key]);
+        const secondsOnly = Object.keys(nextConfig).every(key => key === "showSeconds" || config[key] === nextConfig[key]);
         Object.assign(config, nextConfig);
         if (quoteSettingsChanged) reloadQuote();
-        applyAppearance();
-        fitQuote();
+        if (!secondsOnly) {
+          applyAppearance();
+          fitQuote();
+          updateWeatherFormat();
+        }
         updateClock();
-        updateWeatherFormat();
         // Keep reloads on the latest settings without navigating the preview.
         try { window.history.replaceState(null, "", url); } catch { /* Local-file history can be restricted. */ }
       });
@@ -4264,10 +4425,9 @@
         creditsFitFrame = 0;
         const backStyle = getComputedStyle(quoteBack);
         const availableWidth = Math.max(1, quoteBack.clientWidth - (parseFloat(backStyle.paddingLeft) || 0) - (parseFloat(backStyle.paddingRight) || 0));
-        const availableHeight = Math.max(1, quoteBack.clientHeight - (parseFloat(backStyle.paddingTop) || 0) - (parseFloat(backStyle.paddingBottom) || 0));
         const contentWidth = Math.max(1, creditsPopup.offsetWidth, creditsPopup.scrollWidth);
-        const contentHeight = Math.max(1, creditsPopup.offsetHeight, creditsPopup.scrollHeight);
-        const scale = Math.min(1, availableWidth / contentWidth, availableHeight / contentHeight);
+        // Overflow scrolls vertically instead of shrinking the text below a readable size.
+        const scale = Math.min(1, availableWidth / contentWidth);
         creditsPopup.style.setProperty("--credits-fit-scale", String(Math.max(0.01, Math.floor(scale * 1000) / 1000)));
       }
 
@@ -4388,7 +4548,7 @@
         const viewportSpace = document.documentElement.clientHeight - verticalSpace(shell);
         // Measure the clock's contents, not its grid-stretched card, to avoid a sizing feedback loop.
         const clockHeight = clockInner.offsetHeight + verticalSpace(clock);
-        const stacked = window.matchMedia("(max-width: 680px)").matches;
+        const stacked = getComputedStyle(shell).gridTemplateColumns.split(" ").length === 1;
         const gap = parseFloat(getComputedStyle(shell).rowGap) || 0;
         const panelBudget = stacked ? Math.max(110, viewportSpace - clockHeight - gap) : Math.max(viewportSpace, clockHeight);
         const contentBudget = Math.max(0, panelBudget - verticalSpace(front));
@@ -4430,6 +4590,8 @@
       let lastClockHeight = clockInner.offsetHeight;
       const resize = new ResizeObserver(() => {
         if (panel.clientWidth !== lastWidth || clockInner.offsetHeight !== lastClockHeight) {
+          // A quote transition may have frozen the card at its previous viewport size.
+          if (panel.clientWidth !== lastWidth) panel.style.removeProperty("min-height");
           lastWidth = panel.clientWidth;
           lastClockHeight = clockInner.offsetHeight;
           schedule();
@@ -4576,6 +4738,57 @@
       const automaticLocation = document.getElementById("automaticLocation");
       const resultsEl = document.getElementById("locationResults");
       const statusEl = document.getElementById("locationSearchStatus");
+      // A body-level portal escapes the cards' clipping and isolated stacking contexts.
+      // The optional top layer also keeps the form above transformed embed content.
+      document.body.append(locationForm);
+      if (typeof locationForm.showPopover === "function") locationForm.setAttribute("popover", "manual");
+      locationEl.setAttribute("aria-controls", locationForm.id);
+      locationEl.setAttribute("aria-expanded", "false");
+      let positionFrame = 0;
+      function positionLocationForm() {
+        positionFrame = 0;
+        if (!picker.open) return;
+        const viewport = window.visualViewport;
+        const left = (viewport?.offsetLeft || 0) + 8;
+        const top = (viewport?.offsetTop || 0) + 8;
+        const width = Math.max(1, (viewport?.width || document.documentElement.clientWidth) - 16);
+        const height = Math.max(1, (viewport?.height || document.documentElement.clientHeight) - 16);
+        locationForm.style.width = `${Math.min(320, width)}px`;
+        locationForm.style.maxHeight = `${Math.min(360, height)}px`;
+        const anchor = locationEl.getBoundingClientRect();
+        const rect = locationForm.getBoundingClientRect();
+        const below = anchor.bottom + 8;
+        const above = anchor.top - rect.height - 8;
+        const spaceBelow = top + height - below;
+        const spaceAbove = anchor.top - 8 - top;
+        const preferredTop = spaceBelow >= rect.height || spaceBelow >= spaceAbove ? below : above;
+        locationForm.style.left = `${Math.max(left, Math.min(left + width - rect.width, anchor.right - rect.width))}px`;
+        locationForm.style.top = `${Math.max(top, Math.min(top + height - rect.height, preferredTop))}px`;
+        locationForm.style.right = "auto";
+        locationForm.style.bottom = "auto";
+      }
+      function scheduleLocationPosition() {
+        if (picker.open && !positionFrame) positionFrame = requestAnimationFrame(positionLocationForm);
+      }
+      picker.addEventListener("toggle", () => {
+        locationEl.setAttribute("aria-expanded", String(picker.open));
+        locationForm.hidden = !picker.open;
+        if (picker.open) {
+          locationForm.showPopover?.();
+          positionLocationForm();
+          locationInput.focus({ preventScroll: true });
+          if (!window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
+            locationForm.animate([{ opacity: 0 }, { opacity: 1 }], { duration: 160, easing: "ease-out" });
+          }
+        } else locationForm.hidePopover?.();
+      });
+      const popupResize = new ResizeObserver(scheduleLocationPosition);
+      popupResize.observe(locationForm);
+      popupResize.observe(locationEl);
+      window.addEventListener("resize", scheduleLocationPosition, { passive: true });
+      document.addEventListener("scroll", scheduleLocationPosition, { capture: true, passive: true });
+      window.visualViewport?.addEventListener("resize", scheduleLocationPosition, { passive: true });
+      window.visualViewport?.addEventListener("scroll", scheduleLocationPosition, { passive: true });
       let activePlace = null;
       let displayedLocationName = "";
       let requestVersion = 0;
@@ -5083,9 +5296,10 @@
       setInterval(() => {
         if (activePlace && !document.hidden) showWeather(activePlace);
       }, 15 * 60 * 1000);
-      document.addEventListener("click", event => {
-        if (!picker.contains(event.target)) closePopup(picker);
-      });
+      document.addEventListener("pointerdown", event => {
+        const path = event.composedPath();
+        if (!path.includes(picker) && !path.includes(locationForm)) closePopup(picker);
+      }, true);
       document.addEventListener("keydown", event => {
         if (event.key === "Escape" && picker.open) {
           closePopup(picker);
@@ -5209,18 +5423,18 @@
         // Hold the card's current footprint while both quote and author transition.
         quotePanel.style.minHeight = `${quotePanel.getBoundingClientRect().height}px`;
         const exitAnimation = quoteContent.animate([
-          { opacity: 1, transform: "translateY(0) scale(1)", filter: "blur(0)" },
-          { opacity: 0, transform: "translateY(-4px) scale(.992)", filter: "blur(2px)" }
-        ], { duration: 180, easing: "cubic-bezier(.4,0,1,1)", fill: "forwards" });
+          { opacity: 1, transform: "translateY(0)" },
+          { opacity: 0, transform: "translateY(-2px)" }
+        ], { duration: 100, easing: "ease-in", fill: "forwards" });
         await exitAnimation.finished;
         exitAnimation.cancel();
         if (version !== requestVersion) return;
 
         showQuote(quote);
         const enterAnimation = quoteContent.animate([
-          { opacity: 0, transform: "translateY(6px) scale(.992)", filter: "blur(2px)" },
-          { opacity: 1, transform: "translateY(0) scale(1)", filter: "blur(0)" }
-        ], { duration: 230, easing: "cubic-bezier(.16,.78,.25,1)" });
+          { opacity: 0, transform: "translateY(3px)" },
+          { opacity: 1, transform: "translateY(0)" }
+        ], { duration: 180, easing: "cubic-bezier(.2,.7,.3,1)" });
         await enterAnimation.finished;
         if (version !== requestVersion) return;
         if (version === requestVersion) quotePanel.style.removeProperty("min-height");
